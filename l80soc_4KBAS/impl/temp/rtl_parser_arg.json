@@ -1,6 +1,10 @@
 {
  "Files" : [
   {
+   "Path" : "C:/kitahard/Tang_Nano_9K/l80soc/src/intr_ctrl.v",
+   "Type" : "verilog"
+  },
+  {
    "Path" : "C:/kitahard/Tang_Nano_9K/l80soc/src/l80soc.v",
    "Type" : "verilog"
   },
@@ -18,10 +22,6 @@
   },
   {
    "Path" : "C:/kitahard/Tang_Nano_9K/l80soc/src/uart.v",
-   "Type" : "verilog"
-  },
-  {
-   "Path" : "C:/kitahard/Tang_Nano_9K/l80soc/src/intr_ctrl.v",
    "Type" : "verilog"
   }
  ],
