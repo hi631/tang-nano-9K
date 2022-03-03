@@ -1,0 +1,36 @@
+{
+ "Files" : [
+  {
+   "Path" : "C:/kitahard/Tang_Nano_9K/l80soc/src/l80soc.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "C:/kitahard/Tang_Nano_9K/l80soc/src/light8080.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "C:/kitahard/Tang_Nano_9K/l80soc/src/micro_rom.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "C:/kitahard/Tang_Nano_9K/l80soc/src/ram_image_4Kbas+.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "C:/kitahard/Tang_Nano_9K/l80soc/src/uart.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "C:/kitahard/Tang_Nano_9K/l80soc/src/intr_ctrl.v",
+   "Type" : "verilog"
+  }
+ ],
+ "IncludePath" : [
+
+ ],
+ "LoopLimit" : 2000,
+ "ResultFile" : "C:/kitahard/Tang_Nano_9K/l80soc/impl/temp/rtl_parser.result",
+ "Top" : "l80soc",
+ "VerilogStd" : "sysv",
+ "VhdlStd" : "vhdl_93"
+}

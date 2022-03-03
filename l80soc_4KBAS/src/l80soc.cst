@@ -1,0 +1,6 @@
+
+IO_LOC "CLK_27M" 52;
+IO_LOC "RESET_n" 4;
+
+IO_LOC "txd" 17;
+IO_LOC "rxd" 18;

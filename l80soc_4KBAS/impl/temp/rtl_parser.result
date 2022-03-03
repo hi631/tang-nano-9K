@@ -1,0 +1,54 @@
+[
+ {
+  "InstFile" : "C:/kitahard/Tang_Nano_9K/l80soc/src/l80soc.v",
+  "InstLine" : 31,
+  "InstName" : "l80soc",
+  "ModuleFile" : "C:/kitahard/Tang_Nano_9K/l80soc/src/l80soc.v",
+  "ModuleLine" : 31,
+  "ModuleName" : "l80soc",
+  "SubInsts" : [
+   {
+    "InstFile" : "C:/kitahard/Tang_Nano_9K/l80soc/src/l80soc.v",
+    "InstLine" : 92,
+    "InstName" : "cpu",
+    "ModuleFile" : "C:/kitahard/Tang_Nano_9K/l80soc/src/light8080.v",
+    "ModuleLine" : 61,
+    "ModuleName" : "light8080",
+    "SubInsts" : [
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/l80soc/src/light8080.v",
+      "InstLine" : 378,
+      "InstName" : "rom",
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/l80soc/src/micro_rom.v",
+      "ModuleLine" : 8,
+      "ModuleName" : "micro_rom"
+     }
+    ]
+   },
+   {
+    "InstFile" : "C:/kitahard/Tang_Nano_9K/l80soc/src/l80soc.v",
+    "InstLine" : 114,
+    "InstName" : "ram",
+    "ModuleFile" : "C:/kitahard/Tang_Nano_9K/l80soc/src/ram_image_4Kbas+.v",
+    "ModuleLine" : 6,
+    "ModuleName" : "ram_image"
+   },
+   {
+    "InstFile" : "C:/kitahard/Tang_Nano_9K/l80soc/src/l80soc.v",
+    "InstLine" : 194,
+    "InstName" : "intrc",
+    "ModuleFile" : "C:/kitahard/Tang_Nano_9K/l80soc/src/intr_ctrl.v",
+    "ModuleLine" : 35,
+    "ModuleName" : "intr_ctrl"
+   },
+   {
+    "InstFile" : "C:/kitahard/Tang_Nano_9K/l80soc/src/l80soc.v",
+    "InstLine" : 208,
+    "InstName" : "uart",
+    "ModuleFile" : "C:/kitahard/Tang_Nano_9K/l80soc/src/uart.v",
+    "ModuleLine" : 6,
+    "ModuleName" : "uart"
+   }
+  ]
+ }
+]
