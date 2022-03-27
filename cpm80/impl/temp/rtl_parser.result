@@ -1,0 +1,122 @@
+[
+ {
+  "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/cpm80_top.v",
+  "InstLine" : 4,
+  "InstName" : "cpm80_top",
+  "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/cpm80_top.v",
+  "ModuleLine" : 4,
+  "ModuleName" : "cpm80_top",
+  "SubInsts" : [
+   {
+    "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/cpm80_top.v",
+    "InstLine" : 45,
+    "InstName" : "cpu1",
+    "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/Components/TV80/tv80s.v",
+    "ModuleLine" : 25,
+    "ModuleName" : "tv80s",
+    "SubInsts" : [
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/Components/TV80/tv80s.v",
+      "InstLine" : 70,
+      "InstName" : "i_tv80_core",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/Components/TV80/tv80_core.v",
+      "ModuleLine" : 25,
+      "ModuleName" : "tv80_core",
+      "SubInsts" : [
+       {
+        "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/Components/TV80/tv80_core.v",
+        "InstLine" : 219,
+        "InstName" : "i_mcode",
+        "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/Components/TV80/tv80_mcode.v",
+        "ModuleLine" : 25,
+        "ModuleName" : "tv80_mcode"
+       },
+       {
+        "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/Components/TV80/tv80_core.v",
+        "InstLine" : 275,
+        "InstName" : "i_alu",
+        "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/Components/TV80/tv80_alu.v",
+        "ModuleLine" : 25,
+        "ModuleName" : "tv80_alu"
+       },
+       {
+        "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/Components/TV80/tv80_core.v",
+        "InstLine" : 1016,
+        "InstName" : "i_reg",
+        "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/Components/TV80/tv80_reg.v",
+        "ModuleLine" : 25,
+        "ModuleName" : "tv80_reg"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/cpm80_top.v",
+    "InstLine" : 52,
+    "InstName" : "rom1",
+    "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/gowin_prom/gowin_prom.v",
+    "ModuleLine" : 9,
+    "ModuleName" : "Gowin_pROM"
+   },
+   {
+    "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/cpm80_top.v",
+    "InstLine" : 56,
+    "InstName" : "ram1",
+    "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/gowin_sp/gowin_sp.v",
+    "ModuleLine" : 9,
+    "ModuleName" : "Gowin_SP"
+   },
+   {
+    "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/cpm80_top.v",
+    "InstLine" : 61,
+    "InstName" : "io1",
+    "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/Components/bufferedUART.vhd",
+    "ModuleLine" : 25,
+    "ModuleName" : "bufferedUART"
+   },
+   {
+    "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/cpm80_top.v",
+    "InstLine" : 68,
+    "InstName" : "io2",
+    "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/Components/bufferedUART.vhd",
+    "ModuleLine" : 25,
+    "ModuleName" : "bufferedUART"
+   },
+   {
+    "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/cpm80_top.v",
+    "InstLine" : 75,
+    "InstName" : "sd1",
+    "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/Components/sd_controller.vhd",
+    "ModuleLine" : 33,
+    "ModuleName" : "sd_controller"
+   },
+   {
+    "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/cpm80_top.v",
+    "InstLine" : 174,
+    "InstName" : "u_psram_top",
+    "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/psram_memory_interface_hs/psram_memory_interface_hs.v",
+    "ModuleLine" : 5192,
+    "ModuleName" : "PSRAM_Memory_Interface_HS_Top",
+    "SubInsts" : [
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/psram_memory_interface_hs/psram_memory_interface_hs.v",
+      "InstLine" : 5235,
+      "InstName" : "u_psram_top",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/psram_memory_interface_hs/psram_memory_interface_hs.v",
+      "ModuleLine" : 1,
+      "ModuleName" : "~psram_top.PSRAM_Memory_Interface_HS_Top"
+     }
+    ]
+   },
+   {
+    "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/cpm80_top.v",
+    "InstLine" : 187,
+    "InstName" : "clkgen",
+    "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/gowin_rpll/gowin_rpll.v",
+    "ModuleLine" : 9,
+    "ModuleName" : "Gowin_rPLL"
+   }
+  ]
+ }
+]

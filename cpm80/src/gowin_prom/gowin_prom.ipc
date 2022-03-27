@@ -1,0 +1,15 @@
+[General]
+ipc_version=4
+file=gowin_prom
+module=Gowin_pROM
+target_device=gw1nr9c-004
+type=ram_prom
+version=1.0
+
+[Config]
+DEPTH=8192
+LANG=0
+READ=0
+RESET_MODE=true
+WIDTH=8
+MEM_FILE=../ROM/basMon.mi

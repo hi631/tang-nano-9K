@@ -1,0 +1,22 @@
+<?xml version="1" encoding="UTF-8"?>
+<!DOCTYPE gowin-fpga-project>
+<Project>
+    <Template>FPGA</Template>
+    <Version>5</Version>
+    <Device name="GW1NR-9C" pn="GW1NR-LV9QN88PC6/I5">gw1nr9c-004</Device>
+    <FileList>
+        <File path="src/Components/TV80/tv80_alu.v" type="file.verilog" enable="1"/>
+        <File path="src/Components/TV80/tv80_core.v" type="file.verilog" enable="1"/>
+        <File path="src/Components/TV80/tv80_mcode.v" type="file.verilog" enable="1"/>
+        <File path="src/Components/TV80/tv80_reg.v" type="file.verilog" enable="1"/>
+        <File path="src/Components/TV80/tv80s.v" type="file.verilog" enable="1"/>
+        <File path="src/cpm80_top.v" type="file.verilog" enable="1"/>
+        <File path="src/gowin_prom/gowin_prom.v" type="file.verilog" enable="1"/>
+        <File path="src/gowin_rpll/gowin_rpll.v" type="file.verilog" enable="1"/>
+        <File path="src/gowin_sp/gowin_sp.v" type="file.verilog" enable="1"/>
+        <File path="src/psram_memory_interface_hs/psram_memory_interface_hs.v" type="file.verilog" enable="1"/>
+        <File path="src/Components/bufferedUART.vhd" type="file.vhdl" enable="1"/>
+        <File path="src/Components/sd_controller.vhd" type="file.vhdl" enable="1"/>
+        <File path="src/cpm80.cst" type="file.cst" enable="1"/>
+    </FileList>
+</Project>

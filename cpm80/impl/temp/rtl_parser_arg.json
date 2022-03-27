@@ -1,0 +1,62 @@
+{
+ "Files" : [
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/Components/TV80/tv80_alu.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/Components/TV80/tv80_core.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/Components/TV80/tv80_mcode.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/Components/TV80/tv80_reg.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/Components/TV80/tv80s.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/cpm80_top.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/gowin_prom/gowin_prom.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/gowin_rpll/gowin_rpll.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/gowin_sp/gowin_sp.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/psram_memory_interface_hs/psram_memory_interface_hs.v",
+   "Type" : "verilog"
+  },
+  {
+   "Library" : "work",
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/Components/bufferedUART.vhd",
+   "Type" : "vhdl"
+  },
+  {
+   "Library" : "work",
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/src/Components/sd_controller.vhd",
+   "Type" : "vhdl"
+  }
+ ],
+ "IncludePath" : [
+
+ ],
+ "LoopLimit" : 2000,
+ "ResultFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm80/impl/temp/rtl_parser.result",
+ "Top" : "",
+ "VerilogStd" : "verilog_2001",
+ "VhdlStd" : "vhdl_93"
+}
