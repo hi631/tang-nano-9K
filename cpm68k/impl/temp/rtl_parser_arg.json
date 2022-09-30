@@ -1,0 +1,89 @@
+{
+ "Files" : [
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/acia_6850.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/cpu_j68.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/gowin_prom/gowin_prom.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/gowin_prom/gowin_prom_decrom.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/gowin_prom/gowin_prom_inst.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/gowin_rpll/gowin_rpll.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/gowin_sp/gowin_sp_8x256B.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/gowin_sp/gowin_sp_8x4K.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/gowin_sp/gowin_sp_8x64B.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/j68_addsub_32.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/j68_alu.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/j68_decode.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/j68_flags.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/j68_loop.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/j68_mem_io.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/j68_test.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/psram_memory_interface_hs/psram_memory_interface_hs.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/soc_j68.v",
+   "Type" : "verilog"
+  },
+  {
+   "Library" : "work",
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/sd_controller.vhd",
+   "Type" : "vhdl"
+  }
+ ],
+ "IncludePath" : [
+
+ ],
+ "LoopLimit" : 2000,
+ "ResultFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/impl/temp/rtl_parser.result",
+ "Top" : "soc_j68",
+ "VerilogStd" : "verilog_2001",
+ "VhdlStd" : "vhdl_93"
+}

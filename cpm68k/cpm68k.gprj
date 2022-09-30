@@ -1,0 +1,32 @@
+<?xml version="1" encoding="UTF-8"?>
+<!DOCTYPE gowin-fpga-project>
+<Project>
+    <Template>FPGA</Template>
+    <Version>5</Version>
+    <Device name="GW1NR-9C" pn="GW1NR-LV9QN88PC6/I5">gw1nr9c-004</Device>
+    <FileList>
+        <File path="src/acia_6850.v" type="file.verilog" enable="1"/>
+        <File path="src/cpu_j68.v" type="file.verilog" enable="1"/>
+        <File path="src/gowin_prom/gowin_prom.v" type="file.verilog" enable="1"/>
+        <File path="src/gowin_prom/gowin_prom_decrom.v" type="file.verilog" enable="1"/>
+        <File path="src/gowin_prom/gowin_prom_inst.v" type="file.verilog" enable="1"/>
+        <File path="src/gowin_rpll/gowin_rpll.v" type="file.verilog" enable="1"/>
+        <File path="src/gowin_sp/gowin_sp_8x256B.v" type="file.verilog" enable="1"/>
+        <File path="src/gowin_sp/gowin_sp_8x4K.v" type="file.verilog" enable="1"/>
+        <File path="src/gowin_sp/gowin_sp_8x64B.v" type="file.verilog" enable="1"/>
+        <File path="src/j68_addsub_32.v" type="file.verilog" enable="1"/>
+        <File path="src/j68_alu.v" type="file.verilog" enable="1"/>
+        <File path="src/j68_decode.v" type="file.verilog" enable="1"/>
+        <File path="src/j68_flags.v" type="file.verilog" enable="1"/>
+        <File path="src/j68_loop.v" type="file.verilog" enable="1"/>
+        <File path="src/j68_mem_io.v" type="file.verilog" enable="1"/>
+        <File path="src/j68_test.v" type="file.verilog" enable="1"/>
+        <File path="src/psram_memory_interface_hs/psram_memory_interface_hs.v" type="file.verilog" enable="1"/>
+        <File path="src/soc_j68.v" type="file.verilog" enable="1"/>
+        <File path="src/sd_controller.vhd" type="file.vhdl" enable="1"/>
+        <File path="src/cpm68k.cst" type="file.cst" enable="1"/>
+        <File path="src/cpm68k_brk.rao" type="file.gao" enable="0"/>
+        <File path="src/cpm68k_mem.rao" type="file.gao" enable="0"/>
+        <File path="src/cpm68k_res.rao" type="file.gao" enable="1"/>
+    </FileList>
+</Project>

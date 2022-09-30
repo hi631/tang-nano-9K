@@ -1,0 +1,256 @@
+[
+ {
+  "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/soc_j68.v",
+  "InstLine" : 21,
+  "InstName" : "soc_j68",
+  "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/soc_j68.v",
+  "ModuleLine" : 21,
+  "ModuleName" : "soc_j68",
+  "SubInsts" : [
+   {
+    "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/soc_j68.v",
+    "InstLine" : 115,
+    "InstName" : "U_j68",
+    "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/cpu_j68.v",
+    "ModuleLine" : 18,
+    "ModuleName" : "cpu_j68",
+    "SubInsts" : [
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/cpu_j68.v",
+      "InstLine" : 602,
+      "InstName" : "U_alu",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/j68_alu.v",
+      "ModuleLine" : 20,
+      "ModuleName" : "j68_alu"
+     },
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/cpu_j68.v",
+      "InstLine" : 629,
+      "InstName" : "U_flags",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/j68_flags.v",
+      "ModuleLine" : 20,
+      "ModuleName" : "j68_flags"
+     },
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/cpu_j68.v",
+      "InstLine" : 651,
+      "InstName" : "U_test",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/j68_test.v",
+      "ModuleLine" : 20,
+      "ModuleName" : "j68_test"
+     },
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/cpu_j68.v",
+      "InstLine" : 664,
+      "InstName" : "U_loop",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/j68_loop.v",
+      "ModuleLine" : 20,
+      "ModuleName" : "j68_loop"
+     },
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/cpu_j68.v",
+      "InstLine" : 686,
+      "InstName" : "U_mem_io",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/j68_mem_io.v",
+      "ModuleLine" : 20,
+      "ModuleName" : "j68_mem_io",
+      "SubInsts" : [
+       {
+        "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/j68_mem_io.v",
+        "InstLine" : 380,
+        "InstName" : "U_addsub",
+        "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/j68_addsub_32.v",
+        "ModuleLine" : 20,
+        "ModuleName" : "j68_addsub_32"
+       },
+       {
+        "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/j68_mem_io.v",
+        "InstLine" : 563,
+        "InstName" : "U_decode",
+        "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/j68_decode.v",
+        "ModuleLine" : 20,
+        "ModuleName" : "j68_decode",
+        "SubInsts" : [
+         {
+          "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/j68_decode.v",
+          "InstLine" : 346,
+          "InstName" : "decrom",
+          "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/gowin_prom/gowin_prom_decrom.v",
+          "ModuleLine" : 9,
+          "ModuleName" : "Gowin_pROM_decrom"
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/cpu_j68.v",
+      "InstLine" : 729,
+      "InstName" : "inst",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/gowin_prom/gowin_prom_inst.v",
+      "ModuleLine" : 9,
+      "ModuleName" : "Gowin_pROM_inst"
+     },
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/cpu_j68.v",
+      "InstLine" : 733,
+      "InstName" : "cpuregsH",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/gowin_sp/gowin_sp_8x64B.v",
+      "ModuleLine" : 9,
+      "ModuleName" : "Gowin_SP_8x64B"
+     },
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/cpu_j68.v",
+      "InstLine" : 738,
+      "InstName" : "cpuregsL",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/gowin_sp/gowin_sp_8x64B.v",
+      "ModuleLine" : 9,
+      "ModuleName" : "Gowin_SP_8x64B"
+     }
+    ]
+   },
+   {
+    "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/soc_j68.v",
+    "InstLine" : 170,
+    "InstName" : "clkgen",
+    "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/gowin_rpll/gowin_rpll.v",
+    "ModuleLine" : 9,
+    "ModuleName" : "Gowin_rPLL"
+   },
+   {
+    "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/soc_j68.v",
+    "InstLine" : 341,
+    "InstName" : "mon68k",
+    "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/gowin_prom/gowin_prom.v",
+    "ModuleLine" : 9,
+    "ModuleName" : "Gowin_pROM"
+   },
+   {
+    "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/soc_j68.v",
+    "InstLine" : 357,
+    "InstName" : "monramL",
+    "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/gowin_sp/gowin_sp_8x4K.v",
+    "ModuleLine" : 9,
+    "ModuleName" : "Gowin_SP_8X4K"
+   },
+   {
+    "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/soc_j68.v",
+    "InstLine" : 360,
+    "InstName" : "monramH",
+    "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/gowin_sp/gowin_sp_8x4K.v",
+    "ModuleLine" : 9,
+    "ModuleName" : "Gowin_SP_8X4K"
+   },
+   {
+    "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/soc_j68.v",
+    "InstLine" : 439,
+    "InstName" : "u_psram_top",
+    "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/psram_memory_interface_hs/psram_memory_interface_hs.v",
+    "ModuleLine" : 5192,
+    "ModuleName" : "PSRAM_Memory_Interface_HS_Top",
+    "SubInsts" : [
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/psram_memory_interface_hs/psram_memory_interface_hs.v",
+      "InstLine" : 5235,
+      "InstName" : "u_psram_top",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/psram_memory_interface_hs/psram_memory_interface_hs.v",
+      "ModuleLine" : 1,
+      "ModuleName" : "~psram_top.PSRAM_Memory_Interface_HS_Top"
+     }
+    ]
+   },
+   {
+    "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/soc_j68.v",
+    "InstLine" : 452,
+    "InstName" : "sdcramL",
+    "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/gowin_sp/gowin_sp_8x256B.v",
+    "ModuleLine" : 9,
+    "ModuleName" : "Gowin_SP_8x256B"
+   },
+   {
+    "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/soc_j68.v",
+    "InstLine" : 455,
+    "InstName" : "sdcramH",
+    "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/gowin_sp/gowin_sp_8x256B.v",
+    "ModuleLine" : 9,
+    "ModuleName" : "Gowin_SP_8x256B"
+   },
+   {
+    "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/soc_j68.v",
+    "InstLine" : 582,
+    "InstName" : "sd1",
+    "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/sd_controller.vhd",
+    "ModuleLine" : 33,
+    "ModuleName" : "sd_controller"
+   },
+   {
+    "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/soc_j68.v",
+    "InstLine" : 603,
+    "InstName" : "U_acia_6850_a",
+    "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/acia_6850.v",
+    "ModuleLine" : 1,
+    "ModuleName" : "acia_6850",
+    "SubInsts" : [
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/acia_6850.v",
+      "InstLine" : 41,
+      "InstName" : "U_acia_6850_ctl",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/acia_6850.v",
+      "ModuleLine" : 109,
+      "ModuleName" : "acia_6850_ctl"
+     },
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/acia_6850.v",
+      "InstLine" : 67,
+      "InstName" : "U_acia_6850_rx",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/acia_6850.v",
+      "ModuleLine" : 278,
+      "ModuleName" : "acia_6850_rx"
+     },
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/acia_6850.v",
+      "InstLine" : 88,
+      "InstName" : "U_acia_6850_tx",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/acia_6850.v",
+      "ModuleLine" : 695,
+      "ModuleName" : "acia_6850_tx"
+     }
+    ]
+   },
+   {
+    "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/soc_j68.v",
+    "InstLine" : 618,
+    "InstName" : "U_acia_6850_b",
+    "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/acia_6850.v",
+    "ModuleLine" : 1,
+    "ModuleName" : "acia_6850",
+    "SubInsts" : [
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/acia_6850.v",
+      "InstLine" : 41,
+      "InstName" : "U_acia_6850_ctl",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/acia_6850.v",
+      "ModuleLine" : 109,
+      "ModuleName" : "acia_6850_ctl"
+     },
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/acia_6850.v",
+      "InstLine" : 67,
+      "InstName" : "U_acia_6850_rx",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/acia_6850.v",
+      "ModuleLine" : 278,
+      "ModuleName" : "acia_6850_rx"
+     },
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/acia_6850.v",
+      "InstLine" : 88,
+      "InstName" : "U_acia_6850_tx",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/cpm68k/src/acia_6850.v",
+      "ModuleLine" : 695,
+      "ModuleName" : "acia_6850_tx"
+     }
+    ]
+   }
+  ]
+ }
+]

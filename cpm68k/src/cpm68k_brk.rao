@@ -1,0 +1,137 @@
+<?xml version="1" encoding="UTF-8"?>
+<GAO_CONFIG>
+    <Version>3.0</Version>
+    <Mode>Standard</Mode>
+    <AoCore index="0" sample_clock="clk" trig_type="0" storage_depth="512" window_num="1" capture_amount="512" trigger_pos="200" module_name="soc_j68" force_trigger_by_falling_edge="false">
+        <SignalList>
+            <Signal>req_brk</Signal>
+            <Bus name="U_j68/U_mem_io/dbg_pc_nxt[10:0]">
+                <Signal>U_j68/U_mem_io/dbg_pc_nxt[10]</Signal>
+                <Signal>U_j68/U_mem_io/dbg_pc_nxt[9]</Signal>
+                <Signal>U_j68/U_mem_io/dbg_pc_nxt[8]</Signal>
+                <Signal>U_j68/U_mem_io/dbg_pc_nxt[7]</Signal>
+                <Signal>U_j68/U_mem_io/dbg_pc_nxt[6]</Signal>
+                <Signal>U_j68/U_mem_io/dbg_pc_nxt[5]</Signal>
+                <Signal>U_j68/U_mem_io/dbg_pc_nxt[4]</Signal>
+                <Signal>U_j68/U_mem_io/dbg_pc_nxt[3]</Signal>
+                <Signal>U_j68/U_mem_io/dbg_pc_nxt[2]</Signal>
+                <Signal>U_j68/U_mem_io/dbg_pc_nxt[1]</Signal>
+                <Signal>U_j68/U_mem_io/dbg_pc_nxt[0]</Signal>
+            </Bus>
+            <Bus name="w_cpu_addr[15:0]">
+                <Signal>w_cpu_addr[15]</Signal>
+                <Signal>w_cpu_addr[14]</Signal>
+                <Signal>w_cpu_addr[13]</Signal>
+                <Signal>w_cpu_addr[12]</Signal>
+                <Signal>w_cpu_addr[11]</Signal>
+                <Signal>w_cpu_addr[10]</Signal>
+                <Signal>w_cpu_addr[9]</Signal>
+                <Signal>w_cpu_addr[8]</Signal>
+                <Signal>w_cpu_addr[7]</Signal>
+                <Signal>w_cpu_addr[6]</Signal>
+                <Signal>w_cpu_addr[5]</Signal>
+                <Signal>w_cpu_addr[4]</Signal>
+                <Signal>w_cpu_addr[3]</Signal>
+                <Signal>w_cpu_addr[2]</Signal>
+                <Signal>w_cpu_addr[1]</Signal>
+                <Signal>w_cpu_addr[0]</Signal>
+            </Bus>
+            <Signal>w_cpu_rden</Signal>
+            <Signal>w_cpu_wren</Signal>
+            <Signal>w_cpu_dtack</Signal>
+            <Signal>w_sysmd[8]</Signal>
+            <Bus name="U_j68/U_mem_io/r_byte_ena[1:0]">
+                <Signal>U_j68/U_mem_io/r_byte_ena[1]</Signal>
+                <Signal>U_j68/U_mem_io/r_byte_ena[0]</Signal>
+            </Bus>
+            <Bus name="U_j68/w_inst_in[11:10]">
+                <Signal>U_j68/w_inst_in[11]</Signal>
+                <Signal>U_j68/w_inst_in[10]</Signal>
+            </Bus>
+            <Signal>U_j68/U_mem_io/io_ext</Signal>
+            <Bus name="U_j68/U_mem_io/reg_addr[5:0]">
+                <Signal>U_j68/U_mem_io/reg_addr[5]</Signal>
+                <Signal>U_j68/U_mem_io/reg_addr[4]</Signal>
+                <Signal>U_j68/U_mem_io/reg_addr[3]</Signal>
+                <Signal>U_j68/U_mem_io/reg_addr[2]</Signal>
+                <Signal>U_j68/U_mem_io/reg_addr[1]</Signal>
+                <Signal>U_j68/U_mem_io/reg_addr[0]</Signal>
+            </Bus>
+            <Bus name="U_j68/U_mem_io/w_mem_inc[2:0]">
+                <Signal>U_j68/U_mem_io/w_mem_inc[2]</Signal>
+                <Signal>U_j68/U_mem_io/w_mem_inc[1]</Signal>
+                <Signal>U_j68/U_mem_io/w_mem_inc[0]</Signal>
+            </Bus>
+            <Bus name="U_j68/w_inst_in[3:0]">
+                <Signal>U_j68/w_inst_in[3]</Signal>
+                <Signal>U_j68/w_inst_in[2]</Signal>
+                <Signal>U_j68/w_inst_in[1]</Signal>
+                <Signal>U_j68/w_inst_in[0]</Signal>
+            </Bus>
+        </SignalList>
+        <Triggers>
+            <Trigger index="0">
+                <SignalList>
+                    <Signal>req_brk</Signal>
+                </SignalList>
+            </Trigger>
+            <Trigger index="1">
+                <SignalList>
+                    <Signal>w_sysmd[8]</Signal>
+                </SignalList>
+            </Trigger>
+            <Trigger index="2">
+                <SignalList>
+                    <Bus restorename="dbg_pc_nxt[10:0]">
+                        <Signal>dbg_pc_nxt[10]</Signal>
+                        <Signal>dbg_pc_nxt[9]</Signal>
+                        <Signal>dbg_pc_nxt[8]</Signal>
+                        <Signal>dbg_pc_nxt[7]</Signal>
+                        <Signal>dbg_pc_nxt[6]</Signal>
+                        <Signal>dbg_pc_nxt[5]</Signal>
+                        <Signal>dbg_pc_nxt[4]</Signal>
+                        <Signal>dbg_pc_nxt[3]</Signal>
+                        <Signal>dbg_pc_nxt[2]</Signal>
+                        <Signal>dbg_pc_nxt[1]</Signal>
+                        <Signal>dbg_pc_nxt[0]</Signal>
+                    </Bus>
+                </SignalList>
+            </Trigger>
+            <Trigger index="3"/>
+            <Trigger index="4"/>
+            <Trigger index="5"/>
+            <Trigger index="6"/>
+            <Trigger index="7"/>
+            <Trigger index="8"/>
+            <Trigger index="9"/>
+            <Trigger index="10"/>
+            <Trigger index="11"/>
+            <Trigger index="12"/>
+            <Trigger index="13"/>
+            <Trigger index="14"/>
+            <Trigger index="15"/>
+        </Triggers>
+        <MatchUnits>
+            <MatchUnit index="0" enabled="0" match_type="1" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="F" value1="0" trigger="0"/>
+            <MatchUnit index="1" enabled="0" match_type="1" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="R" value1="0" trigger="1"/>
+            <MatchUnit index="2" enabled="1" match_type="1" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="11110101110" value1="00000000000" trigger="2"/>
+            <MatchUnit index="3" enabled="0" match_type="1" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="R" value1="0" trigger="3"/>
+            <MatchUnit index="4" enabled="0" match_type="1" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="R" value1="0" trigger="4"/>
+            <MatchUnit index="5" enabled="0" match_type="1" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="R" value1="0" trigger="5"/>
+            <MatchUnit index="6" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="7" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="8" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="9" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="10" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="11" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="12" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="13" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="14" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="15" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+        </MatchUnits>
+        <Expressions type="Static">
+            <Expression>M2</Expression>
+        </Expressions>
+    </AoCore>
+    <GAO_ID>1000001011111000</GAO_ID>
+</GAO_CONFIG>

@@ -1,0 +1,55 @@
+diskdef Drive.A
+  seclen 512
+  tracks 512
+  sectrk 32
+  blocksize 4096
+  maxdir 512
+  skew 1
+  boottrk 1
+  os 2.2
+end
+
+diskdef Drive.B
+  seclen 512
+  tracks 1024
+  sectrk 32
+  blocksize 4096
+  maxdir 512
+  skew 1
+  boottrk 512
+  os 2.2
+end
+
+diskdef Drive.C
+  seclen 512
+  tracks 1536
+  sectrk 32
+  blocksize 4096
+  maxdir 512
+  skew 1
+  boottrk 1024
+  os 2.2
+end
+
+diskdef Drive.D
+  seclen 512
+  tracks 2048
+  sectrk 32
+  blocksize 4096
+  maxdir 512
+  skew 1
+  boottrk 1536
+  os 2.2
+end
+
+diskdef Drive.E
+  seclen 512
+  tracks 2560
+  sectrk 32
+  blocksize 4096
+  maxdir 512
+  skew 1
+  boottrk 2048
+  os 2.2
+end
+
