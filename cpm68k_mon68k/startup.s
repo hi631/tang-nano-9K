@@ -136,8 +136,8 @@ hi_mon:
         move.l  #prgbase,d0
         cmp.l   #0,d0
         beq     cmain
-;		move.w  #$00c0,d0       ; Start.up CP/M-68K
-		move.w  #$0080,d0       ; Start.up Monitor
+		move.w  #$00c0,d0       ; Start.up CP/M-68K
+;		move.w  #$0080,d0       ; Start.up Monitor
 		move.w  d0,sysport      ; CutOff BaseROM
 		move.w	d0,svmode
         bsr		movevct         ; mon.vect -> (0)
