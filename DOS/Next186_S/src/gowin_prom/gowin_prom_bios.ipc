@@ -9,7 +9,7 @@ version=1.0
 [Config]
 DEPTH=2048
 LANG=0
-MEM_FILE=BIOS_Next186.mi
+MEM_FILE=C:\\kitahard\\Tang_Nano_9K\\Next186_S\\src\\gowin_prom\\BIOS_Next186.mi
 READ=0
 RESET_MODE=true
 WIDTH=32

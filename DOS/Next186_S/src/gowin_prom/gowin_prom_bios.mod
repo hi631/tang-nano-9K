@@ -6,7 +6,7 @@
 
 -mod_name Gowin_pROM_bios
 -file_name gowin_prom_bios
--path C:/kitahard/Tang_Nano_9K/Next186_S/src/gowin_prom/
+-path D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/gowin_prom/
 -type RAM_ROM
 -file_type vlg
 -pROM true

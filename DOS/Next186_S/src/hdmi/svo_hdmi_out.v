@@ -110,6 +110,8 @@ assign vdma_tready  = video_tready;
 wire [23:0] enc_tdata;
 wire [3:0]  enc_tuser;
 
+//assign video_enc_tdata = enc_tdata;
+//assign video_enc_tuser = enc_tuser;
 assign video_enc_tdata = {bout,2'b00,gout,2'b00,rout,2'b00};
 assign video_enc_tuser = {hblnk_n,vsync_n,hsync_n,1'b0}; 
 
