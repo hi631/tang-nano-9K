@@ -1,0 +1,4834 @@
+Microsoft (R) Macro Assembler Version 6.14.8444		    11/30/22 10:43:35
+BIOS_Next186.asm					     Page 1 - 1
+
+
+				; This file is part of the Next186 SoC PC project
+				; http://opencores.org/project,next186
+
+				; Filename: BIOS_Next186.asm
+				; Description: Part of the Next186 SoC PC project, ROM BIOS code
+				; Version 1.0
+				; Creation date: Feb-Jun 2013
+
+				; Author: Nicolae Dumitrache 
+				; e-mail: ndumitrache@opencores.org
+
+				; -------------------------------------------------------------------------------------
+				 
+				; Copyright (C) 2013 Nicolae Dumitrache
+				 
+				; This source file may be used and distributed without 
+				; restriction provided that this copyright statement is not 
+				; removed from the file and that any derivative work contains 
+				; the original copyright notice and the associated disclaimer.
+				 
+				; This source file is free software; you can redistribute it 
+				; and/or modify it under the terms of the GNU Lesser General 
+				; Public License as published by the Free Software Foundation;
+				; either version 2.1 of the License, or (at your option) any 
+				; later version. 
+				 
+				; This source is distributed in the hope that it will be 
+				; useful, but WITHOUT ANY WARRANTY; without even the implied 
+				; warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+				; PURPOSE. See the GNU Lesser General Public License for more 
+				; details. 
+				 
+				; You should have received a copy of the GNU Lesser General 
+				; Public License along with this source; if not, download it 
+				; from http://www.opencores.org/lgpl.shtml 
+				 
+				; -----------------------------------------------------------------------
+
+				; Additional Comments: 
+				; Assembled with MASM v6.14.8444
+				; Next186 SoC PC have no ROM, only RAM. The bootstrap code is the initial value of cache 
+				;  (last half 1K = 4 lines of 256bytes each), initially marked as "dirty", in order to
+				;  be saved in RAM at first flush
+				; The bootstrap code may load the BIOS from SD, or from RS232, and place it at F000:E000
+
+
+
+				.186
+				.model tiny
+ 0000				.code
+
+ = 0001				SCANCODE0   equ 1	; Modefai 101US -> 106JP
+				;SCANCODE1   equ 1
+ = 0001				SCANCODE2   equ 1
+
+				;-------------------------- BIOS data area (BDA) -----------------
+				;40:0000   2  Base port address of first RS-232 adapter (COM1) See COM Ports
+				;40:0002   2  Port of COM2
+				;40:0004   2  Port of COM3
+				;40:0006   2  Port of COM4
+				;40:0008   2  Base port addr of first parallel printer (LPT1)  Printer Ports
+				;40:000A   2  Port of LPT2
+				;40:000C   2  Port of LPT3
+				;40:000E   2  Port of LPT4
+				;40:0010   2  Equipment/hardware installed/active; see Equipment List
+				;40:0012   1  Errors in PCjr infrared keyboard link
+				;40:0013   2  Total memory in K-bytes (same as obtained via INT 12H)
+				;40:0015   2  Scratch pad for manufacturing error tests
+				;
+				;40:0017   2  Keyboard status bits; see Keyboard Shift Status Flags
+				;40:0019   1  Current (accumulating) value of Alt+numpad pseudo-key input;
+				;             normally 0.  When [Alt] is released, value is stored in
+				;             keyboard buffer at 001e.
+				;40:001a   2  Addr of keyboard buffer head (keystroke at that addr is next)
+				;40:001c   2  Address of keyboard buffer tail
+				;40:001e  32  Keyboard buffer.  BIOS stores keystrokes here (head and tail
+				;             point to addresses from 041eH to 043dH inclusive).
+				;
+				;40:003e   1  Diskette drive needs recalibration (bit 0=A, bit 1=B, etc.)
+				;             bits 4-5 indicate which drive is currently selected
+				;40:003f   1  Diskette motor is running (bit 0=drive A, bit 1=B, etc.)
+				;40:0040   1  Time until motor off. INT 08H turns motor off when this is 0.
+				;40:0041   1  Diskette error status; same as status returned by INT 13H
+				;40:0042   7  Diskette controller status information area
+				;
+				;40:0049   1  Current active video mode.  See Video Modes and INT 10H.
+				;40:004a   2  Screen width in text columns
+				;40:004c   2  Length (in bytes) of video area (regen size)
+				;40:004e   2  Offset from video segment of active video memory page
+				;40:0050  16  Cursor location (8 byte-pairs; low byte=clm, hi byte=row)
+				;40:0060   2  Cursor size/shape.  Low byte=end scan line; hi byte=start line.
+				;40:0062   1  Current active video page number
+				;40:0063   2  Port address for 6845 video controller chip; see CGA I/O Ports
+				;40:0065   1  Current value of 6845 video ctrlr CRT_MODE (port 3x8H register)
+				;40:0066   1  Current value of 6845 video ctrlr CRT_PALETTE (port 3x9H reg)
+				;
+				;40:0067   5  Cassette data area or POST data area
+				;               40:0067: 1 byte mouse buffer counter (DataCounter)
+				;               40:0068: 1 byte mouse packet size (PacketSize): 0 for 3 bytes, 1 for 4 bytes (Intellimouse)
+				;				40:0069: 2 bytes palette offset during set video mode	
+				;
+				;40:006c   4  Timer tick counter (count of 55ms ticks since CPU reset)
+				;40:0070   1  Timer overflow flag (timer has rolled over 24 hr)
+				;40:0071   1  Ctrl-Break flag.  Bit 7=1 when break was pressed.  This never
+				;             gets reset unless you do it yourself.
+				;
+				;40:0072   2  1234H means Ctrl+Alt+Del reboot is in progress.  BIOS checks
+				;             this to avoid doing a "cold boot" with the time-consuming POST
+				;             4321H means reset, preserving memory
+				;             5678H, 9abcH, and abcdH (are internal PC Convertible codes)
+				;
+				;40:0074   4  PCjr diskette or AT hard disk control area
+				;  (0074)   1 Status of last fixed-disk drive operation
+				;  (0075)   1 Number of hard disk drives for AT
+				;  (0077)   1 Hard disk port for XT.  See XT Hard Disk Ports.
+				;40:0078   4  Printer time-out values (478H=Lpt1, 478H=Lpt2...)
+				;40:007c   4  RS-232 time-out values  (47cH=Com1, 47dH=Com2...)
+				;
+				;40:0080   2  AT PS/2 keyboard buffer offset start address (usually 01eH)
+				;40:0082   2                                   end address (usually 003eH)
+				;
+				;40:0084   1  EGA text rows-1  (maximum valid row value)
+				;40:0085   2  EGA bytes per character (scan-lines/char used in active mode)
+				;40:0087   1  EGA flags; see EgaMiscInfoRec
+				;40:0088   1  EGA flags; see EgaMiscInfo2Rec
+				;40:0089   1  VGA flags; see VgaFlagsRec
+				;             See also:  EGA/VGA Data Areas
+				;
+				;40:008b   1  AT PS/2 Media control: data rate, step rate
+				;40:008c   1  AT PS/2 Hard disk drive controller status
+				;40:008d   1  AT PS/2 Hard disk drive error status
+				;40:008e   1  AT PS/2 Hard disk drive interrupt control
+				;
+				;40:0090   1  AT PS/2 Disk media state bits for drive 0
+				;40:0091   1                                for drive 1
+				;40:0092   1  AT PS/2 Disk operation started flag for drive 0
+				;40:0093   1                                      for drive 1
+
+				;40:0094   1  AT PS/2 Present cylinder number for drive 0
+				;40:0095   1                                  for drive 1
+						; 2 - Number of 512bytes sectors of HD0
+				;
+				;40:0096   1  AT Keyboard flag bit 4=1 (10H) if 101-key keyboard is attached
+				;40:0097   1  AT Keyboard flag for LED 'key lock' display
+				;             bits 0-2 are ScrollLock, NumLock, CapsLock
+				;
+				;40:0098   4  AT Pointer to 8-bit user wait flag; see INT 15H 86H
+				;40:009c   4  AT Microseconds before user wait is done
+				;40:00a0   1  AT User wait activity flag:
+				;                01H=busy, 80H=posted, 00H=acknowledged
+				;
+				;40:00a1   7  AT Reserved for network adapters
+				;               40:00a1: 4 bytes far pointer to mouse callback (HandlerPtr)
+				;               40:00a5: 3 bytes mouse buffer (DataBuffer)
+				;
+				;40:00a8   4  EGA Address of table of pointers; see EgaSavePtrRec
+				;40:00ac  68  Reserved
+				;40:00f0  16  (IAC) Inter-Aapplication Communication area.  Programs may use
+				;             this area to store status, etc.  Might get overwritten by
+				;             another program.
+
+				; http://www.ctyme.com/intr/int.htm
+
+				; video memory: 8 physical segments at 0a000h, 0b000h, 0c000h, 0d000h, 0e000h, 0f000h, 10000h, 11000h
+				; Memory segments mapping
+				; 1Mb virtual seg address   physical seg address
+				;       0000h                   0000h
+				;       1000h                   1000h
+				;       2000h                   2000h
+				;       3000h                   3000h
+				;       4000h                   4000h
+				;       5000h                   5000h
+				;       6000h                   6000h
+				;       7000h                   7000h
+				;       8000h                   8000h
+				;       9000h                   9000h
+				;       a000h                   a000h       - video
+				;       b000h                   b000h       - video
+				;       c000h                   12000h
+				;       d000h                   13000h
+				;       e000h                   14000h
+				;       f000h                   15000h
+
+
+ = 0200				RAMSize   equ    200h        ; 64KB segments
+
+				; Graphics character set
+ = bios - 800h			font8x8		equ	bios - 800h        
+ = font8x8 - 1000h		font8x16	equ	font8x8 - 1000h    
+ = font8x16 - 0e00h		font8x14	equ	font8x16 - 0e00h
+
+
+						org 0e000h
+ E000				bios:        
+ E000 4E 65 78 74 31 38		biosmsg     db 'Next186 Chameleon SoC PC BIOS (C) 2017 Nicolae Dumitrache', 0
+       36 20 43 68 61 6D
+       65 6C 65 6F 6E 20
+       53 6F 43 20 50 43
+       20 42 49 4F 53 20
+       28 43 29 20 32 30
+       31 37 20 4E 69 63
+       6F 6C 61 65 20 44
+       75 6D 69 74 72 61
+       63 68 65 00
+ E03A 4D 42 20 53 44 20		msgmb       db 'MB SD Card', 13, 10, 0
+       43 61 72 64 0D 0A
+       00
+ E047 50 53 32 20 4B 42		msgkb       db 'PS2 KB detected', 13, 10, 13, 10, 0
+       20 64 65 74 65 63
+       74 65 64 0D 0A 0D
+       0A 00
+
+						org 0e05bh
+ E05B				coldboot:
+ E05B				warmboot:
+ E05B  FA					cli
+ E05C  FC					cld
+ E05D  B8 0030					mov     ax, 30h
+ E060  8E D0					mov     ss, ax
+ E062  BC 0100					mov     sp, 100h
+						
+ E065  6A 00					push    0
+ E067  9D					popf
+						
+ E068  B0 36					mov     al, 36h
+ E06A  E6 43					out     43h, al
+ E06C  33 C0					xor     ax, ax
+ E06E  E7 07			        out     7, ax       ; NMIonIORQ_HI = 0
+ E070  E6 40					out     40h, al
+ E072  E6 40					out     40h, al      ; 18Hz PIT CH0
+ E074  E6 61					out     61h, al      ; speaker off
+ E076  F6 D0					not     al
+ E078  E6 21					out     21h, al      ; disable all interrupts
+ E07A  E6 A1					out		0a1h, al
+ E07C  E7 06			        out     6, ax       ; NMIonIORQ_LO = 255 -> disabled
+						
+
+				; ------------------ MAP init
+ E07E  E8 153F					call    flush
+ E081  B8 0015					mov     ax, 15h     ; BIOS physical segment 15h mapped on virtual segment 0ch
+ E084  E7 8C					out     8ch, ax
+ E086  68 C000					push    0c000h
+ E089  07					pop     es
+ E08A  68 F000					push    0f000h
+ E08D  1F					pop     ds
+ E08E  33 F6					xor     si, si
+ E090  33 FF					xor     di, di
+ E092  B9 8000					mov     cx, 8000h
+ E095  F3/ A5					rep     movsw       ; copy BIOS virtual segment 0fh over physical segment 15h
+
+ E097  E8 1526					call    flush
+ E09A  BA 0080					mov     dx, 80h      
+ E09D  33 C0					xor     ax, ax
+ E09F				mapi:        
+ E09F  EF					out     dx, ax
+ E0A0  40					inc     ax
+ E0A1  42					inc     dx
+ E0A2  3C 0C					cmp     al, 0ch
+ E0A4  75 02					jne     short mapi1
+ E0A6  04 06					add     al, 6
+ E0A8				mapi1:        
+ E0A8  3C 16					cmp     al, 16h
+ E0AA  75 F3					jne     short mapi
+						
+				; -------------------- Interrupt table init
+ E0AC  6A 00					push    0
+ E0AE  1F					pop     ds
+ E0AF  1E					push    ds
+ E0B0  07					pop     es
+ E0B1  33 F6					xor     si, si
+ E0B3  BF 0004					mov     di, 4
+ E0B6  C7 04 F5BF R				mov     word ptr [si], offset defint
+ E0BA  8C 4C 02					mov     word ptr [si+2], cs
+ E0BD  B9 00FE					mov     cx, 256-2
+ E0C0  8B 44 08					mov		ax,[si+8]		; Save NMI Vector
+ E0C3  F3/ A5					rep     movsw
+ E0C5  33 F6					xor     si, si
+ E0C7  89 44 08					mov		[si+8],ax		; set NMI
+ E0CA  C7 06 001C E2F4 R			mov     word ptr ds:[7*4], offset int07
+ E0D0  C7 06 0020 E324 R			mov     word ptr ds:[8*4], offset int08
+ E0D6  C7 06 0024 E36A R			mov     word ptr ds:[9*4], offset int09
+ E0DC  C7 06 0040 E59B R			mov     word ptr ds:[10h*4], offset int10        
+ E0E2  C7 06 0044 EE2A R			mov     word ptr ds:[11h*4], offset int11        
+ E0E8  C7 06 0048 EE33 R			mov     word ptr ds:[12h*4], offset int12        
+ E0EE  C7 06 004C EE3C R			mov     word ptr ds:[13h*4], offset int13        
+ E0F4  C7 06 0050 F029 R			mov     word ptr ds:[14h*4], offset int14        
+ E0FA  C7 06 0054 F17A R			mov     word ptr ds:[15h*4], offset int15
+ E100  C7 06 0058 F312 R			mov     word ptr ds:[16h*4], offset int16
+ E106  C7 06 0060 F3FD R			mov     word ptr ds:[18h*4], offset int18
+ E10C  C7 06 0064 F47C R			mov     word ptr ds:[19h*4], offset int19
+ E112  C7 06 0068 F496 R			mov     word ptr ds:[1ah*4], offset int1a
+ E118  C7 06 01C0 F4C2 R			mov     word ptr ds:[70h*4], offset int70
+ E11E  C7 06 01D0 F4F0 R			mov     word ptr ds:[74h*4], offset int74
+
+				; ------------------- BDA init
+ E124  6A 40					push    40h
+ E126  1F					pop     ds
+ E127  1E					push    ds
+ E128  07					pop     es
+ E129  33 FF					xor     di, di
+ E12B  33 F6					xor     si, si
+ E12D  33 C0					xor     ax, ax
+ E12F  B1 80					mov     cl, 80h
+ E131  F3/ AB					rep     stosw
+ E133  C7 04 03F8				mov		word ptr [si+00h], 3f8h	 ; COM1 base port address
+ E137  C7 44 08 0378				mov		word ptr [si+08h], 378h	 ; LPT1 base port address
+ E13C  C6 44 10 24				mov     byte ptr [si+10h], 24h   ; equipment word (color 80x25, PS2 mouse present)
+ E140  C7 44 13 0280				mov     word ptr [si+13h], 640   ; memory size in KB
+ E145  83 44 1A 1E				add     word ptr [si+1ah], 1eh   ; next char pointer in kb buffer
+ E149  83 44 1C 1E				add     word ptr [si+1ch], 1eh   ; last char pointer in kb buffer
+ E14D  C7 44 60 0E0F				mov     word ptr [si+60h], 0e0fh ; cursor shape
+ E152  C7 44 63 03D4				mov     word ptr [si+63h], 3d4h  ; video port address
+ E157  83 84 0080 1E				add     word ptr [si+80h], 1eh   ; start kb buffer
+ E15C  83 84 0082 3E				add     word ptr [si+82h], 3eh   ; end kb buffer
+ E161  C7 84 0087 0940				mov     word ptr [si+87h], 0940h ; video adapter options (512Kb video)
+ E167  C7 84 0089 0B71				mov     word ptr [si+89h], 0b71h ; VGA video flags: 400 line text mode, default palette loading on (0), blinking on
+ E16D  C6 84 0096 10				mov     byte ptr [si+96h], 10h   ; 101 keyboard installed
+				 
+				; ------------------- Graph mode init
+ E172  B8 0003					mov     ax, 3
+ E175  CD 10					int     10h
+
+				 ; ------------------- KB init ----------------
+ E177  B0 AE					mov     al, 0aeh
+ E179  E6 64					out     64h, al     ; enable kb
+ E17B  B0 A7					mov     al, 0a7h
+ E17D  E6 64					out     64h, al     ; disable mouse
+ E17F  B9 0019					mov     cx, 25
+ E182				kbi1:       
+ E182  E8 1403					call    getps2byte
+ E185  E2 FB					loop    short kbi1  ; wait for kb timeout
+ E187  B4 FF					mov     ah, 0ffh    ; reset kb
+ E189  F8					clc                 ; kb command
+ E18A  E8 1415					call    sendcmd   
+ E18D  72 23					jc      short nokb
+ E18F  B1 19					mov     cl, 25
+ E191				kbi2:        
+ E191  49					dec     cx
+ E192  E3 1E					jcxz    short nokb
+ E194  E8 13F1					call    getps2byte
+ E197  72 F8					jc      short kbi2  ; wait for BAT
+ E199  3C AA					cmp     al, 0aah
+ E19B  75 15					jne     short nokb
+ E19D  B4 F2					mov     ah, 0f2h    ; kb id
+ E19F  E8 1400					call    sendcmd     ; CF = 0
+ E1A2  72 0E					jc      short nokb
+ E1A4  E8 13E1					call    getps2byte
+ E1A7  3C AB					cmp     al, 0abh
+ E1A9  75 07					jne     short nokb
+ E1AB  E8 13DA					call    getps2byte
+ E1AE  3C 83					cmp     al, 83h
+				; set scan code 1
+				IFDEF SCANCODE1
+				ELSE
+ E1B0  74 05					je     short kbok
+				ENDIF        
+
+ E1B2				nokb:   
+ E1B2  C6 06 0096 00				mov     byte ptr KbdFlags3, 0   ; kb not present
+ E1B7				kbok:
+ E1B7  B0 AD					mov     al, 0adh
+ E1B9  E6 64					out     64h, al      ; disable kb interface
+
+				; ------------------- Mouse init ----------------
+ E1BB  B0 A8					mov     al, 0a8h
+ E1BD  E6 64					out     64h, al      ; enable mouse
+ E1BF				mousei0:        
+ E1BF  E8 13C6					call    getps2byte
+ E1C2  73 FB					jnc     short mousei0
+ E1C4  B4 FF					mov     ah, 0ffh
+ E1C6  E8 13D9					call    sendcmd      ; reset mouse (CF = 1)
+ E1C9  72 15					jc      short nomouse
+ E1CB  B1 19					mov     cl, 25
+ E1CD				mousei1:        
+ E1CD  49					dec     cx
+ E1CE  E3 10					jcxz    short nomouse
+ E1D0  E8 13B5					call    getps2byte
+ E1D3  72 F8					jc      short mousei1
+ E1D5  3C AA					cmp     al, 0aah     ; BAT
+ E1D7  75 07					jne     short nomouse
+ E1D9  E8 13AC					call    getps2byte
+ E1DC  3C 00					cmp     al, 0        ; mouse ID
+ E1DE  74 09					je      short mouseok
+ E1E0				nomouse:
+ E1E0  B0 A7					mov     al, 0a7h        
+ E1E2  E6 64					out     64h, al      ; disable mouse
+ E1E4  80 26 0010 FB				and     byte ptr EquipmentWord, not 4 ; ps2 mouse not present in equipement word
+ E1E9				mouseok:
+ E1E9  E8 13C7					call    enableKbIfPresent
+
+ E1EC  B0 20					mov     al, 20h
+ E1EE  E6 64					out     64h, al
+ E1F0  E4 60					in      al, 60h
+ E1F2  0C 03					or      al, 3
+ E1F4  8A E0					mov     ah, al
+ E1F6  B0 60					mov     al, 60h
+ E1F8  E6 64					out     64h, al
+ E1FA  8A C4					mov     al, ah
+ E1FC  E6 60					out     60h, al     ; enable 8042 mouse and kb interrupts
+
+ E1FE  B8 0000					mov     ax, 0		; 1000-1   ; 1ms
+ E201  E7 70					out     70h, ax     ; set RTC frequency (stop)
+
+				;		mov     al, 0
+ E203  E6 21					out     21h, al     ; enable all PIC interrupts (8h, 9h, 0ch)
+ E205  E6 A1					out		0a1h, al	; enable all PIC interrupts (70h, 74h)
+ E207  E6 01					out		1, al		; intialize COM mux
+ E209  40					inc		ax
+ E20A  E7 01					out		1, ax		; enable auto flush on vblank
+ E20C  FB					sti                 ; enable CPU interrupts
+
+				; ---------------------- COM flush
+ E20D  B4 03			        mov     ah, 3       ; get serial port status
+ E20F  33 D2			        xor     dx, dx      ; COM1
+ E211				COMFlush:
+ E211  CD 14			        int     14h
+ E213  D0 EC			        shr     ah, 1
+ E215  B4 02			        mov     ah, 2
+ E217  72 F8			        jc      short COMFlush
+
+				; ---------------------   HDD init
+ E219  E8 1546					call    sdinit
+ E21C  A3 0094					mov     HDSize, ax
+ E21F  0E					push    cs
+ E220  07					pop     es
+ E221  BE E000 R				mov     si, offset biosmsg
+ E224  E8 13D7					call    prts
+ E227  BE E278 R				mov     si, offset bioscont
+ E22A  E8 13D1					call    prts
+ E22D  A1 0094					mov     ax, HDSize
+ E230  D1 E8					shr     ax, 1
+ E232  E8 13B0					call    dispAX
+ E235  BE E03A R				mov     si, offset msgmb
+ E238  E8 13C3					call    prts
+ E23B  F6 06 0096 10				test    byte ptr KbdFlags3, 10h
+ E240  74 06					jz      nokbmsg
+ E242  BE E047 R				mov     si, offset msgkb
+ E245  E8 13B6					call    prts
+ E248				nokbmsg:
+ E248  F6 06 0010 04				test    byte ptr EquipmentWord, 4
+ E24D  74 06					jz      nomousemsg
+ E24F  BE E263 R				mov     si, offset msgmouse
+ E252  E8 13A9					call    prts
+ E255				nomousemsg:
+
+				;-------------- HD bootstrap
+ E255  B8 00E3					mov		ax, 00e3h
+ E258  CD 14					int		14h		; init COM to 9.6K, 8n1
+ E25A  B8 0305					mov     ax, 305h
+ E25D  33 DB					xor     bx, bx
+ E25F  CD 16					int     16h     ; set typematic rate and delay to fastest
+ E261  CD 19					int     19h
+
+ E263 50 53 32 20 4D 6F		msgmouse    db 'PS2 Mouse detected', 13, 10, 0        
+       75 73 65 20 64 65
+       74 65 63 74 65 64
+       0D 0A 00
+				;bioscont    db 13, 10, 'CPU: 80186 50Mhz (50MIPS, 100Mhz 32bit bus)', 13, 10
+				;            db 'RAM: 32MB SDR 185Mhz 16bit', 13, 10
+				;            db 'Cache: 8KB, 4-way, 128x64 bytes data/inst', 13, 10
+				;			db 'HD0: ', 0
+ E278 0D 0A 3C 20 54 61		bioscont    db 13, 10, '< Tang-Nano-9K > ver 2022 modified by hi631', 13, 10
+       6E 67 2D 4E 61 6E
+       6F 2D 39 4B 20 3E
+       20 76 65 72 20 32
+       30 32 32 20 6D 6F
+       64 69 66 69 65 64
+       20 62 79 20 68 69
+       36 33 31 0D 0A
+ E2A7  43 50 55 3A 20 38	            db 'CPU: 80186 18MHz (18MIPS 36MHz 32bit bus)', 13, 10
+       30 31 38 36 20 31
+       38 4D 48 7A 20 28
+       31 38 4D 49 50 53
+       20 33 36 4D 48 7A
+       20 33 32 62 69 74
+       20 62 75 73 29 0D
+       0A
+ E2D2  52 41 4D 3A 20 31	            db 'RAM: 1MB DDR 72MHz 16bit  ', 13, 10
+       4D 42 20 44 44 52
+       20 37 32 4D 48 7A
+       20 31 36 62 69 74
+       20 20 0D 0A
+ E2EE  48 44 30 3A 20 00				db 'HD0: ', 0
+
+				; ---------------------------- INT 07 ---------------------
+ E2F4				int07 proc near ; coprocessor ESC sequence
+ E2F4  50					push    ax
+ E2F5  53					push    bx
+ E2F6  1E					push    ds
+ E2F7  55					push    bp
+ E2F8  8B EC					mov     bp, sp
+ E2FA  C5 5E 08					lds     bx, [bp+8]  
+ E2FD				int07_pfx:        
+ E2FD  8A 07					mov     al, [bx]
+ E2FF  43					inc     bx
+ E300  24 F8					and     al, 0f8h
+ E302  3C D8					cmp     al, 0d8h        ; ESC code
+ E304  75 F7					jne     short int07_pfx
+							  
+ E306  80 3F C0					cmp     byte ptr [bx], 0c0h ; mod reg r/m of ESC 8087 instruction
+ E309  1A C0					sbb     al, al
+ E30B  22 07					and     al, [bx]
+ E30D  25 00C7					and     ax, 0c7h
+ E310  3C 06					cmp     al, 6
+ E312  75 02					jne     int072
+ E314  B0 80					mov     al, 80h
+ E316				int072:
+ E316  C0 E8 06					shr     al, 6
+ E319  40					inc     ax
+ E31A  03 C3					add     ax, bx
+ E31C  89 46 08					mov     [bp+8], ax
+ E31F  5D					pop     bp
+ E320  1F					pop     ds
+ E321  5B					pop     bx
+ E322  58					pop     ax
+ E323  CF					iret
+ E324				int07 endp
+
+
+				; ---------------------------- INT 08 ---------------------
+ E324				int08 proc near
+ E324  1E					push    ds
+ E325  53					push    bx
+ E326  6A 40					push    40h
+ E328  1F					pop     ds
+ E329  BB 006C					mov     bx, 6ch
+ E32C  83 07 01					add     word ptr [bx], 1
+ E32F  83 57 02 00				adc     word ptr [bx+2], 0
+ E333  83 7F 02 18				cmp     word ptr [bx+2], 18h
+ E337  75 13					jne     short int081
+ E339  81 3F 00B0				cmp     word ptr [bx], 0b0h
+ E33D  75 0D					jne     short int081
+ E33F  C7 07 0000				mov     word ptr [bx], 0
+ E343  C7 47 02 0000				mov     word ptr [bx+2], 0
+ E348  C6 47 04 01				mov     byte ptr [bx+4], 1
+ E34C				int081:
+ E34C  CD 1C					int     1ch
+ E34E  FB					sti
+ E34F  50					push    ax
+ E350  B4 04					mov     ah, 4
+ E352				kloop:        
+ E352  E4 64					in      al, 64h
+ E354  A8 01					test    al, 1
+ E356  74 0E					jz      short nokey
+ E358  FE CC					dec     ah
+ E35A  75 F6					jnz     short kloop
+ E35C  A8 20					test    al, 20h
+ E35E  74 04					jz      short kbdata
+ E360  CD 74					int     74h
+ E362  EB 02					jmp     short nokey
+ E364				kbdata:
+ E364  CD 09					int     9h        
+ E366				nokey:
+ E366  58					pop     ax
+ E367  5B					pop     bx
+ E368  1F					pop     ds
+ E369  CF					iret
+ E36A				int08 endp
+
+				; --------------------- INT 09 - keyboard ------------------
+ = ds:[17h]			KbdFlags1       equ     <ds:[17h]>
+ = ds:[18h]			KbdFlags2       equ     <ds:[18h]>
+ = ds:[19h]			AltKpd          equ     <ds:[19h]>
+ = ds:[71h]			CtrlBreak       equ     <ds:[71h]>
+ = ds:[96h]			KbdFlags3       equ     <ds:[96h]>
+ = ds:[97h]			KbdFlags4       equ     <ds:[97h]>
+
+				; Bits for the KbdFlags1
+ = 0001				RShfDown        equ     1
+ = 0002				LShfDown        equ     2
+ = 0004				CtrlDown        equ     4
+ = 0008				AltDown         equ     8
+ = 0010				ScrLock         equ     10h
+ = 0020				NumLock         equ     20h
+ = 0040				CapsLock        equ     40h
+ = 0080				Insert          equ     80h
+
+				; Bits for the KbdFlags2
+ = 0001				LCtrDown        equ     1
+ = 0002				LAltDown        equ     2
+ = 0004				SysReqDown      equ     4
+ = 0008				Pause           equ     8
+ = 0010				ScrLockDown     equ     10h
+ = 0020				NumLockDown     equ     20h
+ = 0040				CapsLockDown    equ     40h
+ = 0080				InsDown         equ     80h
+				 
+				; Bits for the KbdFlags3
+ = 0001				LastE1          equ     1
+ = 0002				LastE0          equ     2
+ = 0004				RCtrDown        equ     4
+ = 0008				RAltDown        equ     8
+ = 0020				LastF0          equ     20h
+
+				; Bits for the KbdFlags4
+ = 0001				ScrLockLED      equ     1
+ = 0002				NumLockLED      equ     2
+ = 0004				CapsLockLED     equ     4
+ = 0008				SetRepeat       equ     8       ; Set auto repeat command in progress
+ = 0010				AckReceived     equ     10h
+ = 0040				LEDUpdate       equ     40h
+
+				IFDEF SCANCODE1
+				ELSE    ; SCANCODE2
+
+ E36A				int09 proc near
+ E36A  60					pusha
+ E36B  1E					push    ds
+ E36C  06					push    es
+ E36D  6A 40					push    40h
+ E36F  1F					pop     ds
+ E370  E4 60					in      al, 60h         ; al contains the scan code
+ E372  8B 16 0017				mov     dx, KbdFlags1
+ E376  8B 0E 0096				mov     cx, KbdFlags3
+ E37A  3C FA					cmp     al, 0fah        ; ACK
+ E37C  75 1F					jne     short noACK
+				; ------------ manage ACK response
+ E37E  F6 C5 40					test    ch, LEDUpdate
+ E381  74 14					jz      short ToggleACK ; no LED update
+ E383  F6 C5 10					test    ch, AckReceived
+ E386  75 0C					jnz     short SecondACK ; second ACK received
+ E388  8A E5					mov     ah, ch          ; LED update command sent, ACK received, need to send second byte
+ E38A  80 E4 07					and     ah, ScrLockLED or NumLockLED or CapsLockLED
+ E38D  B3 00					mov     bl, 0
+ E38F  E8 11D1					call    sendps2byte
+ E392  EB 03					jmp     short ToggleACK
+ E394				SecondACK:        
+ E394  80 F5 40					xor     ch, LEDUpdate   ; second ACK, clear LED update bit
+ E397				ToggleACK:
+ E397  80 F5 10					xor     ch, AckReceived ; toggle ACK bit 
+ E39A				SetFlags1:                                  
+ E39A  E9 01C1					jmp     SetFlags               
+						
+				; ------------ no ACK
+ E39D				noACK:
+ E39D  3C E0					cmp     al, 0e0h
+ E39F  75 05					jne     short noE0
+ E3A1  80 C9 02					or      cl, LastE0
+ E3A4  EB F4					jmp     short SetFlags1
+ E3A6				noE0:
+ E3A6  3C E1					cmp     al, 0e1h
+ E3A8  75 05					jne     short noE1
+ E3AA  80 C9 01					or      cl, LastE1
+ E3AD  EB EB					jmp     short SetFlags1
+ E3AF				noE1:   
+ E3AF  3C F0					cmp     al, 0f0h
+ E3B1  75 05					jne     short noF0
+ E3B3  80 C9 20					or      cl, LastF0
+ E3B6  EB E2					jmp     short SetFlags1
+ E3B8				noF0:   
+ E3B8  3C 71					cmp     al, 71h     ; is DEL?
+ E3BA  75 18					jne     short noDEL
+ E3BC  8A E2					mov     ah, dl
+ E3BE  80 E4 0C					and     ah, CtrlDown or AltDown
+ E3C1  80 FC 0C					cmp     ah, CtrlDown or AltDown
+ E3C4  74 03					je      short noF01
+ E3C6				NormalKey1:        
+ E3C6  E9 011E					jmp     NormalKey
+ E3C9				noF01:        
+ E3C9  C7 06 0072 1234				mov     word ptr ds:[72h], 1234h    ; warm boot flag
+ E3CF  EA					db      0eah
+ E3D0  0000 FFFF				dw      0, 0ffffh       ; reboot
+ E3D4				noDEL:
+ E3D4  3C 83					cmp     al, 83h         ; is F7
+ E3D6  74 EE					je      short NormalKey1
+ E3D8  77 C0					ja      short SetFlags1
+ E3DA  F6 C1 20					test    cl, LastF0      ; key up?
+ E3DD  74 02					jz      short noKeyUp
+ E3DF  0C 80					or      al, 80h         ; key up flag
+ E3E1				noKeyUp:
+ E3E1  F6 C1 02					test    cl, LastE0
+ E3E4  75 24					jnz     short noRSUp    ; ignore fake shifts      
+ E3E6  3C 12					cmp     al, 12h         ; left shift
+ E3E8  75 05					jne     short noLSDown
+ E3EA  80 CA 02					or      dl, LShfDown
+ E3ED  EB 63					jmp     short SetFlagsKey2
+ E3EF				noLSDown:
+ E3EF  3C 92					cmp     al, 12h or 80h
+ E3F1  75 05					jne     short noLSUp
+ E3F3  80 E2 FD					and     dl, not LShfDown
+ E3F6  EB 5A					jmp     short SetFlagsKey2
+ E3F8				noLSUp:
+ E3F8  3C 59					cmp     al, 59h         ; right shift
+ E3FA  75 05					jne     short noRSDown
+ E3FC  80 CA 01					or      dl, RShfDown
+ E3FF  EB 51					jmp     short SetFlagsKey2
+ E401				noRSDown:
+ E401  3C D9					cmp     al, 59h or 80h
+ E403  75 05					jne     short noRSUP
+ E405  80 E2 FE					and     dl, not RShfDown
+ E408  EB 48					jmp     short SetFlagsKey2
+ E40A				noRSUp:
+ E40A  3C 11					cmp     al, 11h         ; ALT
+ E40C  75 13					jne     short noALTDown
+ E40E  F6 C1 02					test    cl, LastE0
+ E411  74 08					jz      short LALTDn
+ E413  80 C9 08					or      cl, RAltDown
+ E416  80 CA 08					or      dl, AltDown
+ E419  EB 37					jmp     short SetFlagsKey2
+ E41B				LALTDn:
+ E41B  81 CA 0208				or      dx, (LAltDown shl 8) or AltDown
+ E41F  EB 31					jmp     short SetFlagsKey2
+ E421				noALTDown:
+ E421  3C 91					cmp     al, 11h or 80h
+ E423  75 1E					jne     short noALTUp
+ E425  F6 C1 02					test    cl, LastE0
+ E428  74 08					jz      short LALTUp
+ E42A  80 E1 F7					and     cl, not RAltDown
+ E42D  80 E2 F7					and     dl, not AltDown
+ E430  EB 04					jmp     short ALTup
+ E432				LALTUp:
+ E432  81 E2 FDF7				and     dx, not ((LAltDown shl 8) or AltDown)
+ E436				ALTUp:
+ E436  33 C0					xor     ax, ax
+ E438  86 06 0019				xchg    al, AltKpd
+ E43C  84 C0					test    al, al
+ E43E  74 12					jz      short SetFlagsKey2     
+ E440  E9 0104					jmp     pushKey
+ E443				noALTUp:
+ E443  3C 14					cmp     al, 14h         ; CTL
+ E445  75 13					jne     short noCTLDown
+ E447  F6 C1 02					test    cl, lastE0
+ E44A  74 08					jz      short LCTLDn
+ E44C  80 C9 04					or      cl, RCtrDown
+ E44F  80 CA 04					or      dl, CtrlDown
+ E452				SetFlagsKey2:        
+ E452  EB 79					jmp     short SetFlagsKey1
+ E454				LCTLDn:
+ E454  81 CA 0104				or      dx, (LCtrDown shl 8) or CtrlDown
+ E458  EB 73					jmp     short SetFlagsKey1
+ E45A				noCTLDown:
+ E45A  3C 94					cmp     al, 14h or 80h
+ E45C  75 13					jne     short noCTLUp
+ E45E  F6 C1 02					test    cl, LastE0
+ E461  74 08					jz      short LCTLUp
+ E463  80 E1 FB					and     cl, not RCtrDown
+ E466  80 E2 FB					and     dl, not CtrlDown
+ E469  EB 62					jmp     short SetFlagsKey1
+ E46B				LCTLUp:
+ E46B  81 E2 FEFB				and     dx,  not ((LCtrDown shl 8) or CtrlDown)
+ E46F  EB 5C					jmp     short SetFlagsKey1
+ E471				noCTLUp:
+ E471  BB 5840					mov     bx, 5800h + CapsLock
+ E474  E8 010E					call    KeyLock
+ E477  73 54					jnc     short SetFlagsKey1
+						
+ E479  BB 7E10					mov     bx, 7e00h + ScrLock
+ E47C  52					push    dx          ; save ScrLock state bit (dl)
+ E47D  E8 0105					call    KeyLock
+ E480  5B					pop     bx          ; restore ScrLock state bit (bl)
+ E481  72 21					jc      short noScrLock
+ E483  F6 C2 04					test    dl, CtrlDown
+ E486  74 45					jz      short SetFlagsKey1; no break, just ScollLock
+ E488  8A D3					mov     dl, bl      ; restore ScrLock flag
+ E48A  F6 C7 10					test    bh, ScrLockDown
+ E48D  75 3E					jnz     short SetFlagsKey1 
+ E48F  C6 06 0071 80				mov     byte ptr CtrlBreak, 80h   ; CTRL+BREAK flag
+ E494  A1 0080					mov     ax, Buffer
+ E497  A3 001A					mov     HeadPtr, ax
+ E49A  A3 001C					mov     TailPtr, ax
+ E49D  CD 1B					int     1bh
+ E49F  33 C0					xor     ax, ax
+ E4A1  E9 00A3					jmp     pushkey
+ E4A4				noScrLock:        
+ E4A4  F6 C1 02					test    cl, LastE0  ; INS
+ E4A7  75 0A					jnz     short testINS
+ E4A9  F6 C2 03					test    dl, RShfDown or LShfDown
+ E4AC  75 05					jnz     short testINS
+ E4AE  F6 C2 20					test    dl, NumLock
+ E4B1  75 06					jnz     short NoIns      
+ E4B3				testINS:
+ E4B3  BB 7080					mov     bx, 7000h + Insert
+ E4B6  E8 00CC					call    KeyLock  
+ E4B9				noIns:
+ E4B9  BB 7720					mov     bx, 7700h + NumLock
+ E4BC  52					push    dx          ; save NumLock state bit (dl)
+ E4BD  E8 00C5					call    KeyLock
+ E4C0  5B					pop     bx          ; restore NumLock state bit (bl)
+ E4C1  72 22					jc      short noPause
+ E4C3  F6 C2 04					test    dl, CtrlDown
+ E4C6  74 05					jz      short SetFlagsKey1
+ E4C8  8A D3					mov     dl, bl      ; restore NumLock flag
+ E4CA  80 CE 08					or      dh, Pause   ; set Pause bit
+ E4CD				SetFlagsKey1:
+ E4CD  E9 008B					jmp     SetFlagsKey
+ E4D0				E0Key:
+ E4D0  BF FB1D R				mov     di, offset E0KeyList
+ E4D3  51					push    cx
+ E4D4  B9 000C					mov     cx, E0KeyIndex - E0KeyList
+ E4D7  FC					cld
+ E4D8  0E					push    cs
+ E4D9  07					pop     es
+ E4DA  F2/ AE					repne   scasb
+ E4DC  59					pop     cx
+ E4DD  75 7C					jne     short SetFlagsKey
+ E4DF  26: 8A 45 0B				mov     al, es:[di + E0KeyIndex - E0KeyList - 1]
+ E4E3  EB 11					jmp     short KeyDown
+ E4E5				noPause:
+ E4E5  24 7F					and     al, 07fh    ; delete up bit
+ E4E7				NormalKey:
+ E4E7  F6 C1 20					test    cl, LastF0
+ E4EA  75 6F					jnz     short SetFlagsKey ; key up
+ E4EC  F6 C1 02					test    cl, LastE0
+ E4EF  75 DF					jnz     short E0Key
+ E4F1  BB FA99 R				mov     bx, offset KeyIndex
+ E4F4  2E: D7					xlat    cs:[bx]
+ E4F6				KeyDown:
+ E4F6  33 DB					xor     bx, bx 
+ E4F8  F6 C2 03					test    dl, RShfDown or LShfDown
+ E4FB  74 02					jz      short noShift
+ E4FD  B3 02					mov     bl, 2
+ E4FF				noShift:
+ E4FF  3C 1A					cmp     al, 26
+ E501  77 0A					ja      short noCaps
+ E503  F6 C2 40					test    dl, CapsLock
+ E506  74 13					jz      short noNum
+ E508  80 F3 02					xor     bl, 2
+ E50B  EB 0E					jmp     short noNum 
+ E50D				noCaps:
+ E50D  3C 25					cmp     al, 37
+ E50F  77 0A					ja      short noNum
+ E511  F6 C2 20					test    dl, NumLock
+ E514  75 02					jnz     short NumDown
+ E516  B3 02					mov     bl, 2
+ E518				NumDown:
+ E518  80 F3 02					xor     bl, 2
+ E51B				noNum:        
+ E51B  F6 C2 04					test    dl, CtrlDown
+ E51E  74 02					jz      short noCtrl
+ E520  B3 04					mov     bl, 4
+ E522				noCtrl:
+ E522  F6 C2 08					test    dl, AltDown
+ E525  74 02					jz      short noAlt
+ E527  B3 06					mov     bl, 6
+ E529				noAlt:
+ E529  98					cbw
+ E52A  C1 E0 03					shl     ax, 3
+ E52D  03 D8					add     bx, ax
+ E52F  2E: 8B 87 FB35 R				mov     ax, cs:KeyCode[bx]
+ E534  83 F8 0A					cmp     ax, 000ah
+ E537  77 0E					ja      short pushKey
+ E539  48					dec     ax
+ E53A  78 1F					js      short SetFlagsKey     ; ax was 0
+ E53C  8A 26 0019				mov     ah, AltKpd
+ E540  D5 0A					aad
+ E542  A2 0019					mov     AltKpd, al
+ E545  EB 14					jmp     short SetFlagsKey
+ E547				pushKey:                
+ E547  51					push    cx
+ E548  8B C8					mov     cx, ax
+ E54A  8A C4					mov     al, ah      ; scan code
+ E54C  B4 4F					mov     ah,4fh
+ E54E  F9					stc
+ E54F  CD 15					int     15h
+ E551  73 04					jnc     nopush
+ E553  B4 05					mov     ah, 5
+ E555  CD 16					int     16h
+ E557				nopush:        
+ E557  59					pop     cx
+ E558  80 E6 F7					and     dh, not Pause    ; clear Pause bit
+ E55B				SetFlagsKey:
+ E55B  80 E1 DC					and     cl, not (LastE0 or LastE1 or LastF0)    ; not prefix key code, clear all prefixes
+ E55E				SetFlags:
+ E55E  8A C2					mov     al, dl
+ E560  C0 E8 04					shr     al, 4
+ E563  32 C5					xor     al, ch
+ E565  24 07					and     al, 7
+ E567  74 10					jz      short SF1   ; no LEDs to update
+ E569  F6 C5 58					test    ch, SetRepeat or AckReceived or LEDUpdate
+ E56C  75 0B					jnz     short SF1   ; can not update LEDS, so just write the flags and exit
+ E56E  0C 40					or      al, LEDUpdate
+ E570  32 E8					xor     ch, al      ; insert the LEDs in KbdFlags4
+ E572  B4 ED					mov     ah, 0edh    ; set LED
+ E574  B3 00					mov     bl, 0
+ E576  E8 0FEA					call    sendps2byte
+ E579				SF1:        
+ E579  89 16 0017				mov     KbdFlags1, dx
+ E57D  89 0E 0096				mov     KbdFlags3, cx
+						
+ E581				int09Exit:
+ E581  07					pop     es
+ E582  1F					pop     ds
+ E583  61					popa
+ E584  CF					iret
+ E585				int09 endp
+
+				ENDIF
+
+ E585				KeyLock proc near   ; input: BH = expected scan code, al = scan code, BL = key lock flag. Returns CF=1 to continue, CF=0 to exit
+ E585  32 F8					xor     bh, al
+ E587  75 09					jnz     short s2
+ E589  8A E6					mov     ah, dh
+ E58B  0A F3					or      dh, bl      ; set flag
+ E58D  32 E6					xor     ah, dh      ; get flag difference
+ E58F  32 D4					xor     dl, ah      ; toggle only if key was not already down
+ E591  C3					ret
+ E592  80 FF 80			s2:     cmp     bh, 80h
+ E595  F9					stc
+ E596  75 02					jne     short exit
+ E598  32 F3					xor     dh, bl      ; key up
+ E59A				exit:
+ E59A  C3					ret
+ E59B				KeyLock endp
+
+
+				; --------------------- INT 10h - Video ----------------
+ = ds:[49h]			ActiveVideoMode     equ <ds:[49h]>  ; 1  byte
+ = ds:[4ah]			ScreenWidth         equ <ds:[4ah]>  ; 2  Screen width in text columns
+ = ds:[4ch]			RegenLength         equ <ds:[4ch]>  ; 2  Length (in bytes) of video area (regen size)
+ = ds:[4eh]			PageOffset          equ <ds:[4eh]>  ; 2  Offset from video segment of active video memory page
+ = ds:[50h]			CursorPos           equ <ds:[50h]>  ; 16 Cursor location (8 byte-pairs; low byte=col, hi byte=row)
+ = ds:[60h]			CursorShape         equ <ds:[60h]>  ; 2  Cursor size/shape.  Low byte=end scan line; hi byte=start line.
+ = ds:[62h]			ActivePage          equ <ds:[62h]>  ; 1  Current active video page number
+ = ds:[63h]			PortAddress         equ <ds:[63h]>  ; 2  Port address for 6845 video controller chip; see CGA I/O Ports
+ = ds:[65h]			CrtMode             equ <ds:[65h]>  ; 1  Current value of 6845 video ctrlr CRT_MODE (port 3x8H register)
+ = ds:[66h]			CrtPalette          equ <ds:[66h]>  ; 1  Current value of 6845 video ctrlr CRT_PALETTE (port 3x9H reg)
+ = ds:[84h]			ScreenRows          equ <ds:[84h]>  ; 1  EGA text rows-1  (maximum valid row value)
+ = ds:[85h]			ScanLinesChar       equ <ds:[85h]>  ; 2  EGA bytes per character (scan-lines/char used in active mode)
+ = ds:[87h]			EgaMiscInfo         equ <ds:[87h]>  ; 1  EGA flags; see EgaMiscInfoRec
+ = ds:[88h]			EgaMiscInfo2        equ <ds:[88h]>  ; 1  EGA flags; see EgaMiscInfo2Rec
+ = ds:[89h]			VgaFlags            equ <ds:[89h]>  ; 1  VGA flags; see VgaFlagsRec
+ = ds:[8ah]			VgaFlags2           equ <ds:[8ah]>  ; 1  VGA flags2
+ = ds:[69h]			PalOffset			equ <ds:[69h]>  ; 2  current palette offset (temporary during the video mode set)
+
+
+ E59B				int10 proc near     
+ E59B  FB					sti                     ; no interrupt reentrant
+ E59C  FC					cld
+ E59D  1E					push    ds
+ E59E  56					push    si
+ E59F  6A 40					push    40h
+ E5A1  1F					pop     ds
+ E5A2  80 FC 4F					cmp     ah, 4fh
+ E5A5  74 16					je      short svga
+ E5A7  80 FC 1C					cmp     ah, 1ch
+ E5AA  77 0E					ja      short exit
+ E5AC  8B F0					mov     si, ax
+ E5AE  C1 EE 07					shr     si, 7
+ E5B1  81 E6 01FE				and     si, 1feh
+ E5B5  2E: FF 94 EDF0 R				call    cs:vidtbl[si]
+ E5BA				exit:        
+ E5BA  5E					pop     si
+ E5BB  1F					pop     ds
+ E5BC  CF					iret
+ E5BD				svga:
+ E5BD  3C 05					cmp     al, 5
+ E5BF  74 77					je      short VESAMemControl
+ E5C1  3C 01					cmp     al, 1
+ E5C3  72 0D					jb      short VESAGetInfo
+ E5C5  74 24					je      short VESAGetModeInfo
+ E5C7  3C 03					cmp     al, 3
+ E5C9  72 37					jb      short VESASetMode
+ E5CB  74 4F					je      short VESAGetMode
+ E5CD  B8 0100					mov     ax, 100h
+ E5D0  EB E8					jmp     short exit
+
+				; ---------------- VESA fn00
+ E5D2				VESAGetInfo:
+ E5D2  51					push    cx
+ E5D3  57					push    di
+ E5D4  BE E664 R				mov     si, offset VESAInfo
+ E5D7  B9 000A					mov     cx, 10
+ E5DA  F3/ 2E: A5				rep     movsw es:[di], cs:[si]
+ E5DD  B1 76					mov     cl, 118     ; 236 bytes 0
+ E5DF				VESASupportedClear:        
+ E5DF  33 C0					xor     ax, ax
+ E5E1  F3/ AB					rep     stosw
+ E5E3  5F					pop     di
+ E5E4  59					pop     cx     
+ E5E5				VESASupported:
+ E5E5  B4 00					mov     ah, 0       ; success    
+ E5E7				VESASupportedErr:
+ E5E7  B0 4F					mov     al, 4fh
+ E5E9  EB CF					jmp     short exit
+
+				; ---------------- VESA fn01
+ E5EB				VESAGetModeInfo:
+ E5EB  81 F9 0101				cmp     cx, 101h
+ E5EF				VESAGetModeInfo1:        
+ E5EF  B4 01					mov     ah, 1       ; error
+ E5F1  75 F4					jne     short VESASupportedErr
+ E5F3  51					push    cx
+ E5F4  57					push    di
+ E5F5  B9 0009					mov     cx, 9
+ E5F8  BE E68F R				mov     si, offset VESAModeInfo
+ E5FB  F3/ 2E: A5				rep     movsw es:[di], cs:[si]
+ E5FE  B1 77					mov     cl, 119       
+ E600  EB DD					jmp     short VESASupportedClear
+
+				; ---------------- VESA fn02
+ E602				VESASetMode:
+ E602  6B C3 02					imul    ax, bx, 2
+ E605  3D 0202					cmp     ax, 101h*2
+ E608  75 0A					jne     short VESASetMode1      
+ E60A  8D 87 23FF				lea     ax, [bx+23ffh]
+ E60E  86 E0					xchg    ah, al
+ E610  CD 10					int     10h
+ E612  EB D1					jmp     short VESASupported   
+ E614				VESASetMode1:
+ E614  8A C3					mov     al, bl
+ E616  B4 00					mov     ah, 0
+ E618  CD 10					int     10h
+ E61A  EB C9					jmp     short VESASupported
+
+				; ---------------- VESA fn03
+ E61C				VESAGetMode:
+ E61C  8A 3E 0087				mov     bh, EgaMiscInfo
+ E620  80 E7 80					and     bh, 80h
+ E623  8A 1E 0049				mov     bl, ActiveVideoMode
+ E627  80 FB 25					cmp     bl, 25h
+ E62A  74 06					je      short VESAGetMode1
+ E62C  0A DF					or      bl, bh
+ E62E  B7 00					mov     bh, 0
+ E630  EB B3					jmp     short VESASupported
+ E632				VESAGetMode1:
+ E632  81 C3 00DC				add     bx, 257-25h        
+ E636  EB AD					jmp     short VESASupported
+
+				; ---------------- VESA fn05
+ E638				VESAMemControl:
+				;        test    bx, not 101h                ; BX validation
+				;        jnz     short VESAGetModeInfo1      ; error
+ E638  0E					push    cs
+ E639  68 E5E5 R				push    offset VESASupported
+				;        call    VESAMemControlCB
+				;        jmp     short VESASupported
+ E63C				VESAMemControlCB:
+ E63C  9C					pushf
+ E63D  FA					cli
+ E63E  50					push    ax
+ E63F  52					push    dx
+ E640  8B C3					mov     ax, bx
+ E642  83 E0 01					and     ax, 1
+ E645  04 8A					add     al, 8ah
+ E647  92					xchg    ax, dx
+ E648  83 E0 07					and     ax, 7
+ E64B  04 0A					add     al, 0ah
+ E64D  84 FF					test    bh, bh
+ E64F  75 08					jnz     getpageinfo
+ E651  E8 0F6C					call    flush
+ E654  EF					out     dx, ax          
+ E655  5A					pop     dx
+ E656  58					pop     ax
+ E657  9D					popf
+ E658  CB					retf
+ E659				getpageinfo:
+ E659  ED					in      ax, dx
+ E65A  2C 0A					sub     al, 0ah
+ E65C  83 E0 07					and     ax, 7
+ E65F  92					xchg    ax, dx
+ E660  58					pop     ax
+ E661  58					pop     ax                
+ E662  9D					popf
+ E663  CB					retf
+				   
+ E664 56 45 53 41		VESAInfo    db  'VESA'
+ E668  0100 E678 R F000					dw  100h, VESAOEM, 0f000h, 2, 0, VESAModes, 0f000h, 8
+       0002 0000 E68B R
+       F000 0008
+ E678 4E 69 63 6F 6C 61		VESAOEM     db  'Nicolae Dumitrache', 0
+       65 20 44 75 6D 69
+       74 72 61 63 68 65
+       00
+ E68B 0101 FFFF			VESAModes   dw  101h, 0ffffh
+ E68F				VESAModeInfo:
+				;Bit(s)  Description - mode attributes 
+				;0      mode supported by present hardware configuration
+				;1      optional information available (must be =1 for VBE v1.2+)
+				;2      BIOS output supported
+				;3      set if color, clear if monochrome
+				;4      set if graphics mode, clear if text mode
+				;---VBE v2.0+ ---
+				;5      mode is not VGA-compatible
+				;6      bank-switched mode not supported
+				;7      linear framebuffer mode supported
+				;8      double-scan mode available (e.g. 320x200 and 320x240)
+				;---VBE v3.0 ---
+				;9      interlaced mode available
+				;10     hardware supports triple buffering
+				;11     hardware supports stereoscopic display
+				;12     dual display start address support
+				;13-15  reserved
+ E68F  0099					dw  0000000010011001b       
+				;Bit(s)  Description - window attributes
+				;0      exists
+				;1      readable
+				;2      writable
+				;3-7    reserved
+ E691  07 07					db  00000111b, 00000111b
+ E693  0040 0040 A000				dw  64, 64, 0a000h, 0b000h, VESAMemControlCB, 0f000h, 640
+       B000 E63C R F000
+       0280
+
+ E6A1 00			p3c0r10	db		0	; port 3c0h reg 10h mirror
+				; --------------- fn 00h, set video mode
+ E6A2				setmode:
+ E6A2  60					pusha
+ E6A3  06					push    es
+ E6A4  02 C0					add     al, al      ; CF = cls bit
+ E6A6  D0 16 0087				rcl     byte ptr EgaMiscInfo, 1
+ E6AA  D0 0E 0087				ror     byte ptr EgaMiscInfo, 1
+
+ E6AE  50					push	ax
+ E6AF  BA 03C4					mov		dx, 3c4h
+ E6B2  B8 0F02					mov		ax, 0f02h
+ E6B5  EF					out		dx, ax		; enable all write planes
+ E6B6  B8 0804					mov		ax, 0804h
+ E6B9  EF					out		dx, ax		; clear planar mode
+ E6BA  B2 CE					mov		dl, 0ceh
+ E6BC  B8 0001					mov		ax, 0001h
+ E6BF  EF					out		dx, ax		; disable set/reset
+ E6C0  B0 03					mov		al, 03h
+ E6C2  EF					out		dx, ax		; reset logical op and rotate count
+ E6C3  B0 05					mov		al, 05h
+ E6C5  EF					out		dx, ax		; set write mode to 00 (CPU access)
+ E6C6  B8 FF07					mov		ax, 0ff07h
+ E6C9  EF			        out     dx, ax      ; set color don't care to 0Fh
+ E6CA  40			        inc     ax
+ E6CB  EF					out		dx, ax		; set bitmask to CPU access
+ E6CC  58					pop		ax
+
+ E6CD  3C 06					cmp     al, 3*2
+ E6CF  77 2E					ja      short setmode1
+ E6D1  B0 B6					mov     al, 0b6h        ; reset sound generator
+ E6D3  E6 43					out     43h, al
+ E6D5  B0 00					mov     al, 0
+ E6D7  E6 42					out     42h, al
+ E6D9  E6 42					out     42h, al
+ E6DB  B8 0806					mov     ax, 0806h   ; text mode (80x25, 16 colors), flash enabled
+ E6DE  C7 06 004A 0050				mov     word ptr ScreenWidth, 80
+ E6E4  C7 06 004C 1000				mov     word ptr RegenLength, 1000h
+ E6EA  BB B800					mov     bx, 0b800h  ; segment
+ E6ED  B9 4000					mov     cx, 4000h   ; video len/2
+ E6F0  BE 0720					mov     si, 0720h   ; clear value
+ E6F3  BF 8F14					mov		di, 08f14h  ; 400lines, 14h offset
+ E6F6  C7 06 0069 F9C9 R			mov		word ptr PalOffset, offset PalVGA
+ E6FC  E9 00AE					jmp     setmode2
+ E6FF				setmode1:
+ E6FF  3C 1A					cmp		al,	0dh*2
+ E701  75 19					jne		short setmode12
+ E703  BF 8F14					mov		di, 08f14h	; 400 lines, 14h offset
+ E706  B4 11					mov		ah, 11h		; graphic, 640x480x16, half -> 320x200x16
+ E708  C7 06 004A 0028				mov     word ptr ScreenWidth, 40
+ E70E  C7 06 004C 2000				mov     word ptr RegenLength, 2000h
+ E714  C7 06 0069 F8F9 R			mov		word ptr PalOffset, offset PalEGA
+ E71A  EB 3F					jmp		short setmode121
+ E71C				setmode12:	
+ E71C  3C 1C					cmp		al, 0eh*2	; 640x200x16
+ E71E  75 19					jne		short setmode122
+ E720  C7 06 0069 F8F9 R			mov		word ptr PalOffset, offset PalEGA
+ E726  BF 8F28					mov		di, 8f28h	; 400lines, 28h offset
+ E729				setmode1221:
+ E729  B4 01					mov		ah, 1		; graphic, 640x400
+ E72B  C7 06 004A 0050				mov     word ptr ScreenWidth, 80
+ E731  C7 06 004C 4000				mov     word ptr RegenLength, 04000h
+ E737  EB 22					jmp		short setmode121
+ E739				setmode122:
+ E739  C7 06 0069 F9C9 R			mov		word ptr PalOffset, offset PalVGA
+ E73F  3C 20					cmp		al, 10h*2
+ E741  BF 5D28					mov		di, 5d28h	; 350lines, 28h offset
+ E744  74 E3					je		short setmode1221	; 640x350x16
+ E746  3C 24					cmp		al, 12h*2
+ E748  75 20					jne		short setmode13
+ E74A  BF DF28					mov		di, 0df28h	; 480lines, 28h offset
+ E74D  B4 01					mov		ah, 1		; graphic, 640x480x16
+ E74F  C7 06 004A 0050				mov     word ptr ScreenWidth, 80
+ E755  C7 06 004C A000				mov     word ptr RegenLength, 0a000h
+ E75B				setmode121:
+ E75B  50					push	ax
+ E75C  BA 03C4					mov		dx, 3c4h
+ E75F  B8 FF02					mov		ax, 0ff02h
+ E762  EF					out		dx, ax		; set write all planes
+ E763  B8 0004					mov		ax, 0004h
+ E766  EF					out		dx, ax		; set planar mode
+ E767  58					pop		ax
+ E768  EB 3B					jmp		short setmode21
+ E76A				setmode13:    
+ E76A  3C 26					cmp     al, 13h*2
+ E76C  75 19					jne     short setmode3    
+ E76E  B4 41					mov     ah, 41h     ; graphic mode, 320x200, 256 colors
+ E770  C7 06 004A 0028				mov     word ptr ScreenWidth, 40
+ E776  C7 06 004C 0000				mov     word ptr RegenLength, 0000h
+ E77C  BF 8F28					mov		di, 08f28h	; 400 lines, 28h offset
+ E77F  C7 06 0069 F829 R			mov		word ptr PalOffset, offset Pal256
+ E785  EB 1E					jmp     short setmode21
+ E787				setmode3:
+ E787  3C 4A					cmp     al, 25h*2
+ E789  74 03 E9 00C7				jne		setmodeexit
+ E78E  BF DF50					mov		di, 0df50h	; 480 lines, 50h offset
+ E791  B4 01					mov     ah, 1       ; graphic mode, 640x480, 256 colors
+ E793  C7 06 004A 0050				mov     word ptr ScreenWidth, 80
+ E799  C7 06 004C 0000				mov     word ptr RegenLength, 0000h
+ E79F  C7 06 0069 F829 R			mov		word ptr PalOffset, offset Pal256
+ E7A5				setmode21:
+ E7A5  BB A000					mov     bx, 0a000h  ; segment
+ E7A8  B9 8000					mov     cx, 8000h   ; video len/2
+ E7AB  33 F6					xor     si, si      ; clear value
+ E7AD				setmode2:
+ E7AD  D0 E8					shr     al, 1
+ E7AF  A2 0049					mov     ActiveVideoMode, al
+ E7B2  50					push    ax
+ E7B3  51					push    cx
+ E7B4  24 0B					and		al, 0bh		
+ E7B6  3C 03					cmp		al, 3
+ E7B8  B8 4009					mov		ax, 4009h	; build the reg 09h data (lcr9 and repln) of VGA port 3d4h
+ E7BB  80 DC FF					sbb		ah, -1		; repln count (1 for graphic modes 0dh, 0eh, 13h)
+ E7BE  50					push	ax
+ E7BF  1E					push    ds
+ E7C0  07					pop     es
+ E7C1  BA 03D4					mov		dx, 3d4h
+ E7C4  8B C7					mov		ax, di
+ E7C6  B0 12					mov		al, 12h     ; vde
+ E7C8  EF					out		dx, ax		; set scanlines
+ E7C9  97					xchg	ax, di
+ E7CA  8A E0					mov		ah, al
+ E7CC  B0 13					mov		al, 13h
+ E7CE  EF					out		dx, ax		; set offset
+ E7CF  B8 1207			        mov     ax, 1207h   ; lcr8, vde8
+ E7D2  EF			        out     dx, ax
+ E7D3  58			        pop		ax			;	mov     ax, 4009h   ; lcr9
+ E7D4  EF			        out     dx, ax
+ E7D5  B8 FF18			        mov     ax, 0ff18h  ; lcr7..0
+ E7D8  EF			        out     dx,ax
+ E7D9  33 C0					xor     ax, ax
+ E7DB  BF 0050					mov     di, offset CursorPos
+ E7DE  B9 0008					mov     cx, 8
+ E7E1  F3/ AB					rep     stosw           ; reset cursor position for all pages
+ E7E3  B8 0500					mov     ax, 0500h
+ E7E6  CD 10					int     10h             ; set page0
+ E7E8  59					pop     cx
+ E7E9  F6 06 0087 80				test    byte ptr EgaMiscInfo, 80h
+ E7EE  75 16					jnz     short setmode4    ; no clear video memory
+
+ E7F0  8E C3					mov     es, bx
+ E7F2				clearnext:
+ E7F2  96					xchg    ax, si
+ E7F3  33 FF					xor     di, di
+ E7F5  51					push	cx
+ E7F6  F3/ AB					rep     stosw        
+ E7F8  59					pop		cx
+ E7F9  80 FF A0					cmp		bh, 0a0h
+ E7FC  75 08					jnz		short clearok
+ E7FE  96					xchg	ax, si
+ E7FF  40					inc		ax
+ E800  CD 10					int		10h
+ E802  3C 08					cmp		al, 8
+ E804  75 EC					jnz		short clearnext				
+ E806				clearok:
+
+ E806				setmode4:
+ E806  BA 03DA					mov		dx, 3dah
+ E809  EC					in		al, dx
+ E80A  58					pop     ax
+ E80B  BA 03C0					mov     dx, 3c0h
+ E80E  B0 10					mov     al, 10h
+ E810  EE					out     dx, al
+ E811  8A C4					mov     al, ah      
+ E813  EE					out     dx, al          ; set video mode
+ E814  2E: A2 E6A1 R				mov		cs:p3c0r10, al
+ E818  B0 13					mov		al, 13h
+ E81A  EE					out 	dx, al
+ E81B  B0 00					mov		al, 0
+ E81D  EE					out		dx, al		; 0 pan
+
+ E81E  B8 1114					mov     ax, 1114h
+ E821  CD 10					int     10h         ; set 8x16 ROM font
+ E823  B8 1123					mov     ax, 1123h
+ E826  CD 10					int     10h         ; set ROM 8x8 font for graphics mode
+ E828  B4 01					mov     ah, 1
+ E82A  B9 0607					mov		cx, 607h	; scanlines 13 and 14
+ E82D  CD 10					int     10h         ; show cursor
+ E82F  F6 06 0089 08				test    byte ptr VgaFlags, 8  ; test default palette loading
+ E834  75 1F					jnz     short setmodeexit     ; no default palette
+ E836  B8 1012					mov     ax, 1012h
+ E839  33 DB					xor     bx, bx
+ E83B  B9 0040					mov     cx, 40h    
+ E83E  8B 16 0069				mov     dx, PalOffset
+ E842  0E					push    cs
+ E843  07					pop     es
+ E844  CD 10					int     10h             ; set default palette
+ E846  B0 02					mov		al, 02h
+ E848  81 C2 00C0				add		dx, 40h*3
+ E84C  CD 10					int		10h				; set default palette EGA registers
+ E84E  B0 13					mov		al, 13h
+ E850  BB 0001					mov		bx, 0001h		; select page0
+ E853  CD 10					int		10h
+ E855				setmodeexit:
+ E855  07					pop     es
+ E856  61					popa
+ E857				nullproc:
+ E857  C3					ret        
+
+				; --------------- fn 01h, set cursor shape and visibility
+ E858				cursor:     ; CH = start line (0-7), CH bit 5 = 1  -> cursor off
+							; CL = end line (0-7)
+ E858  50					push    ax
+ E859  52					push    dx
+ E85A  89 0E 0060				mov		[CursorShape], cx
+ E85E  F6 06 0085 10				test	byte ptr [ScanLinesChar], 10h
+ E863  74 04					jz		short cursor8
+ E865  03 C9					add		cx, cx
+ E867  FE C5					inc		ch
+ E869				cursor8:
+ E869  BA 03D4					mov     dx, 3d4h
+ E86C  B0 0A					mov     al, 0ah
+ E86E  8A E5					mov		ah, ch
+ E870  EF					out     dx, ax
+ E871  40					inc		ax
+ E872  8A E1					mov     ah, cl
+ E874  EF					out     dx, ax
+ E875  5A					pop     dx
+ E876  58					pop     ax
+ E877  C3					ret
+
+				;---------------- fn 02h, set cursor pos
+ E878				curpos:
+ E878  50					push    ax
+ E879  53					push    bx
+ E87A  8A C7					mov     al, bh
+ E87C  C1 EB 07					shr     bx, 7
+ E87F  83 E3 0E					and     bx, 0eh
+ E882  89 57 50					mov     CursorPos[bx], dx
+ E885  80 3E 0049 03				cmp     byte ptr ActiveVideoMode, 3
+ E88A  75 1E					jne     short curpos1
+ E88C  3A 06 0062				cmp     al, ActivePage
+ E890  75 18					jne     short curpos1
+ E892  52					push    dx
+ E893  33 C0					xor     ax, ax
+ E895  86 C6					xchg    al, dh        
+ E897  6B C0 50					imul    ax, 80
+ E89A  03 C2					add     ax, dx
+ E89C  BA 03D4					mov     dx, 3d4h
+ E89F  50					push    ax
+ E8A0  8A E0					mov 	ah, al
+ E8A2  B0 0F					mov		al, 0fh
+ E8A4  EF					out		dx, ax
+ E8A5  58					pop		ax
+ E8A6  B0 0E					mov		al, 0eh
+ E8A8  EF					out 	dx, ax
+ E8A9  5A					pop     dx
+ E8AA				curpos1:        
+ E8AA  5B					pop     bx
+ E8AB  58					pop     ax
+ E8AC  C3					ret
+
+				;---------------- fn 03h, get cursor pos
+ E8AD				getcurpos:
+ E8AD  53					push    bx
+ E8AE  C1 EB 07					shr     bx, 7
+ E8B1  83 E3 0E					and     bx, 0eh
+ E8B4  8B 57 50					mov     dx, CursorPos[bx]
+ E8B7  8B 0E 0060				mov     cx, CursorShape
+ E8BB  5B					pop     bx
+ E8BC  C3					ret
+
+				;---------------- fn 04h, light pen
+ E8BD				lightpen:
+ E8BD  B4 00					mov     ah, 0   ; not triggered
+ E8BF  C3					ret
+
+				;---------------- fn 05h, set active video page
+ E8C0				apage:
+ E8C0  60					pusha
+ E8C1  E8 0CFC					call    flush
+ E8C4  24 07					and     al, 7
+ E8C6  8A F8					mov     bh, al
+ E8C8  A2 0062					mov     ActivePage, al
+ E8CB  A0 0049					mov     al, ActiveVideoMode
+ E8CE  3C 13					cmp     al, 13h
+ E8D0  73 19					jae		short apage1
+ E8D2  3C 03					cmp     al, 3
+ E8D4  77 25					ja		short apage2
+ E8D6  B8 000A					mov     ax, 0ah
+ E8D9  E7 8A					out     8ah, ax
+ E8DB  40					inc     ax
+ E8DC  E7 8B					out     8bh, ax
+ E8DE  B4 03					mov     ah, 3
+ E8E0  CD 10					int     10h        ; get cursor pos
+ E8E2  B4 02					mov     ah, 2
+ E8E4  CD 10					int     10h        ; set cursor pos
+ E8E6  B8 0400					mov		ax, 400h
+ E8E9  EB 13					jmp     short apage4
+ E8EB				apage1:	
+ E8EB  B8 000A					mov     ax, 0ah		; mode 13h and 25h
+ E8EE  02 C7					add     al, bh
+ E8F0  E7 8A					out     8ah, ax
+ E8F2  40					inc     ax
+ E8F3  3C 12					cmp     al, 12h
+ E8F5  75 02					jne     short apage3
+ E8F7  B0 0A					mov     al, 0ah
+ E8F9				apage3: 
+ E8F9  E7 8B					out     8bh, ax
+ E8FB				apage2:
+ E8FB  A1 004C					mov	ax, RegenLength
+ E8FE				apage4:
+ E8FE  C1 EB 08					shr     bx, 8      ; page number
+ E901  F7 E3					mul     bx
+ E903  8B D8					mov     bx, ax     ; 1 means 4 bytes, or 2 characters
+ E905  C1 E0 02					shl     ax, 2	   ; 1 means 1 byte   
+ E908  A3 004E					mov     PageOffset, ax
+ E90B  BA 03D4					mov     dx, 3d4h
+ E90E  8A E3					mov		ah, bl
+ E910  B0 0D					mov		al, 0dh
+ E912  EF					out		dx, ax
+ E913  8A E7					mov		ah, bh
+ E915  48					dec		ax
+ E916  EF					out		dx, ax
+ E917  61					popa
+ E918  C3					ret
+
+				;---------------- fn 06h, scroll up / clr
+ E919				scrollup:
+ E919  60					pusha
+ E91A  06					push    es
+ E91B  87 CA					xchg    cx, dx
+ E91D  2B CA					sub     cx, dx
+ E91F  41					inc     cx
+ E920  E8 0047					call    scr_params
+ E923				scrollup6:        
+ E923  68 B800					push    0b800h          ; segment
+ E926  07					pop     es
+ E927  02 D2					add     dl, dl
+ E929  03 FF					add     di, di
+ E92B  03 3E 004E				add     di, PageOffset  ; di = top left corner address
+ E92F  91					xchg    ax, cx          ; ah = 0
+ E930  84 DB					test    bl, bl
+ E932  74 13					jz      short scrollup3       ; clear
+ E934  2A E3					sub     ah, bl
+ E936  72 0F					jb      short scrollup3       ; clear
+ E938  03 F7					add     si, di
+ E93A				scrollup4:        
+ E93A  8A C8					mov     cl, al
+ E93C  F3/ 26: A5				rep     movsw es:[si], es:[di]
+ E93F  03 F2					add     si, dx
+ E941  03 FA					add     di, dx
+ E943  FE CC					dec     ah              
+ E945  79 F3					jns     short scrollup4       ; ch = lines - 1
+ E947				scrollup3:                      
+ E947  02 E3					add     ah, bl          ; clear rectangle: DI=address, ah=lines, al=columns, bh=attribute
+ E949  93					xchg    ax, bx
+ E94A  B0 20					mov     al, ' '
+ E94C				scrollup5:
+ E94C  8A CB					mov     cl, bl
+ E94E  F3/ AB					rep     stosw
+ E950  03 FA					add     di, dx
+ E952  FE CF					dec     bh
+ E954  79 F6					jns     short scrollup5       ; ch = lines - 1
+ E956				scrollexit:
+ E956  07					pop     es
+ E957  61					popa
+ E958  C3					ret
+
+				;---------------- fn 07h, scroll dn / clr
+ E959				scrolldn:
+ E959  FD					std
+ E95A  60					pusha
+ E95B  06					push    es
+ E95C  F7 D9					neg     cx
+ E95E  03 CA					add     cx, dx
+ E960  41					inc     cx
+ E961  E8 0006					call    scr_params
+ E964  F7 DA					neg     dx
+ E966  F7 DE					neg     si
+ E968  EB B9					jmp     short scrollup6
+
+ E96A				scr_params:
+ E96A  8A D8					mov     bl, al          ; lines
+ E96C  33 C0					xor     ax, ax
+ E96E  86 C6					xchg    al, dh
+ E970  6B F8 50					imul    di, ax, 80
+ E973  03 FA					add     di, dx
+ E975  B2 50					mov     dl, 80          ; dh = 0
+ E977  2A D1					sub     dl, cl
+ E979  8A C3					mov     al, bl
+ E97B  69 F0 00A0				imul    si, ax, 160
+ E97F  C3					ret
+				;---------------- fn 08h, read char/attr
+ E980				readchar:
+ E980  53					push    bx
+ E981  E8 0004					call    mode3chaddr
+ E984  8B 07					mov     ax, [bx]
+ E986  5B					pop     bx
+ E987  C3					ret
+
+ E988				mode3chaddr:    ; returns current char address in mode3 in ds:bx. Input: bh=page, ds=40h 
+ E988  50					push    ax
+ E989  81 E3 0700				and     bx, 700h
+ E98D  8D 87 B800				lea     ax, [bx+0b800h]
+ E991  C1 EB 07					shr     bx, 7
+ E994  8B 5F 50					mov     bx, CursorPos[bx]
+ E997  8E D8					mov     ds, ax
+ E999  33 C0					xor     ax, ax
+ E99B  86 C7					xchg    al, bh
+ E99D  6B C0 50					imul    ax, 80
+ E9A0  03 D8					add     bx, ax
+ E9A2  03 DB					add     bx, bx
+ E9A4  58					pop     ax
+ E9A5  C3					ret
+
+				;---------------- fn 09h, write char/attr
+ E9A6				writecharattr:
+ E9A6  50					push    ax
+ E9A7  06					push    es
+ E9A8  53					push    bx
+ E9A9  51					push    cx
+ E9AA  8A E3					mov     ah, bl
+ E9AC  E8 FFD9					call    mode3chaddr
+ E9AF  1E					push    ds
+ E9B0  07					pop     es
+ E9B1  87 FB					xchg    di, bx
+ E9B3  F3/ AB					rep     stosw
+ E9B5  87 FB					xchg    di, bx
+ E9B7  59					pop     cx
+ E9B8  5B					pop     bx
+ E9B9  07					pop     es
+ E9BA  58					pop     ax
+ E9BB  C3					ret
+
+				;---------------- fn 0ah, write char
+ E9BC				writechar:
+ E9BC  E3 0E					jcxz    short writecharskip
+ E9BE  53					push    bx
+ E9BF  51					push    cx
+ E9C0  E8 FFC5					call    mode3chaddr
+ E9C3				writechar3:        
+ E9C3  88 07					mov     [bx], al
+ E9C5  83 C3 02					add     bx, 2
+ E9C8  E2 F9					loop    short writechar3
+ E9CA  59					pop     cx
+ E9CB  5B					pop     bx
+ E9CC				writecharskip:        
+ E9CC  C3					ret
+
+				;---------------- fn 0eh, write char as TTY
+ E9CD				writecharTTY:
+ E9CD  50					push    ax
+ E9CE  53					push    bx
+ E9CF  52					push    dx
+ E9D0  8A 1E 0062				mov     bl, ActivePage
+ E9D4  B7 00					mov     bh, 0
+ E9D6  03 DB					add     bx, bx
+ E9D8  8B 57 50					mov     dx, CursorPos[bx]
+ E9DB  C1 E3 07					shl     bx, 7
+ E9DE  B4 0A					mov     ah, 0ah
+ E9E0  E8 0008					call    tty
+ E9E3  B4 02					mov     ah, 2       ; set cursor pos
+ E9E5  CD 10					int     10h
+ E9E7  5A					pop     dx
+ E9E8  5B					pop     bx
+ E9E9  58					pop     ax 
+ E9EA  C3					ret        
+
+ E9EB				tty:    ; dx=xy, bh=page, al=char, bl=attr, ah=0ah(no attr) or 09h(with attr)
+ E9EB  F7 06 0018 0008				test    word ptr KbdFlags2, Pause
+ E9F1  75 F8					jnz     short tty
+ E9F3  51					push    cx
+ E9F4  3C 07					cmp     al, 7
+ E9F6  74 1A					je      short bell
+ E9F8  3C 08					cmp     al, 8
+ E9FA  74 18					je      short bs
+ E9FC  3C 0A					cmp     al, 0ah
+ E9FE  74 22					je      short cr
+ EA00  3C 0D					cmp     al, 0dh
+ EA02  74 18					je      short lf
+ EA04  B9 0001					mov     cx, 1
+ EA07  CD 10					int     10h         ; write char at cursor
+ EA09  42					inc     dx
+ EA0A  3A 16 004A				cmp     dl, ScreenWidth
+ EA0E  73 10					jae     short crlf
+ EA10				tty1:
+ EA10  59					pop     cx
+ EA11  C3					ret
+ EA12				bell:
+				; TODO bell code        
+ EA12  EB FC					jmp     short tty1
+ EA14				bs:
+ EA14  80 EA 01					sub     dl, 1
+ EA17  80 D2 00					adc     dl, 0      
+ EA1A  EB F4					jmp     short tty1
+ EA1C				lf:
+ EA1C  B2 00					mov     dl, 0
+ EA1E  EB F0					jmp     short tty1
+ EA20				crlf:
+ EA20  B2 00					mov     dl, 0        
+ EA22				cr:        
+ EA22  FE C6					inc     dh
+ EA24  3A 36 0084				cmp     dh, ScreenRows
+ EA28  76 E6					jbe     short tty1
+ EA2A  FE CE					dec     dh
+				;        mov     ah, 8
+				;        int     10h         ; read attribute at cursor pos
+ EA2C  53					push    bx          ; save active page in bh
+ EA2D  52					push    dx
+				;        xchg    ax, bx
+ EA2E  B7 07					mov     bh, 7       ; default attribute
+ EA30  B8 0601					mov     ax, 601h    
+ EA33  8A 36 0084				mov     dh, ScreenRows
+ EA37  8A 16 004A				mov     dl, ScreenWidth
+ EA3B  4A					dec     dx
+ EA3C  33 C9					xor     cx, cx
+ EA3E  CD 10					int     10h         ; scroll up
+ EA40  5A					pop     dx
+ EA41  5B					pop     bx          ; restore active page in bh         
+ EA42  EB CC					jmp     short tty1
+						
+				;---------------- fn 0fh, read video mode
+ EA44				readmode:
+ EA44  A0 0087					mov     al, EgaMiscInfo
+ EA47  24 80					and     al, 80h
+ EA49  0A 06 0049				or      al, ActiveVideoMode
+ EA4D  8A 26 004A				mov     ah, ScreenWidth
+ EA51  8A 3E 0062				mov     bh, ActivePage
+ EA55  C3					ret
+
+
+				;---------------- fn 10h, palette
+ EA56 EA9C R EA9B R EAAC R	paltable    dw  setonereg, palexit, setallreg, setblink, palexit, palexit, palexit, readonereg, readoverscan, readallreg, palexit, palexit, palexit, palexit, palexit, palexit
+       EAC0 R EA9B R EA9B R
+       EA9B R EAEC R EB18 R
+       EB01 R EA9B R EA9B R
+       EA9B R EA9B R EA9B R
+       EA9B R
+ EA76  EB1B R EA9B R EB31 R				dw  setoneDAC, palexit, setblockDAC, paging, palexit, readoneDAC, palexit, readblockDAC, setPELmask, getPELmask, getpaging, grayscale
+       EB42 R EA9B R EB72 R
+       EA9B R EB8A R EB9B R
+       EBA4 R EBAD R EBC3 R
+
+ EA8E				pal:
+ EA8E  3C 1B					cmp     al, 1bh
+ EA90  77 09					ja      short palexit
+ EA92  8B F0					mov     si, ax
+ EA94  03 F6					add     si, si
+ EA96  2E: FF 94 CA56 R				call    cs:paltable[si-2000h]
+ EA9B				palexit:
+ EA9B  C3					ret
+
+ EA9C				setonereg:
+ EA9C  60					pusha
+ EA9D  BA 03DA					mov		dx, 3dah
+ EAA0  EC					in		al, dx
+ EAA1  BA 03C0					mov		dx, 3c0h
+ EAA4  8A C3					mov		al, bl
+ EAA6  EE					out		dx, al
+ EAA7  8A C7					mov		al, bh
+ EAA9  EE					out		dx, al
+ EAAA  61					popa
+ EAAB				setonereg1:        
+ EAAB  C3					ret        
+
+ EAAC				setallreg:
+ EAAC  60					pusha
+ EAAD  B0 00					mov     al, 0
+ EAAF  8B F2					mov     si, dx
+ EAB1  B3 0F					mov     bl, 15
+ EAB3				setallreg1:        
+ EAB3  26: 8A 7C 0F				mov     bh, es:[si+15]
+ EAB7  CD 10					int     10h
+ EAB9  4E					dec     si
+ EABA  FE CB					dec     bl
+ EABC  79 F5					jns     short setallreg1
+ EABE  61					popa
+ EABF  C3					ret
+
+ EAC0				setblink:
+ EAC0  60					pusha
+ EAC1  BA 03DA					mov		dx, 3dah
+ EAC4  EC					in		al, dx
+ EAC5  BA 03C0					mov     dx, 3c0h
+ EAC8  B0 10					mov     al, 10h
+ EACA  EE					out     dx, al
+ EACB  2E: A0 E6A1 R				mov		al, cs:p3c0r10      
+ EACF  C0 E3 03					shl     bl, 3
+ EAD2  32 C3					xor		al, bl
+ EAD4  24 F7					and		al, not 8
+ EAD6  32 C3					xor		al, bl
+ EAD8  EE					out     dx, al          ; set blink flag
+ EAD9  2E: A2 E6A1 R				mov		cs:p3c0r10, al
+ EADD  C0 E0 02					shl     al, 2
+ EAE0  32 06 0089				xor     al, VgaFlags
+ EAE4  24 20					and     al, 20h
+ EAE6  30 06 0089				xor     VgaFlags, al
+ EAEA				setblink1:
+ EAEA  61					popa
+ EAEB  C3					ret
+
+ EAEC				readonereg:
+ EAEC  52					push	dx
+ EAED  50					push	ax
+ EAEE  BA 03DA					mov		dx, 3dah
+ EAF1  EC					in		al, dx
+ EAF2  BA 03C0					mov		dx, 3c0h
+ EAF5  8A C3					mov		al, bl
+ EAF7  EE					out		dx, al
+ EAF8  42					inc		dx
+ EAF9  EC					in		al, dx
+ EAFA  4A					dec		dx
+ EAFB  EE					out		dx, al
+ EAFC  8A F8					mov		bh, al
+ EAFE  58					pop		ax
+ EAFF  5A					pop		dx
+ EB00  C3					ret
+
+ EB01				readallreg:
+ EB01  60					pusha
+ EB02  8B FA					mov     di, dx
+ EB04  B3 00					mov     bl, 0
+ EB06				readllreg1:
+ EB06  B0 07					mov     al, 7
+ EB08  CD 10					int     10h
+ EB0A  8A C7					mov     al, bh
+ EB0C  AA					stosb
+ EB0D  43					inc     bx
+ EB0E  80 FB 10					cmp     bl, 16
+ EB11  75 F3					jne     short readllreg1
+ EB13  B0 00					mov     al, 0   ; overscan color
+ EB15  AA					stosb
+ EB16  61					popa
+ EB17  C3					ret
+
+ EB18				readoverscan:
+ EB18  B7 00					mov     bh, 0
+ EB1A  C3					ret
+
+ EB1B				setoneDAC:
+ EB1B  50					push    ax
+ EB1C  52					push    dx
+ EB1D  92					xchg    ax, dx
+ EB1E  8A C3					mov     al, bl
+ EB20  BA 03C8					mov     dx, 3c8h
+ EB23  EE					out     dx, al
+ EB24  42					inc     dx
+ EB25  8A C4					mov     al, ah
+ EB27  EE					out     dx, al
+ EB28  8A C5					mov     al, ch
+ EB2A  EE					out     dx, al
+ EB2B  8A C1					mov     al, cl
+ EB2D  EE					out     dx, al
+ EB2E  5A					pop     dx
+ EB2F  58					pop     ax
+ EB30  C3					ret
+
+ EB31				setblockDAC:
+ EB31  60					pusha
+ EB32  8B F2					mov     si, dx
+ EB34  BA 03C8					mov     dx, 3c8h
+ EB37  93					xchg    ax, bx
+ EB38  EE					out     dx, al
+ EB39  42					inc     dx
+ EB3A  6B C9 03					imul    cx, 3
+ EB3D  F3/ 26: 6E				rep     outsb dx, es:[si]
+ EB40  61					popa
+ EB41  C3					ret
+
+ EB42				paging:
+ EB42  60					pusha
+ EB43  BA 03DA					mov		dx, 3dah
+ EB46  EC					in		al, dx
+ EB47  BA 03C0					mov		dx, 3c0h
+ EB4A  84 DB					test    bl, bl
+ EB4C  2E: A0 E6A1 R				mov		al, cs:p3c0r10
+ EB50  75 11					jnz     short paging1
+ EB52  02 C0					add		al, al
+ EB54  D0 CF					ror		bh, 1
+ EB56  D0 D8					rcr		al, 1
+ EB58  2E: A2 E6A1 R				mov		cs:p3c0r10, al
+ EB5C  50					push	ax
+ EB5D  B0 10					mov		al, 10h
+ EB5F  EE					out		dx, al
+ EB60  58					pop		ax
+ EB61  EB 0C					jmp     short paging2
+ EB63				paging1:
+ EB63  02 C0					add		al, al
+ EB65  72 03					jc		paging3
+ EB67  C0 E7 02					shl		bh, 2
+ EB6A				paging3:
+ EB6A  B0 14					mov		al, 14h
+ EB6C  EE					out		dx, al
+ EB6D  8A C7					mov		al, bh
+ EB6F				paging2:        
+ EB6F  EE					out		dx, al
+ EB70  61					popa
+ EB71  C3					ret
+
+ EB72				readoneDAC:
+ EB72  50					push    ax
+ EB73  52					push    dx
+ EB74  8A C3					mov     al, bl
+ EB76  BA 03C7					mov     dx, 3c7h
+ EB79  EE					out     dx, al
+ EB7A  42					inc     dx
+ EB7B  42					inc     dx
+ EB7C  EC					in      al, dx
+ EB7D  8A E0					mov     ah, al
+ EB7F  EC					in      al, dx
+ EB80  8A E8					mov     ch, al
+ EB82  EC					in      al, dx
+ EB83  8A C8					mov     cl, al
+ EB85  5A					pop     dx
+ EB86  8A F4					mov     dh, ah
+ EB88  58					pop     ax             
+ EB89  C3					ret
+
+ EB8A				readblockDAC:
+ EB8A  60					pusha
+ EB8B  8B FA					mov     di, dx
+ EB8D  BA 03C7					mov     dx, 3c7h
+ EB90  93					xchg    ax, bx
+ EB91  EE					out     dx, al
+ EB92  42					inc     dx
+ EB93  42					inc     dx
+ EB94  6B C9 03					imul    cx, 3
+ EB97  F3/ 6C					rep     insb                
+ EB99  61					popa
+ EB9A  C3					ret
+
+ EB9B				setPELmask:
+ EB9B  52					push    dx
+ EB9C  93					xchg    ax, bx
+ EB9D  BA 03C6					mov     dx, 3c6h
+ EBA0  EE					out     dx, al
+ EBA1  93					xchg    ax, bx
+ EBA2  5A					pop     dx
+ EBA3  C3					ret
+
+ EBA4				getPELmask:
+ EBA4  52					push    dx
+ EBA5  93					xchg    ax, bx
+ EBA6  BA 03C6					mov     dx, 3c6h
+ EBA9  EC					in      al, dx
+ EBAA  93					xchg    ax, bx
+ EBAB  5A					pop     dx
+ EBAC  C3					ret
+
+ EBAD				getpaging:
+ EBAD  B3 14					mov		bl, 14h
+ EBAF  E8 FF3A					call	readonereg	; returns BH
+ EBB2  2E: 8A 1E E6A1 R				mov		bl, cs:p3c0r10
+ EBB7  80 E7 0F					and		bh, 0fh
+ EBBA  C0 EB 07					shr		bl, 7
+ EBBD  75 03					jnz		short getpaging1
+ EBBF  C0 EF 02					shr		bh, 2
+ EBC2				getpaging1:
+ EBC2  C3					ret
+
+ EBC3				grayscale:
+ EBC3  E3 2B					jcxz    short grayscale2
+ EBC5  60					pusha
+ EBC6  8A F9					mov     bh, cl
+ EBC8				grayscale1:        
+ EBC8  B0 15					mov     al, 15h
+ EBCA  CD 10					int     10h
+ EBCC  C1 EA 08					shr     dx, 8
+ EBCF  6B F2 4D					imul    si, dx, 77
+ EBD2  8A D5					mov     dl, ch
+ EBD4  69 D2 0097				imul    dx, 151
+ EBD8  B5 00					mov     ch, 0
+ EBDA  6B C9 1C					imul    cx, 28
+ EBDD  03 D6					add     dx, si
+ EBDF  03 D1					add     dx, cx
+ EBE1  8A EE					mov     ch, dh
+ EBE3  8A CE					mov     cl, dh
+ EBE5  B0 10					mov     al, 10h
+ EBE7  CD 10					int     10h
+ EBE9  FE C3					inc     bl
+ EBEB  FE CF					dec     bh
+ EBED  75 D9					jne     short grayscale1        
+ EBEF  61					popa
+ EBF0				grayscale2:        
+ EBF0  C3					ret
+
+
+				;---------------- fn 11h, character generator
+ EBF1				loadUDF:    ; CX=chars, DX=first char, BH=bytes/char, ES:BP=font
+ EBF1  60					pusha
+ EBF2  92					xchg    ax, dx
+ EBF3  87 CB					xchg    cx, bx
+ EBF5  C1 E9 10					shr     cx, 16 ; 8 when fonts are installed
+ EBF8  BA 03CB					mov     dx, 03cbh
+ EBFB  8B F5					mov     si, bp
+ EBFD				loadUDF1:
+ EBFD  EF					out     dx, ax
+ EBFE  51					push    cx
+ EBFF  F3/ 26: 6E		        rep     outsb dx, es:[si]
+ EC02  59					pop     cx
+ EC03  40					inc     ax
+ EC04  4B					dec     bx
+ EC05  75 F6					jnz     short loadUDF1
+ EC07  61					popa
+ EC08  A8 10					test    al, 10h
+ EC0A  74 31					jz      short loadUDFexit
+ EC0C  6A 40					push    40h
+ EC0E  1F					pop     ds
+ EC0F  50					push    ax
+ EC10  B8 0190					mov     ax, 400 ; screen lines in text mode
+ EC13  F6 F7					div     bh
+ EC15  48					dec     ax
+ EC16  A2 0084					mov     ScreenRows, al
+ EC19  88 3E 0085				mov     byte ptr ScanLinesChar, bh
+ EC1D  2E: A0 E6A1 R				mov		al, cs:p3c0r10		; set/reset half bit
+ EC21  32 C7					xor		al, bh		
+ EC23  0C 10					or		al, 10h
+ EC25  32 C7					xor		al, bh
+ EC27  A8 01					test	al, 1
+ EC29  75 11					jnz		short loadUDFexit1	; not in text mode
+ EC2B  50					push	ax
+ EC2C  BA 03DA					mov		dx, 3dah
+ EC2F  EC					in		al, dx
+ EC30  BA 03C0					mov		dx, 3c0h
+ EC33  B0 10					mov		al, 10h
+ EC35  EE					out		dx, al
+ EC36  58					pop		ax
+ EC37  EE					out		dx, al
+ EC38  2E: A2 E6A1 R				mov		cs:p3c0r10, al
+ EC3C				loadUDFexit1:
+ EC3C  58					pop     ax 
+ EC3D				loadUDFexit:        
+ EC3D  C3					ret
+
+ EC3E				chargen:
+ EC3E  A8 EF					test    al, not 10h     ; test for 00h and 10h  ; UDF
+ EC40  74 AF					jz      short loadUDF
+ EC42  A8 EE					test    al, not 11h     ; test for 01h and 11h  ; 8x14
+ EC44  74 26					jz      short loadROMfont16
+ EC46  A8 ED					test    al, not 12h     ; test for 02h and 12h  ; 8x8
+ EC48  74 17					jz      short loadROMfont8
+ EC4A  A8 EB					test    al, not 14h     ; test for 04h and 14h  ; 8x16
+ EC4C  74 1E					jz      short loadROMfont16
+ EC4E  3C 20					cmp     al, 20h
+ EC50  72 EB					jb      loadUDFexit
+ EC52  74 30					je      short set1f
+ EC54  3C 21					cmp     al, 21h
+ EC56  74 37					je      short setgrUDF
+ EC58  3C 24					cmp     al, 24h
+ EC5A  76 60					jbe     short setROMgrFont
+ EC5C  3C 30					cmp     al, 30h
+ EC5E  74 7A					je      short getfontinfo
+ EC60  C3					ret
+
+ EC61				loadROMFont8:
+ EC61  60					pusha
+ EC62  BB 0800					mov     bx, 0800h       ; 8x8 chars, block 0
+ EC65  2E: 8B 2E ED0B R				mov     bp, cs:fontinfo[2]
+ EC6A  EB 09					jmp     short loadROMFont161
+					 
+ EC6C				loadROMFont16:
+ EC6C  60					pusha
+ EC6D  BB 1000					mov     bx, 1000h       ; 8x16 chars, block 0
+ EC70  2E: 8B 2E ED11 R				mov     bp, cs:fontinfo[8]
+ EC75				loadROMFont161:
+ EC75  B9 0100					mov     cx, 100h        ; all chars
+ EC78  33 D2					xor     dx, dx
+ EC7A  06					push    es
+ EC7B  0E					push    cs
+ EC7C  07					pop     es
+ EC7D  24 10					and     al, 10h
+ EC7F  CD 10					int     10h             ; loadUDF
+ EC81  07					pop     es
+ EC82  61					popa
+ EC83  C3					ret
+
+ EC84				set1f:
+ EC84  33 F6					xor     si, si
+ EC86  8E DE					mov     ds, si
+ EC88  89 6C 7C					mov     [si+1fh*4], bp
+ EC8B  8C 44 7E					mov     [si+1fh*4+2], es
+ EC8E  C3					ret
+						
+ EC8F				setgrUDF:
+ EC8F  60					pusha
+ EC90  E3 AB					jcxz    short loadUDFexit
+ EC92  1E					push    ds
+ EC93  33 F6					xor     si, si
+ EC95  8E DE					mov     ds, si
+ EC97  89 AC 010C				mov     [si+43h*4], bp
+ EC9B  8C 84 010E				mov     [si+43h*4+2], es
+ EC9F  1F					pop     ds
+ ECA0  B8 00C8					mov     ax, 200
+ ECA3  80 3E 0049 13				cmp     byte ptr ActiveVideoMode, 13h
+ ECA8  72 10					jb      short setgrUDFexit
+ ECAA  74 03					je      short setgrUDF1
+ ECAC  B8 01E0					mov     ax, 480         ; mode 25h, 480 lines
+ ECAF				setgrUDF1:
+ ECAF  89 0E 0085				mov     ScanLinesChar, cx
+ ECB3  99					cwd
+ ECB4  F7 F1					div     cx
+ ECB6  48					dec     ax
+ ECB7  A2 0084					mov     ScreenRows, al
+ ECBA				setgrUDFexit:
+ ECBA  61					popa
+ ECBB  C3					ret
+
+ ECBC				setROMgrFont:       
+ ECBC  60					pusha
+ ECBD  06					push    es
+ ECBE  B9 0008					mov     cx, 8
+ ECC1  0E					push    cs
+ ECC2  07					pop     es
+ ECC3  BD D800 R				mov     bp, font8x8
+ ECC6  3C 23					cmp     al, 23h
+ ECC8  74 03					je      short setROMgrFont1
+ ECCA  BD C800 R				mov     bp, offset font8x16
+ ECCD				setROMgrFont1:        
+ ECCD  B0 21					mov     al, 21h
+ ECCF  CD 10					int     10h     ; set graphic UDF
+ ECD1  48					dec     ax
+ ECD2  BD DC00 R				mov     bp, font8x8 + 128*8
+ ECD5  CD 10					int     10h     ; set INT 1fh
+ ECD7  07					pop     es
+ ECD8  61					popa
+ ECD9  C3					ret
+						
+ ECDA				getfontinfo:
+ ECDA  8B 0E 0085				mov     cx, ScanLinesChar
+ ECDE  8A 16 0084				mov     dl, ScreenRows
+ ECE2  80 FF 01					cmp     bh, 1
+ ECE5  77 0E					ja      short getfontinfo1
+ ECE7  6A 00					push    0
+ ECE9  1F					pop     ds
+ ECEA  C4 2E 007C				les     bp, ds:[1fh*4] 
+ ECEE  72 18					jb      short getfontinfoexit
+ ECF0  C4 2E 010C				les     bp, ds:[43h*4]
+ ECF4  C3					ret
+ ECF5				getfontinfo1:
+ ECF5  80 FF 07					cmp     bh, 7
+ ECF8  77 0E					ja      short getfontinfoexit
+ ECFA  8B F3					mov     si, bx
+ ECFC  C1 EE 08					shr     si, 8
+ ECFF  03 F6					add     si, si
+ ED01  2E: 8B AC ED05 R				mov     bp, cs:fontinfo[si-4]
+ ED06  0E					push    cs
+ ED07  07					pop     es                    
+ ED08				getfontinfoexit:
+ ED08  C3					ret
+
+ ED09 BA00 R D800 R DC00 R	fontinfo    dw  font8x14, font8x8, font8x8+128*8, font8x14, font8x16, font8x16
+       BA00 R C800 R C800 R
+
+				;---------------- fn 12h, special functions
+ ED15				special:
+ ED15  80 FB 10					cmp     bl, 10h
+ ED18  75 0B					jne     short special1
+ ED1A  8A 0E 0088				mov     cl, EgaMiscInfo2    ; cl = switch settings
+ ED1E  83 E1 0F					and     cx, 15              ; ch <- 0 (feature bits)
+ ED21  BB 0003					mov     bx, 3               ; bh <- 0 (color mode), bl = video memory size
+ ED24  C3					ret
+ ED25				special1:
+ ED25  80 FB 31					cmp     bl, 31h
+ ED28  75 0F					jne     short special2
+ ED2A  F6 D8					neg     al
+ ED2C  32 06 0089				xor     al, VgaFlags
+ ED30  24 08					and     al, 8       ; transfer palette loading bit to VgaFlags
+ ED32  30 06 0089				xor     VgaFlags, al
+ ED36  B0 12					mov     al, 12h     ; supported function
+ ED38  C3					ret
+ ED39				special2:
+ ED39  B0 00					mov     al, 0       ; unsupported function
+ ED3B  C3					ret
+
+
+				;---------------- fn 13h, write string
+ ED3C				writestr:
+ ED3C  E3 31					jcxz    short wstrexit
+ ED3E  60					pusha
+ ED3F  8B F3					mov     si, bx
+ ED41  C1 EE 08					shr     si, 8
+ ED44  03 F6					add     si, si
+ ED46  FF 74 50					push    CursorPos[si]
+ ED49  B4 09					mov     ah, 9       ; write tty char/attribute
+ ED4B				wstr1:        
+ ED4B  50					push    ax
+ ED4C  A8 02					test    al, 2
+ ED4E  26: 8A 46 00				mov     al, es:[bp]
+ ED52  74 05					jz      short noattr
+ ED54  45					inc     bp
+ ED55  26: 8A 5E 00				mov     bl, es:[bp]
+ ED59				noattr:
+ ED59  45					inc     bp
+ ED5A  89 54 50					mov     CursorPos[si], dx
+ ED5D  E8 FC8B					call    tty
+ ED60  58					pop     ax
+ ED61  E2 E8					loop    short wstr1
+ ED63  8F 44 50					pop     CursorPos[si]
+ ED66  A8 01					test    al, 1
+ ED68  74 04					jz      short wstr2             
+ ED6A  B4 02					mov     ah, 2       ; set cursor pos
+ ED6C  CD 10					int     10h                
+ ED6E				wstr2:        
+ ED6E  61					popa
+ ED6F				wstrexit:        
+ ED6F  C3					ret
+
+				;---------------- fn 1ah, get/set display combination code
+ ED70				getdcc:
+ ED70  3C 01					cmp     al, 1
+ ED72  77 0C					ja      short getdccexit
+ ED74  8A C4					mov     al, ah
+ ED76  74 03					je      short setdcc
+ ED78  BB 0008					mov     bx, 08h
+ ED7B				dccval  label word        
+ ED7B				setdcc:
+ ED7B  2E: 89 1E ED79 R				mov     cs:[dccval-2], bx
+ ED80				getdccexit:        
+ ED80  C3					ret        
+
+				;---------------- fn 1bh, query status
+ ED81				querystatus:
+ ED81  60					pusha
+ ED82  B8 EDE0 R				mov     ax, offset staticfunctable
+ ED85  AB					stosw
+ ED86  8C C8					mov     ax, cs
+ ED88  AB					stosw
+ ED89  BE 0049					mov     si, offset ActiveVideoMode
+ ED8C  80 3C 12					cmp     byte ptr [si], 12h
+ ED8F  B9 0021					mov     cx, 33          ; info copied from BDA        
+ ED92  F3/ A4					rep     movsb
+ ED94  B8 0008					mov     ax, 8
+ ED97  AB					stosw                   ; display info (one VGA analog color monitor)
+ ED98  BB 0208					mov     bx, 208h        ; 400 scan lines, 8 pages
+ ED9B  B0 10					mov     al, 10h         ; 16 colors         
+ ED9D  72 14					jb      short querystatus1	; mode03h
+ ED9F  BB 0302					mov		bx, 302h	; 480 scan lines, 2 pageS
+ EDA2  74 0F					je		short querystatus1	; mode12h 
+ EDA4  B7 00					mov     bh, 0           ; scan lines code (0=200, 1=350, 2=400, 3=480)
+ EDA6  B8 0100					mov     ax, 100h        ; 256 colors
+ EDA9  80 3E 0049 13				cmp     byte ptr ActiveVideoMode, 13h
+ EDAE  74 0D					je      short querystatus3     ; mode13h
+ EDB0  BB 0301					mov     bx, 301h        ; 480 scan lines, 1 page
+ EDB3				querystatus1:
+ EDB3  80 3E 0049 0D				cmp		byte ptr ActiveVideoMode, 0dh
+ EDB8  75 03					jne		short querystatus3
+ EDBA  BB 0008					mov		bx, 0008h	; 200 scan lines, 8 pages
+ EDBD				querystatus3:
+ EDBD  AB					stosw
+ EDBE  93					xchg    ax, bx
+ EDBF  AB					stosw
+ EDC0  33 C0					xor     ax, ax
+ EDC2  AB					stosw                   ; font block info (45)
+ EDC3  A0 0089					mov     al, VgaFlags
+ EDC6  24 2F					and     al, 00101111b
+ EDC8  AB					stosw        
+ EDC9  AB					stosw
+ EDCA  A0 0087					mov     al, EgaMiscInfo
+ EDCD  C0 E8 04					shr     al, 4
+ EDD0  24 07					and     al, 7           ; video memory size
+ EDD2  AB					stosw
+ EDD3  B0 02					mov     al, 2
+ EDD5  AA					stosb                   ; color display attached
+ EDD6  B1 06					mov     cl, 6
+ EDD8  33 C0					xor     ax, ax
+ EDDA  F3/ AB					rep     stosw           ; 12 reserved bytes
+ EDDC  61					popa
+ EDDD  8A C4					mov     al, ah          ; supported function
+ EDDF  C3					ret
+
+ EDE0 0C			staticfunctable db  00001100b   ; video modes 2h, 3h supported
+ EDE1  60							db  01100000b	; video mode 0dh, 0eh supported
+ EDE2  0D							db  00001101b   ; video modes 10h, 12h, 13h supported
+ EDE3  00							db  00000000b
+ EDE4  20							db  00100000b   ; video mode 25h supported
+ EDE5  00 00							db  0, 0
+ EDE7  04							db  00000100b   ; 400 scanline supported
+ EDE8  01							db  1           ; font blocks available in text mode
+ EDE9  01							db  1           ; max active font blocks available in text mode
+
+				;Bit(s)  Description
+				;0      all modes on all displays function supported
+				;1      gray summing function supported
+				;2      character font loading function supported
+				;3      default palette loading enable/disable supported
+				;4      cursor emulation function supported
+				;5      EGA palette present
+				;6      color palette present
+				;7      color-register paging function supported
+				;8      light pen supported (see AH=04h)
+				;9      save/restore state function 1Ch supported
+				;10     intensity/blinking function supported (see AX=1003h)
+				;11     Display Combination Code supported (see #00039)
+				;12-15  unused (0)
+ EDEA  EF					db  11101111b   ; miscellaneous function support flags 
+ EDEB  0C					db  00001100b   ; miscellaneous function support flags
+								 
+ EDEC  00 00					db  0, 0        ; reserved
+ EDEE  00					db  0           ; save pointer function flags
+ EDEF  00					db  0           ; reserved  
+
+					   
+ EDF0 E6A2 R E858 R E878 R	vidtbl  dw  setmode, cursor, curpos, getcurpos, lightpen, apage, scrollup, scrolldn, readchar, writecharattr
+       E8AD R E8BD R E8C0 R
+       E919 R E959 R E980 R
+       E9A6 R
+ EE04  E9BC R E857 R E857 R			dw  writechar, nullproc, nullproc, nullproc, writecharTTY, readmode
+       E857 R E9CD R EA44 R
+ EE10  EA8E R EC3E R ED15 R			dw  pal, chargen, special, writestr, nullproc, nullproc, nullproc, nullproc, nullproc, nullproc, getdcc, querystatus, nullproc
+       ED3C R E857 R E857 R
+       E857 R E857 R E857 R
+       E857 R ED70 R ED81 R
+       E857 R
+ EE2A				int10 endp
+
+				; --------------------- INT 11h - Equipment ----------------
+ = ds:[10h]			EquipmentWord       equ     <ds:[10h]>
+
+ EE2A				int11   proc near
+ EE2A  1E					push    ds
+ EE2B  6A 40					push    40h
+ EE2D  1F					pop     ds
+ EE2E  A1 0010					mov     ax, EquipmentWord
+ EE31  1F					pop     ds
+ EE32  CF					iret
+ EE33				int11   endp
+
+				; --------------------- INT 12h - Memory size ----------------
+ = ds:[13h]			MemorySize       equ     <ds:[13h]>
+
+ EE33				int12   proc near
+ EE33  1E					push    ds
+ EE34  6A 40					push    40h
+ EE36  1F					pop     ds
+ EE37  A1 0013					mov     ax, MemorySize
+ EE3A  1F					pop     ds
+ EE3B  CF					iret        
+ EE3C				int12   endp
+
+				; --------------------- INT 13h - Disk services ----------------
+ = ds:[74h]			HDLastError       equ     <ds:[74h]>
+ = ds:[92h]			HDOpStarted       equ     <ds:[92h]>    ; bit 3: in INT13h (all other bits must be 0)
+ = ds:[94h]			HDSize            equ     <ds:[94h]>
+
+ EE3C				int13   proc near
+ EE3C  1E					push    ds
+ EE3D  55					push    bp
+ EE3E  6A 40					push    40h
+ EE40  1F					pop     ds
+ EE41  80 36 0092 08				xor     byte ptr HDOpStarted, 8
+ EE46  74 13					jz      short inINT13
+ EE48  FB					sti                     
+ EE49  FC					cld
+ EE4A  80 FC 1A					cmp     ah, 1ah
+ EE4D  76 10					jbe     short Disk1
+ EE4F  80 EC 26					sub     ah, 41h-1bh     ; extensions
+ EE52  80 FC 22					cmp     ah, 22h
+ EE55  76 08					jbe     short Disk1
+ EE57  B4 01					mov     ah, 1           ; bad command error
+ EE59  EB 14					jmp     short exit
+ EE5B				inINT13:        
+ EE5B  B4 AA					mov     ah, 0aah        ; drive not ready
+ EE5D  EB 14					jmp     short exit2
+ EE5F				Disk1:
+ EE5F  8B E8					mov     bp, ax
+ EE61  C1 ED 07					shr     bp, 7
+ EE64  81 E5 01FE				and     bp, 1feh
+ EE68  1E					push    ds
+ EE69  2E: FF 96 EE87 R				call    cs:disktbl[bp]
+ EE6E  1F					pop     ds
+ EE6F				exit:        
+ EE6F  88 26 0074				mov     HDLastError, ah
+ EE73				exit2:
+ EE73  80 36 0092 08				xor     byte ptr HDOpStarted, 8
+ EE78  F6 DC					neg     ah              ; CF <- (AH != 0)
+ EE7A				exit1:
+ EE7A  8B EC					mov     bp, sp
+ EE7C  D0 5E 08					rcr     byte ptr [bp+8], 1
+ EE7F  D0 46 08					rol     byte ptr [bp+8], 1  ; insert error CF on stack
+ EE82  F6 DC					neg     ah
+ EE84  5D					pop     bp
+ EE85  1F					pop     ds
+ EE86  CF					iret
+
+ EE87 EEFB R EEFE R EF0D R	disktbl dw      DiskReset, DiskGetStatus, DiskRead, DiskWrite, DiskVerify, DiskFormat, DiskFormat, DiskFormat, DiskGetParams, DiskInit, DiskRead, DiskWrite, DiskSeek, DiskRst, DiskReadSectBuffer, DiskWriteSectBuffer
+       EF08 R EF03 R EF57 R
+       EF57 R EF57 R EF66 R
+       EF57 R EF0D R EF08 R
+       EF57 R EF57 R F026 R
+       F026 R
+ EEA7  EF57 R EF57 R EF57 R			dw      DiskReady, DiskRecalibrate, DiskDiag, DiskDiag, DiskDiag, DiskGetType, DiskChanged, DiskSetDASDType, DiskSetMediaType, DiskPark, DiskFormat,  DiskExtInstCheck, DiskExtRead, DiskExtWrite, DiskExtVerify, DiskExtLock
+       EF57 R EF57 R EECD R
+       EEFB R F026 R F026 R
+       EEFB R EF57 R EEED R
+       EFA7 R EFA2 R EF9D R
+       F026 R
+ EEC7  F026 R EF57 R EFD9 R			dw      DiskExtEject, DiskExtSeek, DiskExtGetParams
+
+ EECD				DiskGetType:
+ EECD  80 FA 80					cmp     dl, 80h
+ EED0  75 29					jne     short DiskReset ; ah=0, drive not present
+ EED2  8B 0E 0094				mov     cx, HDSize      
+ EED6  8B D1					mov     dx, cx
+ EED8  85 C9					test    cx, cx
+ EEDA  74 1F					jz      short DiskReset ; ah=0, drive not present
+ EEDC  B4 FD					mov     ah, -3      ; HD present
+ EEDE  C1 E9 06					shr     cx, 6
+ EEE1  C1 E2 0A					shl     dx, 10      ; CX:DX = HDSize * 1024
+ EEE4				DiskGetTypeexit:        
+ EEE4  1F					pop     ds          ; discard ret address
+ EEE5  1F					pop     ds          ; discard DS
+ EEE6  80 36 0092 08				xor     byte ptr HDOpStarted, 8     ; CF <- 0 
+ EEEB  EB 8D					jmp     short   exit1        
+
+ EEED				DiskExtInstCheck:
+ EEED  86 DF					xchg    bl, bh
+ EEEF  B4 FF					mov     ah, -1
+ EEF1  B9 0001					mov     cx, 1       ; extended disk access functions (AH=42h-44h,47h,48h) supported
+ EEF4  80 FA 80					cmp     dl, 80h
+ EEF7  75 6A					jne     short notready
+ EEF9  EB E9					jmp     short DiskGetTypeexit
+
+ EEFB				DiskReset:
+ EEFB				DiskChanged:
+ EEFB				DiskPark:
+ EEFB  B4 00					mov     ah, 0       ; success
+ EEFD  C3					ret
+
+ EEFE				DiskGetStatus:
+ EEFE  8A 26 0074				mov     ah, HDLastError
+ EF02  C3					ret
+					  
+ EF03				DiskVerify:
+ EF03  BD F664 R				mov     bp, sdverify
+ EF06  EB 08					jmp     short   DiskRead1
+ EF08				DiskWrite:
+ EF08  BD F6E4 R				mov     bp, sdwrite
+ EF0B  EB 03					jmp     short   DiskRead1
+ EF0D				DiskRead:
+ EF0D  BD F669 R				mov     bp, sdread
+ EF10				DiskRead1:        
+ EF10  84 C0					test    al, al
+ EF12  74 E7					jz      short DiskReset
+ EF14  80 FA 80					cmp     dl, 80h
+ EF17  75 4A					jne     short notready
+ EF19  B4 04					mov     ah, 4
+ EF1B  F6 C1 3F					test    cl, 3fh
+ EF1E  74 18					jz      short DiskReadend   ; bad sector 0
+ EF20  60					pusha
+ EF21  B4 00					mov     ah, 0
+ EF23  50					push    ax
+ EF24  E8 0012					call    HCStoLBA
+ EF27  59					pop     cx
+ EF28  51					push    cx        
+ EF29  FF D5					call    bp              ; DX:AX sector, ES:BX buffer, CX=sectors, returns AX=read sectors
+ EF2B  59					pop     cx
+ EF2C  2B C8					sub     cx, ax
+ EF2E  F7 D9					neg     cx              ; CF=1 if cx != 0
+ EF30  C0 D4 03					rcl     ah, 3           ; AH = 4*CF (sector not found / read error)
+ EF33  8E D8					mov     ds, ax
+ EF35  61					popa
+ EF36  8C D8					mov     ax, ds
+ EF38				DiskReadend:
+ EF38  C3					ret
+
+ EF39				HCStoLBA:       ; CX = {cyl[7:0], cyl[9:8], sect[5:0]}, DH = head. Returns DX:AX LBA
+ EF39  8A C5					mov     al, ch
+ EF3B  8A E1					mov     ah, cl
+ EF3D  C0 EC 06					shr     ah, 6
+ EF40  C1 EA 08					shr     dx, 8
+ EF43  6B D2 3F					imul    dx, 63
+ EF46  83 E1 3F					and     cx, 3fh
+ EF49  03 CA					add     cx, dx
+ EF4B  49					dec     cx
+ EF4C  BA 3EC1					mov     dx, 255*63
+ EF4F  F7 E2					mul     dx
+ EF51  03 C1					add     ax, cx
+ EF53  83 D2 00					adc     dx, 0
+ EF56  C3					ret       
+				;    unsigned int s = cs & 0x3f;
+				;    unsigned int c = ((cs & 0xc0) << 2) | (cs >> 8);
+				;    return (c*255l + h)*63l + s - 1l;
+
+ EF57				DiskFormat:
+ EF57				DiskInit:
+ EF57				DiskSeek:
+ EF57				DiskRst:
+ EF57				DiskReady:
+ EF57				DiskRecalibrate:
+ EF57				DiskDiag:
+ EF57				DiskExtSeek:
+ EF57  83 3E 0094 00				cmp     word ptr HDSize, 0
+ EF5C  74 05					je      short notready
+ EF5E  80 FA 80					cmp     dl, 80h
+ EF61  74 98					je      short DiskReset
+ EF63				notready:        
+ EF63  B4 AA					mov     ah, 0aah        ; disk not ready
+ EF65  C3					ret
+
+ EF66				DiskGetParams:
+ EF66  80 FA 80					cmp     dl, 80h
+ EF69  B4 07					mov     ah, 7
+ EF6B  75 CB					jne     short DiskReadend   ; ret
+ EF6D  B3 00					mov     bl, 0   ; ???
+ EF6F  A1 0094					mov     ax, HDSize
+ EF72  8B D0					mov     dx, ax
+ EF74  C1 E0 0A					shl     ax, 10
+ EF77  C1 EA 06					shr     dx, 6
+ EF7A  83 E8 1E					sub     ax, 30
+ EF7D  83 DA 00					sbb     dx, 0
+ EF80  B9 3EC1					mov     cx, 63*255
+ EF83  F7 F1					div     cx
+ EF85  48					dec     ax
+ EF86  3D 03FE					cmp     ax, 3feh
+ EF89  76 03					jbe     dgpok
+ EF8B  B8 03FE					mov     ax, 3feh
+ EF8E				dgpok:        
+ EF8E  86 C4					xchg    al, ah
+ EF90  C0 E0 06					shl     al, 6
+ EF93  0C 3F					or      al, 3fh
+ EF95  8B C8					mov     cx, ax
+ EF97  BA FE01					mov     dx, 0fe01h
+ EF9A  33 C0					xor     ax, ax
+ EF9C  C3					ret        
+
+ EF9D				DiskExtVerify:
+ EF9D  BD F664 R				mov     bp, sdverify
+ EFA0  EB 08					jmp     short DiskExtRead1
+ EFA2				DiskExtWrite:
+ EFA2  BD F6E4 R				mov     bp, sdwrite
+ EFA5  EB 03					jmp     short DiskExtRead1
+ EFA7				DiskExtRead:
+ EFA7  BD F669 R				mov     bp, sdread
+ EFAA				DiskExtRead1:
+ EFAA  80 FA 80					cmp     dl, 80h
+ EFAD  75 B4					jne     short notready
+ EFAF  06					push    es
+ EFB0  50					push    ax
+ EFB1  60					pusha
+ EFB2  8B DC					mov     bx, sp
+ EFB4  36: 8E 5F 1A				mov     ds, ss:[bx+26]
+ EFB8  8B 4C 02					mov     cx, [si+2]
+ EFBB  C4 5C 04					les     bx, [si+4]
+ EFBE  8B 44 08					mov     ax, [si+8]
+ EFC1  8B 54 0A					mov     dx, [si+10]
+ EFC4  1E					push    ds
+ EFC5  56					push    si
+ EFC6  FF D5					call    bp
+ EFC8  5E					pop     si
+ EFC9  1F					pop     ds
+ EFCA  2B 44 02					sub     ax, [si+2]
+ EFCD  01 44 02					add     [si+2], ax
+ EFD0  61					popa
+ EFD1  58					pop     ax
+ EFD2  1A E4					sbb     ah, ah
+ EFD4  80 E4 04					and     ah, 4
+ EFD7  07					pop     es
+ EFD8  C3					ret
+
+ EFD9				DiskExtGetParams:
+ EFD9  80 FA 80					cmp     dl, 80h
+ EFDC  75 85					jne     short notready
+ EFDE  50					push    ax
+ EFDF  A1 0094					mov     ax, HDSize   
+ EFE2  8B EC					mov     bp, sp
+ EFE4  8E 5E 08					mov     ds, [bp+8]
+ EFE7  33 ED					xor     bp, bp
+ EFE9  C7 04 001A				mov     word ptr [si], 1ah      ; size
+ EFED  C7 44 02 000B				mov     word ptr [si+2], 0bh    ; flags
+ EFF2  C7 44 04 03FF				mov     word ptr [si+4], 1023   ; cylinders
+ EFF7  89 6C 06					mov     word ptr [si+6], bp
+ EFFA  C7 44 08 00FF				mov     word ptr [si+8], 255    ; heads
+ EFFF  89 6C 0A					mov     word ptr [si+10], bp
+ F002  C7 44 0C 003F				mov     word ptr [si+12], 63     ; sectors/track
+ F007  89 6C 0E					mov     word ptr [si+14], bp
+ F00A  89 44 10					mov     word ptr [si+16], ax
+ F00D  C1 64 10 0A				shl     word ptr [si+16], 10
+ F011  C1 E8 06					shr     ax, 6
+ F014  89 44 12					mov     word ptr [si+18], ax
+ F017  89 6C 14					mov     word ptr [si+20], bp
+ F01A  89 6C 16					mov     word ptr [si+22], bp
+ F01D  C7 44 18 0200				mov     word ptr [si+24], 512   ; bytes/sector
+ F022  58					pop     ax
+ F023  B4 00					mov     ah, 0
+ F025  C3					ret 
+
+ F026				DiskReadSectBuffer:
+ F026				DiskWriteSectBuffer:
+ F026				DiskSetDASDType:
+ F026				DiskSetMediaType:
+ F026				DiskExtLock:
+ F026				DiskExtEject:
+ F026  B4 01					mov     ah, 1       ; unsupported fn
+ F028  C3					ret
+
+ F029				int13   endp
+
+
+				OFFDX MACRO n
+					IF n LE -3 OR n GE 3
+						add		dx, n
+					ENDIF
+					IF n EQ -2
+						dec		dx
+					ENDIF 
+					IF n EQ -1 or n EQ -2
+						dec		dx
+					ENDIF
+					IF n EQ 1 or n EQ 2
+						inc		dx
+					ENDIF 
+					IF n eq 2
+						inc		dx
+					ENDIF
+				ENDM
+				; --------------------- INT 14h - Serial port I/O ----------------
+ = 0000				ComPort		equ		0
+ = 0000				THR			equ		0	; Transmit holding buffer
+ = 0000				RBR			equ		0	; Receive buffer
+ = 0000				DLL			equ		0	; divisor latch low byte (DLAB = 1)
+ = 0001				DLH			equ		1	; divisor latch high byte	(DLAB = 1)
+ = 0001				IER			equ		1	; Interrupt enable register
+ = 0003				LCR			equ		3	; line control register (DLAB, BrkEnable, PPP, S, LL)
+ = 0005				LSR			equ		5	; line status register
+ = 0006				MSR			equ		6	; Modem status register
+
+				; AH=function number, AL=char sent or received, DX=zero based COM index. Preserve all registers except AX
+ F029				int14 proc near
+ F029  1E					push	ds
+ F02A  52					push	dx
+ F02B  56					push	si
+ F02C  6A 40					push	40h
+ F02E  1F					pop		ds
+ F02F  8B F2					mov		si, dx
+ F031  03 F6					add		si, si
+ F033  8B 14					mov		dx, ComPort[si]
+						OFFDX	LCR
+ F035  83 C2 03		     1			add		dx, LCR
+ F038  8B F0					mov		si, ax
+ F03A  EC					in		al, dx
+ F03B  24 7F					and		al, 7fh		; clear DLAB bit
+ F03D  EE					out		dx, al
+						OFFDX	LSR-LCR
+ F03E  42		     1			inc		dx
+ F03F  42		     1			inc		dx
+ F040  8B C6					mov		ax, si
+ F042  C1 EE 08					shr		si, 8
+ F045  74 0D					jz		short SetCharFormat
+ F047  4E					dec		si
+ F048  74 43					jz		short STransmit
+ F04A  4E					dec		si
+ F04B  74 51					jz		short SReceive
+ F04D  4E					dec		si
+ F04E  74 33					jz		short GetPortStatus
+				;		dec		si
+				;		jz		short SetCharFormatExt
+ F050				SExit:
+ F050  5E					pop		si
+ F051  5A					pop		dx
+ F052  1F					pop		ds
+ F053  CF					iret
+
+				; ----- Set COM char format --------
+				; AL = BBBPPSLL (BB=000..111 for baud 110,150,300,600,1200,2400,4800,9600)
+				; returns LSR in AH and MSR in AL
+ F054				SetCharFormat:		; DX = LSR
+ F054  52					push	dx
+ F055  51					push	cx
+ F056  8A C8					mov		cl, al
+ F058  8A E8					mov		ch, al
+						OFFDX	LCR-LSR
+ F05A  4A		     1			dec		dx
+ F05B  4A		     1			dec		dx
+ F05C  EC					in		al, dx
+ F05D  0C 80					or		al, 80h		; set DLAB=1
+ F05F  EE					out		dx, al
+ F060  C0 E9 05					shr		cl, 5
+ F063  B8 0417					mov		ax, 417h
+ F066  74 05					jz		short Baud110
+ F068  B8 0300					mov		ax, 300h
+ F06B  D3 E8					shr		ax, cl
+ F06D				Baud110:
+						OFFDX	DLL-LCR
+ F06D  83 C2 FD		     1			add		dx, DLL-LCR
+ F070  EE					out		dx, al		; set baud low
+						OFFDX	DLH-DLL
+ F071  42		     1			inc		dx
+ F072  8A C4					mov		al, ah
+ F074  EE					out		dx, al		; set baud high
+						OFFDX	LCR-DLH
+ F075  42		     1			inc		dx
+ F076  42		     1			inc		dx
+ F077  8A C5					mov		al, ch
+ F079  24 1F					and		al, 1fh
+ F07B  EE					out		dx, al		; set format, DLAB=0
+
+						OFFDX	IER-LCR
+ F07C  4A		     1			dec		dx
+ F07D  4A		     1			dec		dx
+ F07E  32 C0					xor		al, al
+ F080  EE					out		dx, al		; disable all interrupts
+ F081  59					pop		cx
+ F082  5A					pop		dx
+
+				; ----- get COM port status --------
+ F083				GetPortStatus:			; DX = LSR
+						OFFDX	MSR-LSR
+ F083  42		     1			inc		dx
+ F084  EC					in		al, dx		; read modem status
+						OFFDX	LSR-MSR
+ F085  4A		     1			dec		dx
+ F086				GetPortStatus1:
+ F086  8A E0					mov		ah, al
+ F088  EC					in		al, dx		; read line (port) status
+ F089  86 E0					xchg	ah, al
+ F08B  EB C3					jmp		short SExit
+						
+				; ----- Transmit char to COM port --------
+				; Waits for THRE(bit5 in LSR) and then sends AL. returns LSR in AH
+ F08D				STransmit:			; DX = LSR
+ F08D  52					push	dx
+ F08E  8A E0					mov		ah, al
+ F090				STr1:
+ F090  EC					in		al, dx
+ F091  A8 20					test	al, 20h
+ F093  74 FB					jz		short STr1
+						OFFDX	THR-LSR
+ F095  83 C2 FB		     1			add		dx, THR-LSR
+ F098  8A C4					mov		al, ah
+ F09A  EE					out		dx, al
+ F09B				STr2:
+ F09B  5A					pop		dx
+ F09C  EB E8					jmp		short GetPortStatus1
+
+				; ----- receive char from COM port --------
+				; Waits for RDA(bit0 in  LSR) and returns the received char in AL, and the LSR in AH
+ F09E				SReceive:			; DX = LSR
+ F09E  52					push	dx
+ F09F				SReceive1:
+ F09F  EC					in		al, dx
+ F0A0  A8 01					test	al, 1
+ F0A2  74 FB					jz		short SReceive1
+						OFFDX	RBR-LSR
+ F0A4  83 C2 FB		     1			add		dx, RBR-LSR
+ F0A7  EC					in		al, dx
+ F0A8  EB F1					jmp		short Str2
+
+
+				; ----- Set COM char format extended --------
+				;SetCharFormatExt:
+ F0AA				int14 endp
+
+				; --------------------- INT 15h - Extended services ----------------
+ = ds:[98h]			UFPtr           equ     <ds:[98h]>
+ = ds:[9ch]			WaitCount       equ     <ds:[9ch]>
+ = ds:[0a0h]			UWaitFlag       equ     <ds:[0a0h]>
+ = ds:[0a1h]			HandlerPtr      equ     <ds:[0a1h]> ; 4 bytes
+ = ds:[0a5h]			DataBuffer      equ     <ds:[0a5h]> ; 3 bytes
+ = ds:[067h]			DataCounter     equ     <ds:[067h]> ; 1 byte
+ = ds:[068h]			PacketSize      equ     <ds:[068h]> ; 1 byte, 0->3bytes, 1->4bytes
+ = 7B60				FreeXMSKb       equ     RAMSize*64 - 640 - 512 - 32	;total - DOS - VGA - BIOS
+
+				; ------------ MovExt
+ F0AA				IncSeg: ; DX = segment port address
+ F0AA  75 25					jnz     short SetSegExit
+ F0AC  ED					in      ax, dx
+ F0AD  25 01FF					and     ax, RAMSize - 1
+ F0B0  40					inc     ax
+ F0B1  83 F8 12					cmp     ax, 12h
+ F0B4  75 02					jne     short IncSeg1
+ F0B6  33 C0					xor     ax, ax
+ F0B8				IncSeg1:
+ F0B8  83 F8 0C					cmp     ax, 0ch
+ F0BB  75 0B					jne     short SetSeg2
+ F0BD				SetSeg: ; DX = segment port address, ax = logical segment (0..RAMSize-1)    
+ F0BD  25 01FF					and     ax, RAMSize - 1
+ F0C0  83 F8 0C					cmp     ax, 0ch
+ F0C3  72 0B					jb      short SetSeg1
+ F0C5  83 C0 06					add     ax, 6
+ F0C8				SetSeg2:        
+ F0C8  3D 0200					cmp     ax, RAMSize
+ F0CB  72 03					jb      short SetSeg1
+ F0CD  2D 01F4					sub     ax, RAMSize - 0ch
+ F0D0				SetSeg1:
+ F0D0  EF					out     dx, ax          
+ F0D1				SetSegExit:              
+ F0D1  C3					ret
+
+ = 0001				MovSeg  equ     01h
+ F0D2 0000			savess  dw      0
+ F0D4 F0D8 R 0000		savesp  dw      MovExt, 0 ; tmp stack
+				; Log(idx) to Phy(val) segment map (RAMSize segs): 0,1,2,3,4,5,6,7,8,9,a,b,12h,13h,...,RAMSize-2,RAMSize-1,c,d,e,f,10h,11h, then wrap to 0,1,2,...
+ F0D8				MovExt:
+ F0D8  06					push    es
+ F0D9  1E					push    ds
+ F0DA  60					pusha
+ F0DB  FA					cli
+ F0DC  2E: 8C 16 F0D2 R				mov     cs:savess, ss
+ F0E1  0E					push    cs
+ F0E2  17					pop     ss
+ F0E3  2E: 87 26 F0D4 R				xchg    sp, cs:savesp
+ F0E8  BA 0082					mov     dx, 80h + MovSeg + 1
+ F0EB  E3 72					jcxz    short MovExt_exit
+ F0ED  06					push    es
+ F0EE  1F					pop     ds
+ F0EF  FC					cld
+ F0F0  8A 44 1C					mov     al, [si+1ch]
+ F0F3  8A 64 1F					mov     ah, [si+1fh]
+ F0F6  8A 5C 14					mov     bl, [si+14h]
+ F0F9  8A 7C 17					mov     bh, [si+17h]
+ F0FC  8B 7C 1A					mov     di, [si+1ah]
+ F0FF  8B 74 12					mov     si, [si+12h]
+ F102  E8 04BB					call    flush   
+ F105  E8 FFB5					call    SetSeg      ; 02000h = destination, DX=82h
+ F108  4A					dec     dx
+ F109  93					xchg    ax, bx
+ F10A  E8 FFB0					call    SetSeg      ; 01000h = source, DX=81h
+ F10D  68 1000					push    MovSeg shl 12 
+ F110  1F					pop     ds
+ F111  68 2000					push    (MovSeg + 1) shl 12
+ F114  07					pop     es
+ F115  33 DB					xor     bx, bx
+ F117  03 C9					add     cx, cx
+ F119  13 DB					adc     bx, bx      ; BX:CX = bytes to transfer
+				; move from 01000h:si to 02000h:di, 2*cx bytes
+ F11B				MovExtLoop:
+ F11B  42					inc     dx          ; 82h
+ F11C  8B C6					mov     ax, si
+ F11E  3B C7					cmp     ax, di
+ F120  77 02					ja      short MovExt1
+ F122  8B C7					mov     ax, di
+ F124				MovExt1:
+ F124  F7 D8					neg     ax
+ F126  83 D3 FF					adc     bx, -1
+ F129  2B C8					sub     cx, ax
+ F12B  83 DB 00					sbb     bx, 0
+ F12E  91					xchg    ax, cx      ; cx = bytes to move, bx:ax = bytes left for the next transfer
+ F12F  79 05					jns     short MovExt2   ; ax <= bx:cx     
+ F131  03 C8					add     cx, ax
+ F133  33 C0					xor     ax, ax
+ F135  43					inc     bx
+ F136				MovExt2:
+ F136  A4					movsb               ; if CX = 0 transfer 10000h bytes
+ F137  49					dec     cx
+ F138  74 0F					jz      short MovExt_next
+ F13A  F7 C6 0001				test    si, 1       ; read align
+ F13E  74 02					jz      short raligned
+ F140  A4					movsb
+ F141  49					dec     cx
+ F142				raligned:
+ F142  D1 E9					shr     cx, 1
+ F144  F3/ A5					rep     movsw
+ F146  73 01					jnc     short MovExt_next
+ F148  A4					movsb
+ F149				MovExt_next:
+ F149  E8 0474					call    flush
+ F14C  8B C8					mov     cx, ax
+ F14E  0B C3					or      ax, bx
+ F150  74 0D					jz      short MovExt_exit  ; finalized
+ F152  85 FF					test    di, di
+ F154  E8 FF53					call    incseg      ; does nothing if ZF == 0, dx = 8bh
+ F157  4A					dec     dx          ; 81h
+ F158  85 F6					test    si, si      
+ F15A  E8 FF4D					call    incseg      ; dx = 81h
+ F15D  EB BC					jmp     short MovExtLoop
+ F15F				MovExt_exit:
+ F15F  B8 0002					mov     ax, MovSeg + 1
+ F162  EF					out     dx, ax      ; 82h
+ F163  48					dec     ax
+ F164  4A					dec     dx
+ F165  EF					out     dx, ax      ; 81h
+ F166  2E: 8E 16 F0D2 R				mov     ss, cs:savess
+ F16B  2E: 87 26 F0D4 R				xchg    sp, cs:savesp
+ F170  61					popa
+ F171  1F					pop     ds
+ F172  07					pop     es
+ F173  32 E4					xor     ah, ah
+ F175  EB 38					jmp     short exit_ax
+ F177				MovExtProxy:
+ F177  E9 FF5E					jmp     MovExt        
+
+ F17A				int15:
+ F17A  80 FC 4F					cmp     ah, 4fh
+ F17D  74 34					je      short exit_iret
+ F17F  86 C4					xchg    al, ah
+ F181  3C 80					cmp     al, 80h
+ F183  72 27					jb      short exit15; CF=1  for <80h
+ F185  3C 83					cmp     al, 83h
+ F187  72 22					jb      short done  ; no error for 80, 81, 82
+ F189  74 29					je      short SetEventWait; 83
+ F18B  3C 86					cmp     al, 86h
+ F18D  72 1D					jb      short exit15; CF=1 for 84, 85
+ F18F  74 58					je      short Wait1 ; 86
+ F191  3C 88					cmp     al, 88h
+ F193  72 E2					jb      short MovExtProxy ; 87
+ F195  74 6B					je      short ExtSize     ; 88
+ F197  3C 90					cmp     al, 90h
+ F199  72 11					jb      short  exit15; CF=1 for 89..8f
+ F19B  3C 92					cmp     al, 92h
+ F19D  72 0C					jb      short done  ; no error for 90, 91
+ F19F  3C C0					cmp     al, 0c0h
+ F1A1  72 09					jb      short exit15; CF=1 for 92..bf
+ F1A3  74 62					je      short GetConfig   ; c0
+ F1A5  3C C2					cmp     al, 0c2h
+ F1A7  72 03					jb      short exit15; CF=1 for c1
+ F1A9  74 65					je      short Mouse ; c2
+ F1AB				done:
+ F1AB  F5					cmc                 ; CF=1 for >c2
+ F1AC				exit15:
+ F1AC  B8 8600					mov     ax, 8600h
+ F1AF				exit_ax:        
+ F1AF  FB					sti
+ F1B0  CA 0002					retf    2           ; discard flags (need to keep CF)
+ F1B3				exit_iret:
+ F1B3  CF					iret        
+
+				; ------------ SetEventWait
+ F1B4				SetEventWait:
+ F1B4  1E					push    ds
+ F1B5  6A 40					push    40h
+ F1B7  1F					pop     ds
+ F1B8  80 F4 01					xor     ah, 1
+ F1BB  74 21					jz      short cancel
+ F1BD  84 26 00A0				test    ah, byte ptr UWaitFlag ; ah=1
+ F1C1  75 22					jnz     short busy  ; CF=0
+ F1C3  B8 03E7					mov     ax, 1000-1  ; 1ms
+ F1C6  E7 70					out     70h, ax     ; restart RTC timer
+ F1C8  89 1E 0098				mov     UFPtr[0], bx
+ F1CC  8C 06 009A				mov     UFPtr[2], es
+ F1D0  03 C2					add     ax, dx
+ F1D2  83 D1 00					adc     cx, 0
+ F1D5  A3 009C					mov     WaitCount[0], ax
+ F1D8  89 0E 009E				mov     WaitCount[2], cx
+ F1DC  B4 01					mov     ah, 1       ; wait in progress
+ F1DE				cancel:
+ F1DE  88 26 00A0				mov     byte ptr UWaitFlag, ah   
+ F1E2  CD 70					int     70h
+ F1E4  F9					stc                 ; no error
+ F1E5				busy:   
+ F1E5  F5					cmc                 ; eror        
+ F1E6				nowait:
+ F1E6  1F					pop     ds
+ F1E7  EB C3					jmp     short exit15
+
+				; ------------ Wait
+ F1E9				Wait1:
+ F1E9  06					push    es
+ F1EA  53					push    bx
+ F1EB  B8 8300					mov     ax, 8300h
+ F1EE  6A 4A					push    4ah
+ F1F0  07					pop     es
+ F1F1  33 DB					xor     bx, bx      ; user wait flag address=0040:00a0
+ F1F3  CD 15					int     15h         ; returns with IF = 1
+ F1F5  72 07					jc      short wbusy
+ F1F7				wloop:        
+ F1F7  F4					hlt   
+ F1F8  26: F6 07 80				test    byte ptr es:[bx], 80h
+ F1FC  74 F9					jz      short wloop
+ F1FE				wbusy:        
+ F1FE  5B					pop     bx
+ F1FF  07					pop     es
+ F200  EB AA					jmp     short exit15
+						
+
+				; ------------ ExtSize
+ F202				ExtSize:
+ F202  B8 7B60					mov     ax, FreeXMSKb
+ F205  EB A8					jmp     short exit_ax
+						
+				; ------------ GetConfig
+ F207				GetConfig:
+ F207  33 C0					xor     ax, ax
+ F209  0E					push    cs
+ F20A  07					pop     es
+ F20B  BB F308 R				mov     bx, offset SysParams
+ F20E  EB 9F					jmp     short exit_ax
+						
+				; ------------ Mouse 
+ F210				Mouse:
+ F210  1E					push    ds
+ F211  52					push    dx
+ F212  6A 40					push    40h
+ F214  1F					pop     ds
+ F215  F6 06 0010 04				test    byte ptr EquipmentWord, 4 ; ps2 mouse equipement word
+ F21A  75 16					jnz     short mouse_present
+ F21C				if_err:
+ F21C  B8 03A7					mov     ax, 03a7h   ; interface error (no mouse present)
+ F21F  E6 64					out     64h, al     ; disable mouse
+ F221				errexit:        
+ F221  F9					stc                 ; error
+ F222				exitok:        
+ F222  9C					pushf               ; save CF
+ F223  E4 A1					in      al, 0a1h
+ F225  24 EF					and     al, not 10h     
+ F227  E6 A1					out     0a1h, al    ; enable mouse interrupts
+ F229  E8 0387					call    enableKbIfPresent
+ F22C  9D					popf
+ F22D  5A					pop     dx
+ F22E  1F					pop     ds
+ F22F  E9 FF7D					jmp     exit_ax
+ F232				mouse_present:
+ F232  8A C4					mov     al, ah                                  
+ F234  B4 01					mov     ah, 1       ; invalid function
+ F236  3C 07					cmp     al, 7
+ F238  77 E7					ja      short errexit
+ F23A  50					push    ax
+ F23B  E4 A1					in      al, 0a1h
+ F23D  0C 10					or      al, 10h     
+ F23F  E6 A1					out     0a1h, al    ; disable mouse interrupts
+ F241  FB					sti                 ; allow interrupts for a short time, to flush possible pending KB/mouse requests
+ F242  B0 AD					mov     al, 0adh
+ F244  E6 64					out     64h, al     ; disable kb interface
+ F246  58					pop     ax
+ F247  3C 01					cmp     al, 1
+ F249  FA					cli                 ; from now on we are working with ints disabled, as the following code is highly non re-entrant
+ F24A  72 1C					jb      short en_dis
+ F24C  74 33					je      short reset
+ F24E  3C 03					cmp     al, 3
+ F250  72 40					jb      short sampling
+ F252  74 5D					je      short resolution
+ F254  3C 05					cmp     al, 5
+ F256  72 63					jb      short gettype
+ F258  74 27					je      short reset
+ F25A  3C 06					cmp     al, 6
+ F25C  74 75					je      short extend
+
+				; ------------- set handler
+ F25E  89 1E 00A1				mov     HandlerPtr[0], bx
+ F262  8C 06 00A3				mov     HandlerPtr[2], es
+ F266  EB 15					jmp     short exit_success1        
+
+				; ------------- enable/disable
+ F268				en_dis:
+ F268  B8 02F5					mov     ax, 02f5h   ; ah = invalid input
+ F26B  2A C7					sub     al, bh
+ F26D  38 E7					cmp     bh, ah
+ F26F  73 B0					jnc     short errexit
+ F271  8A E0					mov     ah, al
+ F273  E8 032C					call    sendcmd     ; enable/disable data reporting (CF = 1)
+ F276				if_err1:        
+ F276  72 A4					jc      short if_err
+ F278				exit_success:
+ F278  C6 06 0067 00				mov     byte ptr DataCounter, 0
+ F27D				exit_success1:
+ F27D  32 E4					xor     ah, ah      ; success
+ F27F  EB A1					jmp     short exitok
+
+				; ------------- reset
+ F281				reset:
+ F281  B4 F6					mov     ah, 0f6h    ; set defaults
+ F283  F9					stc                 ; mouse command
+ F284  E8 031B					call    sendcmd     
+ F287  72 93					jc      short if_err
+ F289  BB 00AA					mov     bx, 00aah
+ F28C  88 3E 0068				mov     byte ptr PacketSize, bh ; 3bytes packet
+ F290  EB E6					jmp     short exit_success
+
+				; ------------- sampling
+ F292				sampling:
+ F292  80 FF 06					cmp     bh, 6
+ F295				badparam:
+ F295  B4 02					mov     ah, 2       ; invalid input
+ F297  77 88					ja      short errexit
+ F299  C1 EB 08					shr     bx, 8
+ F29C  2E: 8A A7 F301 R				mov     ah, cs:sample_tbl[bx]
+ F2A1  50					push    ax
+ F2A2  B4 F3					mov     ah, 0f3h    ; st sample rate
+ F2A4				send2c:
+ F2A4  F9					stc
+ F2A5  E8 02FA					call    sendcmd              
+ F2A8  58					pop     ax
+ F2A9  72 CB					jc      short if_err1
+ F2AB				send1c:
+ F2AB  F9					stc
+ F2AC  E8 02F3					call    sendcmd
+ F2AF  EB C5					jmp     short if_err1
+
+				; ------------- resolution
+ F2B1				resolution:
+ F2B1  80 FF 03					cmp     bh, 3
+ F2B4  77 DF					ja      short badparam
+ F2B6  53					push    bx
+ F2B7  B4 E8					mov     ah, 0e8h    ; set resolution
+ F2B9  EB E9					jmp     short send2c
+
+				; ------------- gettype
+ F2BB				gettype:
+ F2BB  B4 F2					mov     ah, 0f2h
+ F2BD  F9					stc
+ F2BE  E8 02E1					call    sendcmd
+ F2C1  72 B3					jc      short if_err1
+ F2C3  E8 02C2					call    getps2byte
+ F2C6  72 AE					jc      short if_err1
+ F2C8  8A F8					mov     bh, al
+ F2CA  F6 D8					neg     al          ; CF=1 if al != 0
+ F2CC  12 C7					adc     al, bh
+ F2CE  A2 0068					mov     byte ptr PacketSize, al ; 3 or 4 bytes packet
+ F2D1  EB A5					jmp     short exit_success
+						
+				; ------------- extended commands
+ F2D3				extend:
+ F2D3  84 FF					test    bh, bh
+ F2D5  75 1F					jnz     short setscaling
+ F2D7  B4 E9					mov     ah, 0e9h    ; status request
+ F2D9  F9					stc
+ F2DA  E8 02C5					call    sendcmd
+ F2DD  72 97					jc      short if_err1
+ F2DF  E8 02A6					call    getps2byte
+ F2E2  72 92					jc      short if_err1
+ F2E4  8A D8					mov     bl, al
+ F2E6  E8 029F					call    getps2byte
+ F2E9  72 8B					jc      short if_err1
+ F2EB  8A C8					mov     cl, al
+ F2ED  E8 0298					call    getps2byte
+ F2F0  72 84					jc      short if_err1
+ F2F2  5A					pop     dx  
+ F2F3  50					push    ax          ; replace dx on stack
+ F2F4  EB 82					jmp     short exit_success
+ F2F6				setscaling:    
+ F2F6  80 FF 02					cmp     bh, 2
+ F2F9  77 9A					ja      short badparam
+ F2FB  B4 E5					mov     ah, 0e5h    ; set scaling 1:1 or 2:1
+ F2FD  02 E7					add     ah, bh
+ F2FF  EB AA					jmp     short send1c
+
+ F301 0A 14 28 3C 50 64		sample_tbl  db  10, 20, 40, 60, 80, 100, 200
+       C8
+ F308 08 00 FC 00 00		SysParams   db  8, 0, 0fch, 0, 0
+				;--------------------------------------------------------------------------
+				; Feature byte 1
+				; b7: 1=DMA channel 3 used by hard disk
+				; b6: 1=2 interrupt controllers present
+				; b5: 1=RTC present
+				; b4: 1=BIOS calls int 15h/4Fh every key
+				; b3: 1=wait for extern event supported (Int 15h/41h)
+				; b2: 1=extended BIOS data area used
+				; b1: 0=AT or ESDI bus, 1=MicroChannel
+				; b0: 1=Dual bus (MicroChannel + ISA)
+				;--------------------------------------------------------------------------
+ F30D  10						db      10h
+				;--------------------------------------------------------------------------
+				; Feature byte 2
+				; b7: 1=32-bit DMA supported
+				; b6: 1=int16h, function 9 supported
+				; b5: 1=int15h/C6h (get POS data) supported
+				; b4: 1=int15h/C7h (get mem map info) supported
+				; b3: 1=int15h/C8h (en/dis CPU) supported
+				; b2: 1=non-8042 kb controller
+				; b1: 1=data streaming supported
+				; b0: reserved
+				;--------------------------------------------------------------------------
+ F30E  44						db      44h
+				;--------------------------------------------------------------------------
+				; Feature byte 3
+				; b7: not used
+				; b6: reserved
+				; b5: reserved
+				; b4: POST supports ROM-to-RAM enable/disable
+				; b3: SCSI on system board
+				; b2: info panel installed
+				; b1: Initial Machine Load (IML) system - BIOS on disk
+				; b0: SCSI supported in IML
+				;--------------------------------------------------------------------------
+ F30F  00						db      0
+				;--------------------------------------------------------------------------
+				; Feature byte 4
+				; b7: IBM private
+				; b6: EEPROM present
+				; b5-3: ABIOS presence (011 = not supported)
+				; b2: private
+				; b1: memory split above 16Mb supported
+				; b0: POSTEXT directly supported by POST
+				;--------------------------------------------------------------------------
+ F310  00						db      0
+				;--------------------------------------------------------------------------
+				; Feature byte 5 (IBM)
+				; b1: enhanced mouse
+				; b0: flash EPROM
+				;--------------------------------------------------------------------------
+ F311  00						db      0                                                
+
+
+				; --------------------- INT 16h - keyboard interface ----------------
+				;       AH      Description
+				;       --      ------------------------------------------------
+				;       00h     Get a key from the keyboard, return code in AX.
+				;       01h     Test for available key, ZF=1 if none, ZF=0 and
+				;               AX contains next key code if key available.
+				;       02h     Get shift status. Returns shift key status in AL.
+				;       03h     Set Autorepeat rate. BH=0,1,2,3 (delay time in quarter seconds), BL=0..1Fh for 30 char/sec to 2 char/sec repeat rate.
+				;       05h     Store scan code (in CX) in the type ahead buffer.
+				;       10h     Get a key (same as 00h in this implementation).
+				;       11h     Test for key (same as 01h).
+				;       12h     Get extended key status. Returns status in AX.
+
+ = ds:[19h]			AltKpd          equ     <ds:[19h]>
+ = ds:[1ah]			HeadPtr         equ     <ds:[1ah]>
+ = ds:[1ch]			TailPtr         equ     <ds:[1ch]>
+ = ds:[80h]			Buffer          equ     <ds:[80h]>;1eh
+ = ds:[82h]			EndBuf          equ     <ds:[82h]>;3eh
+
+ F312				int16 proc near
+ F312  1E					push    ds
+ F313  56					push    si
+ F314  6A 40					push    40h
+ F316  1F					pop     ds
+ F317  86 C4					xchg    al, ah          ;shorter opcodes for al than ah
+ F319  48					dec     ax
+ F31A  A8 EF					test    al, 0EFh        ;Check for 01h and 11h
+ F31C  74 3E					jz      short TestKey   ;TestKey does not need cld
+ F31E  40					inc     ax
+ F31F  FC					cld
+ F320  A8 EF					test    al, 0EFh        ;Check for 0h and 10h
+ F322  74 1C					jz      short GetKey
+ F324  3C 03					cmp     al, 3           ;Check for 02h and 03h
+ F326  72 78					jb      short GetStatus
+ F328  74 7B					je      short SetAutoRpt   
+ F32A  3C 05					cmp     al, 5           ;Check for StoreKey function.
+ F32C  74 3D					je      short StoreKey
+ F32E  3C 09					cmp     al, 9           ;Get KB functionality
+ F330  74 08					je      short kbfunc     
+ F332  3C 12					cmp     al, 12h         ;Extended status call
+ F334  74 56					je      short ExtStatus
+ F336  3C 92					cmp     al, 92h         ;stupid keyb.com 
+ F338  75 02					jne     short Exit
+ F33A				kbfunc:
+ F33A  B0 24					mov     al, 24h         ;AL=20h (fn 10h, 12h supported, set typematic supported)        
+ F33C				Exit:        
+ F33C  5E					pop     si
+ F33D  1F					pop     ds
+ F33E  CF					iret                    ; unknown function, Restores flags.
+
+ F33F				GetKey1:                        ; wait for interrupt
+ F33F  F4					hlt
+ F340				GetKey: ; ----------- fn 00h, 10h
+ F340  B4 11					mov     ah, 11h
+ F342  CD 16					int     16h             ;See if key is available (IF becomes 1 after this int)
+ F344  74 F9					jz      short GetKey1   ;Wait for keystroke.
+ F346  FA					cli                     ;Critical region! Ints off.
+ F347  8B 36 001A				mov     si, HeadPtr     ;Ptr to next character.
+ F34B  AD					lodsw                   ;Get the character, Bump up HeadPtr
+ F34C  3B 36 0082				cmp     si, EndBuf
+ F350  72 04					jb      short noWrap
+ F352  8B 36 0080				mov     si, Buffer
+ F356				noWrap:             
+ F356  89 36 001A				mov     HeadPtr, si
+ F35A  EB E0					jmp     short Exit
+
+ F35C				TestKey: ; ---------- fn 01h
+ F35C  8B 36 001A				mov     si, HeadPtr
+ F360  3B 36 001C				cmp     si, TailPtr     ;ZF=1, if empty buffer
+ F364  AD					lodsw                   ;BIOS returns avail keycode.
+ F365  FB					sti                     ;Ints back on.
+ F366  5E					pop     si
+ F367  1F					pop     ds
+ F368  CA 0002					retf    2               ;Pop flags (ZF is important!)
+
+ F36B				StoreKey: ; ---------- fn 05h - Inserts the value in CX into the type ahead buffer.  
+ F36B  8B 36 001C				mov     si, TailPtr     ;Address where we can put next key code.
+ F36F  89 0C					mov     [si], cx        ;Store the key code away
+ F371  46					inc     si
+ F372  46					inc     si              ;Move on to next entry in buf
+ F373  3B 36 0082				cmp     si, EndBuf
+ F377  72 04					jb      short NoWrap1
+ F379  8B 36 0080				mov     si, Buffer
+ F37D				 NoWrap1:
+ F37D  B0 01					mov     al, 1           ;no room
+ F37F  3B 36 001A				cmp     si, HeadPtr     ;Data overrun?
+ F383  74 B7					je      short Exit      ;if so, ignore key entry.
+ F385  89 36 001C				mov     TailPtr, si
+ F389  48					dec     ax              ;al=0
+ F38A  EB B0					jmp     short Exit       
+
+ F38C				ExtStatus: ; ------- fn 12h - Retrieve the extended keyboard status and return it in AH, and the standard keyboard status in AL.    
+ F38C  A0 0018					mov     al, KbdFlags2
+ F38F  24 77					and     al, 01110111b   ;Clear final sysreq field, and final right alt bit.
+ F391  A8 04					test    al, 100b        ;Test cur sysreq bit.
+ F393  74 02					jz      short NoSysReq  ;Skip if it's zero.
+ F395  2C 84					sub     al, 10000100b   ;Set final sysreq bit, clear final right ctl bit.
+ F397				NoSysReq:
+ F397  8A 26 0096				mov     ah, KbdFlags3
+ F39B  80 E4 0C					and     ah, 1100b       ;Grab rt alt/ctrl bits.
+ F39E  0A E0					or      ah, al          ;Merge into AH.
+
+ F3A0				GetStatus: ; --------- fn 02h     
+ F3A0  A0 0017					mov     al, KbdFlags1   ;Just return Std Status.
+ F3A3				Exit1:
+ F3A3  EB 97					jmp     short Exit
+
+ F3A5				SetAutoRpt: ; ------ fn 03h
+ F3A5  80 FC 05					cmp     ah, 5
+ F3A8  75 92					jne     short Exit
+ F3AA  52					push    dx
+ F3AB  C0 E7 05					shl     bh, 5
+ F3AE  80 E3 1F					and     bl, 1fh
+ F3B1  0A DF					or      bl, bh
+ F3B3  80 E3 7F					and     bl, 7fh
+ F3B6  B4 00					mov     ah, 0           ; wait LED update progress to finalize
+ F3B8  E8 0028					call    WaitFlag        ; leaves with IF=0
+ F3BB  72 23					jc      short timeout
+ F3BD  80 0E 0097 08				or      byte ptr KbdFlags4, SetRepeat    ; set auto repeat in progress
+ F3C2  B4 F3					mov     ah, 0f3h        ; set typematic rate and delay
+ F3C4  53					push    bx
+ F3C5  32 DB					xor     bl, bl          ; send to kb
+ F3C7  E8 0199					call    sendps2byte
+ F3CA  5B					pop     bx
+ F3CB  72 0E					jc      short timeout1  ; send timeout
+ F3CD  B4 18					mov     ah, SetRepeat or AckReceived ; test if ACK received
+ F3CF  E8 0011					call    WaitFlag
+ F3D2  72 07					jc      short timeout1
+ F3D4  8A E3					mov     ah, bl
+ F3D6  32 DB					xor     bl, bl          ; send to kb
+ F3D8  E8 0188					call    sendps2byte     ; send data
+ F3DB				timeout1:
+ F3DB  80 26 0097 F7				and     byte ptr KbdFlags4, not SetRepeat   
+ F3E0				timeout:
+ F3E0  5A					pop     dx
+ F3E1  EB C0					jmp     short Exit1
+
+
+ F3E3				WaitFlag:   ; ah = desired KbdFlags4 & (AckReceived | LEDUpdate | SetRepeat)
+ F3E3  BA 03DA					mov     dx, 3dah
+ F3E6  B7 C8					mov     bh, 8*25    ; wait for max 25 * VGA frame time
+ F3E8				wf_loop:
+ F3E8  FA					cli
+ F3E9  A0 0097					mov     al, KbdFlags4
+ F3EC  24 58					and     al, AckReceived or LEDUpdate or SetRepeat
+ F3EE  38 E0					cmp     al, ah
+ F3F0  74 0A					je      short wf_ok ; flag ok, CF=0
+ F3F2  FB					sti
+ F3F3  EC					in      al, dx      ; get vblank
+ F3F4  32 C7					xor     al, bh
+ F3F6  24 08					and     al, 8h
+ F3F8  2A F8					sub     bh, al
+ F3FA  73 EC					jnc     short wf_loop     ; IBF - buffer full, no timeout
+ F3FC				wf_ok:
+ F3FC  C3					ret
+ F3FD				int16 endp
+
+				; --------------------- INT 18h - BIOS Basic ------------------
+ F3FD				int18 proc near
+ F3FD  0E					push    cs
+ F3FE  07					pop     es
+ F3FF  BE F435 R				mov     si, offset booterrmsg
+ F402  E8 01F9					call    prts
+ F405  E8 01B8					call	flush
+
+				;-------------- RS232 bootstrap
+ F408  B0 B4					mov     al, 0b4h
+ F40A  E6 43					out     43h, al
+ F40C  B8 F000					mov     ax, 0f000h
+ F40F  E6 42					out     42h, al
+ F411  E6 42					out     42h, al      ; 18Hz PIT CH2
+ F413  E7 01					out		1, ax		; disable auto flush on vblank (bit0)
+ F415  8E D8					mov		ds,ax
+ F417  8E C0					mov		es,ax
+
+ F419  BE 0100					mov		si,100h
+ F41C  E8 0118					call	srecb
+ F41F  FA					cli
+ F420  8A FC					mov		bh,ah
+ F422  E8 0112					call	srecb
+ F425  8A DC					mov		bl,ah
+ F427				sloop:	
+ F427  E8 010D					call	srecb
+ F42A  88 24					mov		[si],ah
+ F42C  46					inc		si
+ F42D  4B					dec		bx
+ F42E  75 F7					jnz		short sloop
+ F430  EA					db		0eah
+ F431  0100 F000				dw		100h,0f000h
+
+ F435 4E 6F 20 62 6F 6F		booterrmsg db   'No boot device available, waiting on RS232 (115200bps, f000:100) ...', 13, 10, 0
+       74 20 64 65 76 69
+       63 65 20 61 76 61
+       69 6C 61 62 6C 65
+       2C 20 77 61 69 74
+       69 6E 67 20 6F 6E
+       20 52 53 32 33 32
+       20 28 31 31 35 32
+       30 30 62 70 73 2C
+       20 66 30 30 30 3A
+       31 30 30 29 20 2E
+       2E 2E 0D 0A 00
+ F47C				int18 endp
+
+				; --------------------- INT 19h - OS Bootstrap loader ------------------
+ F47C				int19 proc near
+ F47C  B8 0201					mov     ax, 201h
+ F47F  B9 0001					mov     cx, 1
+ F482  BA 0080					mov     dx, 80h
+ F485  6A 00					push    0
+ F487  07					pop     es
+ F488  BB 7C00					mov     bx, 7c00h
+ F48B  CD 13					int     13h
+ F48D  72 05					jc      int19err
+ F48F  EA					db      0eah
+ F490  7C00 0000				dw      7c00h, 0     ; jmp far 0000h:7c00h
+ F494				int19err:
+ F494  CD 18					int     18h
+ F496				int19 endp
+
+
+				; --------------------- INT 1ah - Get System Time ------------------
+ F496				int1a proc near
+ F496  1E					push    ds
+ F497  6A 40					push    40h
+ F499  1F					pop     ds
+ F49A  80 FC 01					cmp     ah, 1
+ F49D  77 12					ja      clockexit
+ F49F  74 16					je      setclock
+ F4A1  8B 16 006C				mov     dx, ds:[6ch]    ; read clock
+ F4A5  8B 0E 006E				mov     cx, ds:[6eh]
+ F4A9  A0 0070					mov     al, ds:[70h]
+ F4AC				clockexit1:
+ F4AC  C6 06 0070 00				mov     byte ptr ds:[70h], 0
+ F4B1				clockexit:
+ F4B1  F5					cmc     ; CF = 1 on error
+ F4B2  1F					pop     ds
+ F4B3  FB					sti
+ F4B4  CA 0002					retf    2
+
+ F4B7				setclock:
+ F4B7  89 16 006C				mov     ds:[6ch], dx
+ F4BB  89 0E 006E				mov     ds:[6eh], cx
+ F4BF  F9					stc
+ F4C0  EB EA					jmp     short clockexit1    
+ F4C2				int1a endp
+
+
+				; --------------------- INT 70h - RTC ------------------
+ F4C2				int70 proc near
+ F4C2  1E					push    ds
+ F4C3  6A 40					push    40h
+ F4C5  1F					pop     ds
+ F4C6  F6 06 00A0 01				test    byte ptr UWaitFlag, 1    ; is wait in progress?
+ F4CB  74 1B					jz      short exit1
+ F4CD  81 2E 009C 03E8				sub     word ptr WaitCount[0], 1000
+ F4D3  83 1E 009E 00				sbb     word ptr WaitCount[2], 0
+ F4D8  73 14					jnc     short exit
+ F4DA  C6 06 00A0 00				mov     byte ptr UWaitFlag, 0
+ F4DF  53					push    bx
+ F4E0  C5 1E 0098				lds     bx, UFPtr
+ F4E4  80 0F 80					or      byte ptr [bx], 80h
+ F4E7  5B					pop     bx
+ F4E8				exit1:
+ F4E8  50					push	ax
+ F4E9  33 C0					xor		ax, ax
+ F4EB  E7 70					out		70h, ax	; stop RTC
+ F4ED  58					pop		ax
+ F4EE				exit: 
+ F4EE  1F					pop     ds
+ F4EF  CF					iret
+ F4F0				int70 endp
+
+						
+				; --------------------- INT 74h - mouse ------------------
+ F4F0				int74 proc near
+ F4F0  FC					cld
+ F4F1  60					pusha
+ F4F2  1E					push    ds
+ F4F3  6A 40					push    40h
+ F4F5  1F					pop     ds
+ F4F6  B4 00					mov     ah, 0
+ F4F8  E4 60					in      al, 60h
+ F4FA  8B D8					mov     bx, ax
+ F4FC  FE 06 0067				inc     byte ptr DataCounter
+ F500  A0 0067					mov     al, DataCounter
+ F503  8B F0					mov     si, ax
+ F505  2C 03					sub     al, 3
+ F507  77 0C					ja      short docall
+ F509  88 9C 00A4				mov     DataBuffer[si-1], bl
+ F50D  3A 06 0068				cmp     al, PacketSize
+ F511  75 21					jne     short nocall
+ F513  B3 00					mov     bl, 0
+ F515				docall:
+ F515  88 3E 0067				mov     byte ptr DataCounter, bh    ; BH=0
+ F519  BE 00A3					mov     si, offset DataBuffer-2
+ F51C  AD					lodsw
+ F51D  0B 44 FC					or      ax, [si-4]
+ F520  74 12					jz      short nocall
+ F522  FB					sti
+ F523  06					push    es
+ F524  B4 00					mov     ah, 0
+ F526  AC					lodsb
+ F527  50					push    ax
+ F528  AC					lodsb
+ F529  50					push    ax
+ F52A  AC					lodsb
+ F52B  50					push    ax
+ F52C  53					push    bx
+ F52D  FF 5C F9					call    far ptr [si-7]
+ F530  83 C4 08					add     sp, 8
+ F533  07					pop     es
+ F534				nocall:        
+ F534  1F					pop     ds
+ F535  61					popa
+ F536  CF					iret
+ F537				int74 endp
+
+
+				; ----------------  serial receive byte 115200 bps --------------
+ F537  B4 80			srecb:  mov     ah, 80h
+ F539  BA 03DA					mov     dx, 3dah
+ F53C  B9 FA52					mov     cx, -5aeh ; (half start bit)
+ F53F  EC			srstb:  in      al, dx
+ F540  C0 E8 02					shr     al, 2
+ F543  72 FA					jc      short srstb
+ F545  E4 42					in      al, 42h ; lo counter
+ F547  02 E8					add     ch, al
+ F549  E4 42					in      al, 42h ; hi counter, ignore
+ F54B				l1:
+ F54B  E8 0008					call    dlybit
+ F54E  EC					in      al, dx
+ F54F  C0 E8 02					shr     al, 2
+ F552  D0 DC					rcr     ah, 1
+ F554  73 F5					jnc     short l1
+ F556				dlybit:
+ F556  81 E9 0A5B				sub     cx, 0a5bh  ;  (full bit)
+ F55A				dly1:
+ F55A  E4 42					in      al, 42h
+ F55C  38 E8					cmp     al, ch
+ F55E  E4 42					in      al, 42h
+ F560  75 F8					jnz     short dly1
+ F562  C3					ret
+
+				; -------------------- KB/Mouse access ----------------
+ F563				sendps2byte proc near   ; ah=data, bl!=0 for mouse, 0 for kb. returns cf=1 if timeout (al = 8)
+				; changes BH, AL
+ F563  52					push    dx
+ F564  BA 03DA					mov     dx, 3dah
+ F567  B7 28					mov     bh, 8*5
+ F569				sps2b2:
+ F569  E4 64					in      al, 64h
+ F56B  A8 02					test    al, 2
+ F56D  74 0B					jz      short sps2b1; buffer empty
+ F56F  EC					in      al, dx      ; get vblank
+ F570  32 C7					xor     al, bh
+ F572  24 08					and     al, 8h
+ F574  2A F8					sub     bh, al
+ F576  73 F1					jnc     short sps2b2; IBF - buffer full, no timeout
+ F578  EB 0C					jmp     short exit  ; timeout, CF=1
+ F57A				sps2b1:
+ F57A  84 DB					test    bl, bl      ; CF=0
+ F57C  74 04					jz      short sps2_kb
+ F57E  B0 D4					mov     al, 0d4h    ; next mouse
+ F580  E6 64					out     64h, al
+ F582				sps2_kb:
+ F582  8A C4					mov     al, ah
+ F584  E6 60					out     60h, al     ; send byte
+ F586				exit:        
+ F586  5A					pop     dx
+ F587  C3					ret
+ F588				sendps2byte endp
+
+ F588				getps2byte proc near    ; returns al=data, zf=0 for mouse, 1 for kb, cf=1 if timeout (al=8)
+				; changes BH, DX, AL
+ F588  BA 03DA					mov     dx, 3dah
+ F58B  B7 28					mov     bh, 8*5
+ F58D				gps2b2:
+ F58D  E4 64					in      al, 64h
+ F58F  A8 01					test    al, 1
+ F591  75 0A					jnz     short gps2b1     ; OBF (buffer full), continue
+ F593  EC					in      al, dx     ; get vblank
+ F594  32 C7					xor     al, bh
+ F596  24 08					and     al, 8
+ F598  2A F8					sub     bh, al
+ F59A  73 F1					jnc     short gps2b2     ; buffer empty, no timeout
+ F59C  C3					ret                ; timeout, CF=1
+ F59D				gps2b1:
+ F59D  A8 20					test    al, 20h    ; CF=0, ZF <- !MOBF
+ F59F  E4 60					in      al, 60h    ; read byte (if IF=1, this data may be invalid)
+ F5A1  C3					ret
+ F5A2				getps2byte endp
+
+ F5A2				sendcmd proc near     ; ah = command, CF=1 for mouse, CF=0 for kb. returns CF=1 on error
+ F5A2  1A DB					sbb     bl, bl      ; bl <- CF
+ F5A4  E8 FFBC					call    sendps2byte 
+ F5A7  72 09					jc      short exit
+ F5A9				retry:        
+ F5A9  E8 FFDC					call    getps2byte
+ F5AC  72 04					jc      short exit        
+ F5AE  3C FA					cmp     al, 0fah    ; ack (returns CF=1 on error, when al=8)
+ F5B0  75 F7					jne     short retry
+ F5B2				exit:
+ F5B2  C3					ret
+ F5B3				sendcmd endp
+
+ F5B3				enableKbIfPresent proc near ; input DS = 40h
+				; modify AL, flags
+ F5B3  F6 06 0096 10				test    byte ptr KbdFlags3, 10h
+ F5B8  74 04					jz      short noenablekb
+ F5BA  B0 AE					mov     al, 0aeh
+ F5BC  E6 64					out     64h, al     ; enable kb interface
+ F5BE				noenablekb:        
+ F5BE  C3					ret
+ F5BF				enableKbIfPresent endp
+
+				; ----------------------- default interrupt handler ---------------
+ F5BF				defint  proc near
+ F5BF  CF					iret
+ F5C0				defint  endp             
+
+				; ------------------------------- flush --------------------------
+ F5C0				flush:
+ F5C0  2E: 8F 06 F5E1 R				pop     cs:flushret
+ F5C5				flush_nostack:        
+ F5C5  2E: 89 1E F5E3 R				mov     cs:flushbh, bx
+ F5CA  BB 2000					mov     bx, 2000h       ; flush all cache lines
+ F5CD				flush1:        
+ F5CD  2E: 84 9F BF00				test    bl, cs:[bx + 0bf00h]
+ F5D2  83 EB 40					sub		bx, 40h
+ F5D5  75 F6					jnz     short flush1
+ F5D7  2E: 8B 1E F5E3 R				mov     bx, cs:flushbh
+ F5DC  2E: FF 26 F5E1 R				jmp     word ptr cs:flushret
+ F5E1 0000			flushret dw 0
+ F5E3 0000			flushbh  dw 0          
+
+				; ------------------------------- misc --------------------------
+ F5E5				dispAX: 
+ F5E5  52					push    dx
+ F5E6  33 D2					xor     dx, dx
+ F5E8  2E: F7 36 F5FC R				div     word ptr cs:ten
+ F5ED  85 C0					test    ax, ax
+ F5EF  74 03					jz      dispAX1
+ F5F1  E8 FFF1					call    dispAX
+ F5F4				dispAX1:
+ F5F4  92					xchg    ax, dx
+ F5F5  05 0E30					add     ax, 0e00h + '0'
+ F5F8  CD 10					int     10h
+ F5FA  5A					pop     dx
+ F5FB  C3					ret        
+ F5FC 000A			ten     dw      10
+
+ F5FE				prts:   ; es:si = string
+ F5FE  B4 0E					mov     ah, 0eh    
+ F600  26: AC					lodsb   es:[si]
+ F602  0A C0					or      al, al
+ F604  74 04					jz      short prtse
+ F606  CD 10					int     10h
+ F608  EB F4					jmp     short prts
+ F60A				prtse:
+ F60A  C3					ret
+
+
+
+				;---------------------  read/write byte ----------------------
+ F60B				sdrb:   
+ F60B  B0 FF					mov		al, 0ffh
+ F60D				sdsb:               ; in AL=byte, DX = 03dah, out AX=result
+ F60D  B4 01					mov		ah, 1
+ F60F				sdsb1:
+ F60F  EE					out		dx, al
+				;		add		ax, ax
+				;		jnc		sdsb1
+ F610  90					nop
+ F611  90					nop
+ F612  90					nop
+ F613  90					nop
+ F614  90					nop
+ F615  90					nop
+ F616  90					nop
+ F617  90					nop
+ F618  ED					in		ax, dx
+ F619  C3					ret
+
+				;---------------------  read/write byte ----------------------
+				;sdrb:   
+				;		mov		al, 0ffh
+				;sdsb:               ; in AL=byte, DX = 03dah, out AX=result
+				;		out		dx, al
+				;		add		ax, ax
+				;		nop
+				;		out		dx, al
+				;		add		ax, ax
+				;		nop
+				;		out		dx, al
+				;		add		ax, ax
+				;		nop
+				;		out		dx, al
+				;		add		ax, ax
+				;		nop
+				;		out		dx, al
+				;		add		ax, ax
+				;		nop
+				;		out		dx, al
+				;		add		ax, ax
+				;		nop
+				;		out		dx, al
+				;		add		ax, ax
+				;		nop
+				;		out		dx, al
+				;		add		ax, ax
+				;		in		ax, dx
+				;		ret
+
+				;---------------------  write block ----------------------
+ F61A				sdwblk:              ; in DS:SI=data ptr, DX=03dah, CX=size
+ F61A  D1 E9				shr     cx, 1
+ F61C				sdwblk1:
+ F61C  AC					lodsb
+ F61D  E8 FFED					call		sdsb
+ F620  AC					lodsb
+ F621  E8 FFE9					call		sdsb
+ F624  E2 F6					loop		sdwblk1
+ F626  C3					ret
+
+				;---------------------  read block ----------------------
+ F627				sdrblk:              ; in DS:DI=data ptr, DX=03dah, CX=size, Returns CF = 0
+ F627  D1 E9				shr     cx, 1
+ F629				sdrblk1:
+ F629  E8 FFDF					call		sdrb
+ F62C  88 25					mov		[di], ah
+ F62E  E8 FFDA					call	sdrb
+ F631  88 65 01					mov		[di+1], ah
+ F634  83 C7 02					add		di, 2
+ F637  E2 F0					loop	sdrblk1
+ F639  0B C0					or		ax, ax
+ F63B  C3					ret
+
+				;---------------------  verify block ----------------------
+ F63C				sdvblk:              ; in DI=data ptr, DX=03dah, CX=size. Returns CF=1 on error
+ F63C  53					push    bx
+ F63D  32 DB					xor     bl, bl
+ F63F				sdvblk1:
+ F63F  E8 FFC9					call    sdrb
+ F642  2A 25					sub     ah, [di]
+ F644  0A DC					or      bl, ah
+ F646  47					inc     di
+ F647  E2 F6					loop    short sdvblk1
+ F649  F6 DB					neg     bl  ; CF=1 if BL != 0
+ F64B  5B					pop     bx
+ F64C  C3					ret
+
+				;---------------------  write command ----------------------
+ F64D				sdcmd8T:
+ F64D  E8 FFBB					call    sdrb
+ F650				sdcmd:              ; in SI=6 bytes cmd buffer, DX=03dah, out AH = 0ffh on error
+ F650  B9 0006					mov     cx, 6
+ F653  E8 FFC4					call    sdwblk
+ F656				sdresp:
+ F656  33 F6					xor     si, si
+ F658				sdresp1:
+ F658  E8 FFB0					call    sdrb
+ F65B  46					inc     si
+ F65C  74 05					jz      short sdcmd1
+ F65E  80 FC FF					cmp     ah, 0ffh
+ F661  74 F5					je      short sdresp1
+ F663  C3			sdcmd1: ret         
+
+				;---------------------  read ----------------------
+ F664				sdverify:
+ F664  68 F63C R				push    sdvblk
+ F667  EB 03					jmp     short sdread1
+ F669				sdread:   ; DX:AX sector, ES:BX buffer, CX=sectors. returns AX=read sectors
+ F669  68 F627 R				push    sdrblk   ; push proc address (read or verify) on stack
+ F66C				sdread1:        
+ F66C  50					push    ax
+ F66D  8A C2					mov     al, dl
+ F66F  50					push    ax
+ F670  B2 51					mov     dl, 51h  ; CMD17
+ F672  83 F9 01					cmp     cx, 1
+ F675  74 01					je      short sdr1s
+ F677  42					inc     dx      ; CMD18 - multiple sectors
+ F678				sdr1s:
+ F678  52					push    dx
+ F679  8B F4					mov     si, sp 
+
+ F67B  BA 03DA					mov     dx, 3dah
+ F67E  B4 01					mov     ah, 1
+ F680  EF					out     dx, ax       ; CS on
+ F681  8B FB					mov     di, bx
+ F683  8B D9					mov     bx, cx
+ F685  8B E9					mov     bp, cx       ; save sectors number
+ F687  16					push    ss
+ F688  1F					pop     ds
+ F689  C6 44 05 FF			mov	byte ptr [si+5], 0ffh ; checksum
+ F68D  E8 FFC0					call    sdcmd
+ F690  83 C4 06					add     sp, 6
+ F693  0A E4					or      ah, ah
+ F695  75 41					jnz     short sdr11   ; error
+ F697  06					push    es
+ F698  1F					pop     ds
+ F699				sdrms:
+ F699  8B C7					mov     ax, di
+ F69B  C1 E8 04					shr     ax, 4
+ F69E  8C DE					mov     si, ds
+ F6A0  03 C6					add     ax, si
+ F6A2  8E D8					mov     ds, ax
+ F6A4  83 E7 0F					and     di, 15
+ F6A7  E8 FFAC					call    sdresp     ; wait for 0feh token
+ F6AA  80 FC FE					cmp     ah, 0feh
+ F6AD  75 29					jne     short sdr11; read token error 
+ F6AF  B5 02					mov     ch, 2      ; 512 byte sector
+ F6B1  5E					pop     si
+ F6B2  FF D6					call    si         ; sdrblk or sdvblk
+ F6B4  56					push    si
+ F6B5  9C					pushf
+ F6B6  E8 FF52					call    sdrb       ; ignore CRC
+ F6B9  E8 FF4F					call    sdrb       ; ignore CRC
+ F6BC  9D					popf
+ F6BD  72 03					jc      short sdr3 ; verify error   
+ F6BF  4B					dec     bx
+ F6C0  75 D7					jnz     short sdrms; multiple sectors
+ F6C2				sdr3:        
+ F6C2  83 FD 01					cmp     bp, 1
+ F6C5  74 11					je      short sdr11; single sector
+ F6C7  BE F811 R				mov     si, offset SD_CMD12 ; stop transfer
+ F6CA  0E					push    cs
+ F6CB  1F					pop     ds
+ F6CC  E8 FF81					call    sdcmd
+ F6CF				sdr2:
+ F6CF  D0 EC					shr     ah, 1
+ F6D1  73 05					jnc     short sdr11
+ F6D3  E8 FF35					call    sdrb
+ F6D6  EB F7					jmp     short sdr2
+ F6D8				sdr11:
+ F6D8  58					pop     ax         ; remove proc address from stack
+ F6D9				sdr1:       
+ F6D9  33 C0					xor     ax, ax
+ F6DB  EF					out     dx, ax
+ F6DC  E8 FF2C					call    sdrb       ; 8T
+ F6DF  8B C5					mov     ax, bp
+ F6E1  2B C3					sub     ax, bx
+ F6E3  C3					ret     
+
+				;---------------------  write ----------------------
+ F6E4				sdwrite:   ; DX:AX sector, ES:BX buffer, CX=sectors, returns AX=wrote sectors
+ F6E4  50					push    ax
+ F6E5  8A C2					mov     al, dl
+ F6E7  50					push    ax
+ F6E8  B2 58					mov     dl, 58h  ; CMD24
+ F6EA  83 F9 01					cmp     cx, 1
+ F6ED  74 01					je      short sdw1s
+ F6EF  42					inc     dx      ; CMD25 - multiple sectors
+ F6F0				sdw1s:
+ F6F0  52					push    dx
+ F6F1  8B F4					mov     si, sp 
+
+ F6F3  BA 03DA					mov     dx, 3dah
+ F6F6  B4 01					mov     ah, 1
+ F6F8  EF					out     dx, ax       ; CS on
+ F6F9  8B E9					mov     bp, cx       ; save sectors number
+ F6FB  16					push    ss
+ F6FC  1F					pop     ds
+ F6FD  C6 44 05 FF			mov	byte ptr [si+5], 0ffh ; checksum
+ F701  E8 FF4C					call    sdcmd
+ F704  83 C4 06					add     sp, 6
+ F707  8B F3					mov     si, bx
+ F709  8B DD					mov     bx, bp
+ F70B  0A E4					or      ah, ah
+ F70D  75 CA					jnz     short sdr1   ; error
+ F70F  06					push    es
+ F710  1F					pop     ds
+ F711				sdwms:
+ F711  8B C6					mov     ax, si
+ F713  C1 E8 04					shr     ax, 4
+ F716  8C DF					mov     di, ds
+ F718  03 C7					add     ax, di
+ F71A  8E D8					mov     ds, ax
+ F71C  83 E6 0F					and     si, 15
+ F71F  B0 FE					mov     al, 0feh      ; start token
+ F721  83 FD 01					cmp     bp, 1
+ F724  74 02					je      short sdw1s1
+ F726  B0 FC					mov     al, 0fch   ; multiple sectors
+ F728				sdw1s1:        
+ F728  E8 FEE2					call    sdsb     
+ F72B  B5 02					mov     ch, 2      ; 512 byte sector
+ F72D  E8 FEEA					call    sdwblk
+ F730  E8 FED8					call    sdrb       ; ignore CRC
+ F733  E8 FED5					call    sdrb       ; ignore CRC
+ F736  E8 FED2					call    sdrb       ; read response byte xxx00101
+ F739  80 E4 0E					and     ah, 0eh
+ F73C  80 FC 04					cmp     ah, 4
+ F73F  75 98					jne     short sdr1 ; write error
+ F741				sdwwait:
+ F741  E8 FEC7					call    sdrb
+ F744  D0 EC					shr     ah, 1
+ F746  73 F9					jnc     short sdwwait     ; wait write completion
+ F748  4B					dec     bx
+ F749  75 C6					jnz     short sdwms       ; multiple sectors
+
+ F74B  83 FD 01					cmp     bp, 1
+ F74E  74 89					je      short sdr1
+ F750  B0 FD					mov     al, 0fdh     ; multiple end transfer
+ F752  E8 FEB8					call    sdsb 
+ F755  E8 FEB3					call	sdrb     
+ F758				sdwwait1:
+ F758  E8 FEB0					call    sdrb
+ F75B  D0 EC					shr     ah, 1
+ F75D  73 F9					jnc     short sdwwait1     ; wait write completion
+ F75F  E9 FF77					jmp     sdr1
+						
+				;---------------------  init SD ----------------------
+ F762				sdinit  proc near       ; returns AX = num kilosectors
+ F762  1E					push    ds
+ F763  51					push    cx
+ F764  52					push    dx
+ F765  56					push    si
+ F766  57					push    di
+ F767  BA 03DA					mov     dx, 3dah
+ F76A  B9 000A					mov     cx, 10
+ F76D				sdinit1:                   ; send 80T
+ F76D  E8 FE9B					call    sdrb
+ F770  E2 FB					loop    short sdinit1
+
+ F772  B4 01					mov     ah, 1
+ F774  EF					out     dx, ax       ; select SD
+
+ F775  BE F7FF R				mov     si, offset SD_CMD0
+ F778  0E					push    cs
+ F779  1F					pop     ds
+ F77A  E8 FED3					call    sdcmd
+ F77D  FE CC					dec     ah
+ F77F  75 70					jnz     short sdexit ; error
+						
+ F781  BE F805 R				mov     si, offset SD_CMD8
+ F784  E8 FEC6					call    sdcmd8T
+ F787  FE CC					dec     ah
+ F789  75 66					jnz     short sdexit ; error
+ F78B  B1 04					mov     cl, 4
+ F78D  2B E1					sub     sp, cx
+ F78F  8B FC					mov     di, sp
+ F791  16					push    ss
+ F792  1F					pop     ds
+ F793  E8 FE91					call    sdrblk
+ F796  58					pop     ax
+ F797  58					pop     ax
+ F798  80 FC AA					cmp     ah, 0aah
+ F79B  75 54					jne     short sdexit ; CMD8 error
+ F79D				repinit:        
+ F79D  BE F81D R				mov     si, offset SD_CMD55
+ F7A0  0E					push    cs
+ F7A1  1F					pop     ds
+ F7A2  E8 FEA8					call    sdcmd8T
+ F7A5  E8 FE63					call    sdrb
+ F7A8  BE F817 R				mov     si, offset SD_CMD41
+ F7AB  E8 FEA2					call    sdcmd
+ F7AE  FE CC					dec     ah
+ F7B0  74 EB					jz      short repinit
+						
+ F7B2  BE F823 R				mov     si, offset SD_CMD58
+ F7B5  E8 FE95					call    sdcmd8T
+ F7B8  B1 04					mov     cl, 4
+ F7BA  2B E1					sub     sp, cx
+ F7BC  8B FC					mov     di, sp
+ F7BE  16					push    ss
+ F7BF  1F					pop     ds
+ F7C0  E8 FE64					call    sdrblk
+ F7C3  58					pop     ax
+ F7C4  A8 40					test    al, 40h     ; test OCR bit 30 (CCS)
+ F7C6  58					pop     ax
+ F7C7  74 28					jz      short sdexit; no SDHC
+
+ F7C9  BE F80B R				mov     si, offset SD_CMD9 ; get size info
+ F7CC  0E					push    cs
+ F7CD  1F					pop     ds
+ F7CE  E8 FE7C					call    sdcmd8T
+ F7D1  0A E4					or      ah, ah
+ F7D3  75 1C					jnz     short sdexit
+ F7D5  E8 FE7E					call    sdresp     ; wait for 0feh token
+ F7D8  80 FC FE					cmp     ah, 0feh
+ F7DB  75 14					jne     short sdexit
+ F7DD  B1 12					mov     cl, 18       ; 16bytes + 2bytes CRC
+ F7DF  2B E1					sub     sp, cx
+ F7E1  8B FC					mov     di, sp
+ F7E3  16					push    ss
+ F7E4  1F					pop     ds
+ F7E5  E8 FE3F					call    sdrblk
+ F7E8  8B 4D F6					mov     cx, [di-10]
+ F7EB  C1 C1 08					rol     cx, 8
+ F7EE  41					inc     cx
+ F7EF  8B E7					mov     sp, di
+ F7F1				sdexit: 
+ F7F1  33 C0					xor     ax, ax       ; raise CS
+ F7F3  EF					out     dx, ax
+ F7F4  E8 FE14					call    sdrb
+ F7F7  5F					pop     di
+ F7F8  5E					pop     si
+ F7F9  5A					pop     dx
+ F7FA  8B C1					mov     ax, cx       
+ F7FC  59					pop     cx
+ F7FD  1F					pop     ds
+ F7FE  C3					ret
+ F7FF				sdinit endp
+					
+ F7FF 40 00 00 00 00 95		SD_CMD0     db  40h, 0, 0, 0, 0, 95h
+ F805 48 00 00 01 AA 87		SD_CMD8     db  48h, 0, 0, 1, 0aah, 087h
+ F80B 49 00 00 00 00 FF		SD_CMD9     db  49h, 0, 0, 0, 0, 0ffh
+ F811 4C 00 00 00 00 FF		SD_CMD12    db  4ch, 0, 0, 0, 0, 0ffh
+ F817 69 40 00 00 00 FF		SD_CMD41    db  69h, 40h, 0, 0, 0, 0ffh
+ F81D 77 00 00 00 00 FF		SD_CMD55    db  77h, 0, 0, 0, 0, 0ffh
+ F823 7A 00 00 00 00 FF		SD_CMD58    db  7ah, 0, 0, 0, 0, 0ffh
+
+
+ F829				Pal256:
+ F829  00 00 00 00 00 2A			db  00h,00h,00h, 00h,00h,2ah, 00h,2ah,00h, 00h,2ah,2ah, 2ah,00h,00h, 2ah,00h,2ah, 2ah,15h,00h, 2ah,2ah,2ah 
+       00 2A 00 00 2A 2A
+       2A 00 00 2A 00 2A
+       2A 15 00 2A 2A 2A
+ F841  15 15 15 15 15 3F			db  15h,15h,15h, 15h,15h,3fh, 15h,3fh,15h, 15h,3fh,3fh, 3fh,15h,15h, 3fh,15h,3fh, 3fh,3fh,15h, 3fh,3fh,3fh 
+       15 3F 15 15 3F 3F
+       3F 15 15 3F 15 3F
+       3F 3F 15 3F 3F 3F
+ F859  00 00 00 05 05 05			db  00h,00h,00h, 05h,05h,05h, 08h,08h,08h, 0bh,0bh,0bh, 0eh,0eh,0eh, 11h,11h,11h, 14h,14h,14h, 18h,18h,18h 
+       08 08 08 0B 0B 0B
+       0E 0E 0E 11 11 11
+       14 14 14 18 18 18
+ F871  1C 1C 1C 20 20 20			db  1ch,1ch,1ch, 20h,20h,20h, 24h,24h,24h, 28h,28h,28h, 2dh,2dh,2dh, 32h,32h,32h, 38h,38h,38h, 3fh,3fh,3fh 
+       24 24 24 28 28 28
+       2D 2D 2D 32 32 32
+       38 38 38 3F 3F 3F
+ F889  00 00 3F 10 00 3F			db  00h,00h,3fh, 10h,00h,3fh, 1fh,00h,3fh, 2fh,00h,3fh, 3fh,00h,3fh, 3fh,00h,2fh, 3fh,00h,1fh, 3fh,00h,10h 
+       1F 00 3F 2F 00 3F
+       3F 00 3F 3F 00 2F
+       3F 00 1F 3F 00 10
+ F8A1  3F 00 00 3F 10 00			db  3fh,00h,00h, 3fh,10h,00h, 3fh,1fh,00h, 3fh,2fh,00h, 3fh,3fh,00h, 2fh,3fh,00h, 1fh,3fh,00h, 10h,3fh,00h 
+       3F 1F 00 3F 2F 00
+       3F 3F 00 2F 3F 00
+       1F 3F 00 10 3F 00
+ F8B9  00 3F 00 00 3F 10			db  00h,3fh,00h, 00h,3fh,10h, 00h,3fh,1fh, 00h,3fh,2fh, 00h,3fh,3fh, 00h,2fh,3fh, 00h,1fh,3fh, 00h,10h,3fh 
+       00 3F 1F 00 3F 2F
+       00 3F 3F 00 2F 3F
+       00 1F 3F 00 10 3F
+ F8D1  1F 1F 3F 27 1F 3F			db  1fh,1fh,3fh, 27h,1fh,3fh, 2fh,1fh,3fh, 37h,1fh,3fh, 3fh,1fh,3fh, 3fh,1fh,37h, 3fh,1fh,2fh, 3fh,1fh,27h
+       2F 1F 3F 37 1F 3F
+       3F 1F 3F 3F 1F 37
+       3F 1F 2F 3F 1F 27
+ F8E9  00 01 02 03 04 05			db	00h, 01h, 02h, 03h, 04h, 05h, 06h, 07h, 08h, 09h, 0ah, 0bh, 0ch, 0dh, 0eh, 0fh	; EGA palette registers
+       06 07 08 09 0A 0B
+       0C 0D 0E 0F
+
+				;		db  3fh,1fh,1fh, 3fh,27h,1fh, 3fh,2fh,1fh, 3fh,37h,1fh, 3fh,3fh,1fh, 37h,3fh,1fh, 2fh,3fh,1fh, 27h,3fh,1fh 
+				;		db  1fh,3fh,1fh, 1fh,3fh,27h, 1fh,3fh,2fh, 1fh,3fh,37h, 1fh,3fh,3fh, 1fh,37h,3fh, 1fh,2fh,3fh, 1fh,27h,3fh 
+				;		db  2dh,2dh,3fh, 31h,2dh,3fh, 36h,2dh,3fh, 3ah,2dh,3fh, 3fh,2dh,3fh, 3fh,2dh,3ah, 3fh,2dh,36h, 3fh,2dh,31h 
+				;		db  3fh,2dh,2dh, 3fh,31h,2dh, 3fh,36h,2dh, 3fh,3ah,2dh, 3fh,3fh,2dh, 3ah,3fh,2dh, 36h,3fh,2dh, 31h,3fh,2dh 
+				;		db  2dh,3fh,2dh, 2dh,3fh,31h, 2dh,3fh,36h, 2dh,3fh,3ah, 2dh,3fh,3fh, 2dh,3ah,3fh, 2dh,36h,3fh, 2dh,31h,3fh 
+				;		db  00h,00h,1ch, 07h,00h,1ch, 0eh,00h,1ch, 15h,00h,1ch, 1ch,00h,1ch, 1ch,00h,15h, 1ch,00h,0eh, 1ch,00h,07h 
+				;		db  1ch,00h,00h, 1ch,07h,00h, 1ch,0eh,00h, 1ch,15h,00h, 1ch,1ch,00h, 15h,1ch,00h, 0eh,1ch,00h, 07h,1ch,00h 
+				;		db  00h,1ch,00h, 00h,1ch,07h, 00h,1ch,0eh, 00h,1ch,15h, 00h,1ch,1ch, 00h,15h,1ch, 00h,0eh,1ch, 00h,07h,1ch 
+
+				;		db  0eh,0eh,1ch, 11h,0eh,1ch, 15h,0eh,1ch, 18h,0eh,1ch, 1ch,0eh,1ch, 1ch,0eh,18h, 1ch,0eh,15h, 1ch,0eh,11h 
+				;		db  1ch,0eh,0eh, 1ch,11h,0eh, 1ch,15h,0eh, 1ch,18h,0eh, 1ch,1ch,0eh, 18h,1ch,0eh, 15h,1ch,0eh, 11h,1ch,0eh 
+				;		db  0eh,1ch,0eh, 0eh,1ch,11h, 0eh,1ch,15h, 0eh,1ch,18h, 0eh,1ch,1ch, 0eh,18h,1ch, 0eh,15h,1ch, 0eh,11h,1ch 
+				;		db  14h,14h,1ch, 16h,14h,1ch, 18h,14h,1ch, 1ah,14h,1ch, 1ch,14h,1ch, 1ch,14h,1ah, 1ch,14h,18h, 1ch,14h,16h 
+				;		db  1ch,14h,14h, 1ch,16h,14h, 1ch,18h,14h, 1ch,1ah,14h, 1ch,1ch,14h, 1ah,1ch,14h, 18h,1ch,14h, 16h,1ch,14h 
+				;		db  14h,1ch,14h, 14h,1ch,16h, 14h,1ch,18h, 14h,1ch,1ah, 14h,1ch,1ch, 14h,1ah,1ch, 14h,18h,1ch, 14h,16h,1ch 
+				;		db  00h,00h,10h, 04h,00h,10h, 08h,00h,10h, 0ch,00h,10h, 10h,00h,10h, 10h,00h,0ch, 10h,00h,08h, 10h,00h,04h 
+				;		db  10h,00h,00h, 10h,04h,00h, 10h,08h,00h, 10h,0ch,00h, 10h,10h,00h, 0ch,10h,00h, 08h,10h,00h, 04h,10h,00h 
+
+				;		db  00h,10h,00h, 00h,10h,04h, 00h,10h,08h, 00h,10h,0ch, 00h,10h,10h, 00h,0ch,10h, 00h,08h,10h, 00h,04h,10h 
+				;		db  08h,08h,10h, 0ah,08h,10h, 0ch,08h,10h, 0eh,08h,10h, 10h,08h,10h, 10h,08h,0eh, 10h,08h,0ch, 10h,08h,0ah 
+				;		db  10h,08h,08h, 10h,0ah,08h, 10h,0ch,08h, 10h,0eh,08h, 10h,10h,08h, 0eh,10h,08h, 0ch,10h,08h, 0ah,10h,08h 
+				;		db  08h,10h,08h, 08h,10h,0ah, 08h,10h,0ch, 08h,10h,0eh, 08h,10h,10h, 08h,0eh,10h, 08h,0ch,10h, 08h,0ah,10h 
+				;		db  0bh,0bh,10h, 0ch,0bh,10h, 0dh,0bh,10h, 0fh,0bh,10h, 10h,0bh,10h, 10h,0bh,0fh, 10h,0bh,0dh, 10h,0bh,0ch 
+				;		db  10h,0bh,0bh, 10h,0ch,0bh, 10h,0dh,0bh, 10h,0fh,0bh, 10h,10h,0bh, 0fh,10h,0bh, 0dh,10h,0bh, 0ch,10h,0bh 
+				;		db  0bh,10h,0bh, 0bh,10h,0ch, 0bh,10h,0dh, 0bh,10h,0fh, 0bh,10h,10h, 0bh,0fh,10h, 0bh,0dh,10h, 0bh,0ch,10h 
+				;		db  00h,00h,00h, 00h,00h,00h, 00h,00h,00h, 00h,00h,00h, 00h,00h,00h, 00h,00h,00h, 00h,00h,00h, 00h,00h,00h
+
+ F8F9				PalEGA:
+ F8F9  00 00 00 00 00 2A			db	00h,00h,00h, 00h,00h,2ah, 00h,2ah,00h, 00h,2ah,2ah, 2ah,00h,00h, 2ah,00h,2ah, 2ah,15h,00h, 2ah,2ah,2ah
+       00 2A 00 00 2A 2A
+       2A 00 00 2A 00 2A
+       2A 15 00 2A 2A 2A
+ F911  00 00 00 00 00 2A			db	00h,00h,00h, 00h,00h,2ah, 00h,2ah,00h, 00h,2ah,2ah, 2ah,00h,00h, 2ah,00h,2ah, 2ah,15h,00h, 2ah,2ah,2ah
+       00 2A 00 00 2A 2A
+       2A 00 00 2A 00 2A
+       2A 15 00 2A 2A 2A
+ F929  15 15 15 15 15 3F			db	15h,15h,15h, 15h,15h,3fh, 15h,3fh,15h, 15h,3fh,3fh, 3fh,15h,15h, 3fh,15h,3fh, 3fh,3fh,15h, 3fh,3fh,3fh
+       15 3F 15 15 3F 3F
+       3F 15 15 3F 15 3F
+       3F 3F 15 3F 3F 3F
+ F941  15 15 15 15 15 3F			db	15h,15h,15h, 15h,15h,3fh, 15h,3fh,15h, 15h,3fh,3fh, 3fh,15h,15h, 3fh,15h,3fh, 3fh,3fh,15h, 3fh,3fh,3fh
+       15 3F 15 15 3F 3F
+       3F 15 15 3F 15 3F
+       3F 3F 15 3F 3F 3F
+ F959  00 00 00 00 00 2A			db	00h,00h,00h, 00h,00h,2ah, 00h,2ah,00h, 00h,2ah,2ah, 2ah,00h,00h, 2ah,00h,2ah, 2ah,15h,00h, 2ah,2ah,2ah
+       00 2A 00 00 2A 2A
+       2A 00 00 2A 00 2A
+       2A 15 00 2A 2A 2A
+ F971  00 00 00 00 00 2A			db	00h,00h,00h, 00h,00h,2ah, 00h,2ah,00h, 00h,2ah,2ah, 2ah,00h,00h, 2ah,00h,2ah, 2ah,15h,00h, 2ah,2ah,2ah
+       00 2A 00 00 2A 2A
+       2A 00 00 2A 00 2A
+       2A 15 00 2A 2A 2A
+ F989  15 15 15 15 15 3F			db	15h,15h,15h, 15h,15h,3fh, 15h,3fh,15h, 15h,3fh,3fh, 3fh,15h,15h, 3fh,15h,3fh, 3fh,3fh,15h, 3fh,3fh,3fh
+       15 3F 15 15 3F 3F
+       3F 15 15 3F 15 3F
+       3F 3F 15 3F 3F 3F
+ F9A1  15 15 15 15 15 3F			db	15h,15h,15h, 15h,15h,3fh, 15h,3fh,15h, 15h,3fh,3fh, 3fh,15h,15h, 3fh,15h,3fh, 3fh,3fh,15h, 3fh,3fh,3fh
+       15 3F 15 15 3F 3F
+       3F 15 15 3F 15 3F
+       3F 3F 15 3F 3F 3F
+ F9B9  00 01 02 03 04 05			db	00h, 01h, 02h, 03h, 04h, 05h, 06h, 07h, 10h, 11h, 12h, 13h, 14h, 15h, 16h, 17h	; EGA palette registers
+       06 07 10 11 12 13
+       14 15 16 17
+
+ F9C9				PalVGA:
+ F9C9  00 00 00 00 00 2A			db	00h,00h,00h, 00h,00h,2ah, 00h,2ah,00h, 00h,2ah,2ah, 2ah,00h,00h, 2ah,00h,2ah, 2ah,2ah,00h, 2ah,2ah,2ah
+       00 2A 00 00 2A 2A
+       2A 00 00 2A 00 2A
+       2A 2A 00 2A 2A 2A
+ F9E1  00 00 15 00 00 3F			db	00h,00h,15h, 00h,00h,3fh, 00h,2ah,15h, 00h,2ah,3fh, 2ah,00h,15h, 2ah,00h,3fh, 2ah,2ah,15h, 2ah,2ah,3fh
+       00 2A 15 00 2A 3F
+       2A 00 15 2A 00 3F
+       2A 2A 15 2A 2A 3F
+ F9F9  00 15 00 00 15 2A			db	00h,15h,00h, 00h,15h,2ah, 00h,3fh,00h, 00h,3fh,2ah, 2ah,15h,00h, 2ah,15h,2ah, 2ah,3fh,00h, 2ah,3fh,2ah
+       00 3F 00 00 3F 2A
+       2A 15 00 2A 15 2A
+       2A 3F 00 2A 3F 2A
+ FA11  00 15 15 00 15 3F			db	00h,15h,15h, 00h,15h,3fh, 00h,3fh,15h, 00h,3fh,3fh, 2ah,15h,15h, 2ah,15h,3fh, 2ah,3fh,15h, 2ah,3fh,3fh
+       00 3F 15 00 3F 3F
+       2A 15 15 2A 15 3F
+       2A 3F 15 2A 3F 3F
+ FA29  15 00 00 15 00 2A			db	15h,00h,00h, 15h,00h,2ah, 15h,2ah,00h, 15h,2ah,2ah, 3fh,00h,00h, 3fh,00h,2ah, 3fh,2ah,00h, 3fh,2ah,2ah
+       15 2A 00 15 2A 2A
+       3F 00 00 3F 00 2A
+       3F 2A 00 3F 2A 2A
+ FA41  15 00 15 15 00 3F			db	15h,00h,15h, 15h,00h,3fh, 15h,2ah,15h, 15h,2ah,3fh, 3fh,00h,15h, 3fh,00h,3fh, 3fh,2ah,15h, 3fh,2ah,3fh
+       15 2A 15 15 2A 3F
+       3F 00 15 3F 00 3F
+       3F 2A 15 3F 2A 3F
+ FA59  15 15 00 15 15 2A			db	15h,15h,00h, 15h,15h,2ah, 15h,3fh,00h, 15h,3fh,2ah, 3fh,15h,00h, 3fh,15h,2ah, 3fh,3fh,00h, 3fh,3fh,2ah
+       15 3F 00 15 3F 2A
+       3F 15 00 3F 15 2A
+       3F 3F 00 3F 3F 2A
+ FA71  15 15 15 15 15 3F			db	15h,15h,15h, 15h,15h,3fh, 15h,3fh,15h, 15h,3fh,3fh, 3fh,15h,15h, 3fh,15h,3fh, 3fh,3fh,15h, 3fh,3fh,3fh
+       15 3F 15 15 3F 3F
+       3F 15 15 3F 15 3F
+       3F 3F 15 3F 3F 3F
+ FA89  00 01 02 03 04 05			db	00h, 01h, 02h, 03h, 04h, 05h, 14h, 07h, 38h, 39h, 3ah, 3bh, 3ch, 3dh, 3eh, 3fh	; EGA palette registers
+       14 07 38 39 3A 3B
+       3C 3D 3E 3F
+
+				IFDEF SCANCODE1 ; use SCANCODE1
+				ELSE    ; use SCANCODE2
+
+ FA99				KeyIndex:
+ FA99  00 4F 00 26 27 28			db	0, 79,  0, 38, 39, 40, 41, 42	; 00
+       29 2A
+ FAA1  00 2B 2C 2D 2E 2F			db	0, 43, 44, 45, 46, 47, 48,  0
+       30 00
+ FAA9  00 00 00 00 00 01			db	0,  0,  0,  0,  0,  1, 49,  0	; 10
+       31 00
+ FAB1  00 00 02 03 04 05			db	0,  0,  2,	3,  4,  5, 50,  0
+       32 00
+ FAB9  00 06 07 08 09 33			db	0,  6,  7,	8,  9, 51, 52,  0	; 20
+       34 00
+ FAC1  00 35 0A 0B 0C 0D			db	0, 53, 10, 11, 12, 13, 54,  0
+       36 00
+ FAC9  00 0E 0F 10 11 12			db	0, 14, 15, 16, 17, 18, 55,  0	; 30
+       37 00
+ FAD1  00 00 13 14 15 38			db	0,  0, 19, 20, 21, 56, 57,  0
+       39 00
+ FAD9  00 3A 16 17 18 3B			db	0, 58, 22, 23, 24, 59, 60,  0	; 40
+       3C 00
+ FAE1  00 3D 3E 19 40 1A			db	0, 61, 62, 25, 64, 26, 65,  0
+       41 00
+				;		db	0,  0, 66,	0, 67, 68,	0,  0	; 50
+ FAE9  00 5E 42 00 43 44			db	0, 94, 66,	0, 67, 68,	0,  0	; add 51:94
+       00 00
+ FAF1  00 00 45 46 00 47			db	0,  0, 69, 70,  0, 71,	0,  0
+       00 00
+ FAF9  00 00 00 00 00 00			db	0,  0,  0,	0,  0,  0, 72,  0	; 60
+       48 00
+				;		db	0, 27,  0, 28, 29,  0,	0,  0
+ FB01  00 1B 5B 1C 1D 00			db	0, 27, 91, 28, 29,  0,	0,  0	; add 6a:91 
+       00 00
+ FB09  1E 1F 20 25 21 22			db 30, 31, 32, 37, 33, 34, 82,  0
+       52 00
+ FB11  53 54 23 56 57 24			db 83, 84, 35, 86, 87, 36, 89,  0
+       59 00
+ FB19  00 00 00 5A				db	0,  0,  0,	90 	
+ FB1D				E0KeyList:
+ FB1D  4A 5A 69 6B 6C 70		db	4ah, 5ah, 69h, 6bh, 6ch, 70h, 71h, 72h, 74h, 75h, 7ah, 7dh 
+       71 72 74 75 7A 7D
+
+				ENDIF
+
+ FB29				E0KeyIndex:
+ FB29  3F 45 49 4A 4B 4C		db	63,  69,  73,  74,  75,  76,  77,  78,  80,  81,  85,  88
+       4D 4E 50 51 55 58
+
+ FB35				KeyCode:	  
+				; Keys affected by CapsLock
+				;		norm   shft   ctrl   alt
+ FB35  0000 0000 0000				dw	0000h, 0000h, 0000h, 0000h ;17 - <0>
+       0000
+ FB3D  1071 1051 1011				dw	1071h, 1051h, 1011h, 1000h ;15 - Q, (E0)PrevTrack <1>
+       1000
+ FB45  2C7A 2C5A 2C1A				dw	2c7ah, 2c5ah, 2c1ah, 2c00h ;1a - Z <2>
+       2C00
+ FB4D  1F73 1F53 1F13				dw	1f73h, 1f53h, 1f13h, 1f00h ;1b - S <3>
+       1F00
+ FB55  1E61 1E41 1E01				dw	1e61h, 1e41h, 1e01h, 1e00h ;1c - A <4>
+       1E00
+ FB5D  1177 1157 1117				dw	1177h, 1157h, 1117h, 1100h ;1d - W <5>
+       1100
+ FB65  2E63 2E43 2E03				dw	2e63h, 2e43h, 2e03h, 2e00h ;21 - C, (E0)Volume Down <6>
+       2E00
+ FB6D  2D78 2D58 2D18				dw	2d78h, 2d58h, 2d18h, 2d00h ;22 - X <7>
+       2D00
+ FB75  2064 2044 2004				dw	2064h, 2044h, 2004h, 2000h ;23 - D, (E0)Mute <8>
+       2000
+ FB7D  1265 1245 1205				dw	1265h, 1245h, 1205h, 1200h ;24 - E <9>
+       1200
+ FB85  2F76 2F56 2F16				dw	2f76h, 2f56h, 2f16h, 2f00h ;2a - V <10>
+       2F00
+ FB8D  2166 2146 2106				dw	2166h, 2146h, 2106h, 2100h ;2b - F, (E0)Calculator <11>
+       2100
+ FB95  1474 1454 1414				dw	1474h, 1454h, 1414h, 1400h ;2c - T <12>
+       1400
+ FB9D  1372 1352 1312				dw	1372h, 1352h, 1312h, 1300h ;2d - R <13>
+       1300
+ FBA5  316E 314E 310E				dw	316eh, 314eh, 310eh, 3100h ;31 - N <14>
+       3100
+ FBAD  3062 3042 3002				dw	3062h, 3042h, 3002h, 3000h ;32 - B, (E0)Volume Up <15>
+       3000
+ FBB5  2368 2348 2308				dw	2368h, 2348h, 2308h, 2300h ;33 - H <16>
+       2300
+ FBBD  2267 2247 2207				dw	2267h, 2247h, 2207h, 2200h ;34 - G, (E0)Play/Pause <17>
+       2200
+ FBC5  1579 1559 1519				dw	1579h, 1559h, 1519h, 1500h ;35 - Y <18>
+       1500
+ FBCD  326D 324D 320D				dw	326dh, 324dh, 320dh, 3200h ;3a - M, (E0)WWW Home <19>
+       3200
+ FBD5  246A 244A 240A				dw	246ah, 244ah, 240ah, 2400h ;3b - J, (E0)Stop <20>
+       2400
+ FBDD  1675 1655 1615				dw	1675h, 1655h, 1615h, 1600h ;3c - U <21>
+       1600
+ FBE5  256B 254B 250B				dw	256bh, 254bh, 250bh, 2500h ;42 - K <22>
+       2500
+ FBED  1769 1749 1709				dw	1769h, 1749h, 1709h, 1700h ;43 - I <23>
+       1700
+ FBF5  186F 184F 180F				dw	186fh, 184fh, 180fh, 1800h ;44 - O <24>
+       1800
+ FBFD  266C 264C 260C				dw	266ch, 264ch, 260ch, 2600h ;4b - L <25>
+       2600
+ FC05  1970 1950 1910				dw	1970h, 1950h, 1910h, 1900h ;4d - P, (E0)Next Track <26>
+       1900
+				; keys affected by NumLock	
+ FC0D  4F00 4F31 7500				dw	4f00h, 4f31h, 7500h, 0002h ;69 - KP1 <27>
+       0002
+ FC15  4B00 4B34 7300				dw	4b00h, 4b34h, 7300h, 0005h ;6b - KP4 <28>
+       0005
+ FC1D  4700 4737 7700				dw	4700h, 4737h, 7700h, 0008h ;6c - KP7 <29>
+       0008
+ FC25  5200 5230 9200				dw	5200h, 5230h, 9200h, 0001h ;70 - KP0 <30>
+       0001
+ FC2D  5300 532E 9300				dw	5300h, 532eh, 9300h, 0000h ;71 - KP. <31>
+       0000
+ FC35  5000 5032 9100				dw	5000h, 5032h, 9100h, 0003h ;72 - KP2 <32>
+       0003
+ FC3D  4D00 4D36 7400				dw	4d00h, 4d36h, 7400h, 0007h ;74 - KP6 <33>
+       0007
+ FC45  4800 4838 8D00				dw	4800h, 4838h, 8d00h, 0009h ;75 - KP8 <34>
+       0009
+ FC4D  5100 5133 7600				dw	5100h, 5133h, 7600h, 0004h ;7a - KP3 <35>
+       0004
+ FC55  4900 4939 8400				dw	4900h, 4939h, 8400h, 000ah ;7d - KP9 <36>
+       000A
+ FC5D  4C00 4C35 8F00				dw	4c00h, 4c35h, 8f00h, 0006h ;73 - KP5 --- on VMWare, it does not send 4c00 <37>
+       0006
+				; keys unaffected by CapsLock or N
+ FC65  3F00 5800 6200				dw	3f00h, 5800h, 6200h, 6c00h ;03 - F5 <38>
+       6C00
+ FC6D  3D00 5600 6000				dw	3d00h, 5600h, 6000h, 6a00h ;04 - F3 <39>
+       6A00
+ FC75  3B00 5400 5E00				dw	3b00h, 5400h, 5e00h, 6800h ;05 - F1 <40>
+       6800
+ FC7D  3C00 5500 5F00				dw	3c00h, 5500h, 5f00h, 6900h ;06 - F2 <41>
+       6900
+ FC85  8600 8800 8A00				dw	8600h, 8800h, 8a00h, 8c00h ;07 - F12 <42>	
+       8C00
+ FC8D  4400 5D00 6700				dw	4400h, 5d00h, 6700h, 7100h ;09 - F10 <43>
+       7100
+ FC95  4200 5B00 6500				dw	4200h, 5b00h, 6500h, 6f00h ;0a - F8 <44>
+       6F00
+ FC9D  4000 5900 6300				dw	4000h, 5900h, 6300h, 6d00h ;0b - F6 <45>
+       6D00
+ FCA5  3E00 5700 6100				dw	3e00h, 5700h, 6100h, 6b00h ;0c - F4 <46>
+       6B00
+ FCAD  0F09 0F00 9400				dw	0f09h, 0f00h, 9400h, 0000h ;0d - TAB <47>	
+       0000
+ FCB5  2960 297E 0000				dw	2960h, 297eh, 0000h, 2900h ;0e - ` ~ <48>	
+       2900
+
+				IFDEF SCANCODE0 ;	Use 106JP KeyBoard
+ FCBD  0231 0221 0000				dw	0231h, 0221h, 0000h, 7800h ;16 - 1 ! <49>	
+       7800
+ FCC5  0332 2822 0300				dw	0332h, 2822h, 0300h, 7900h ;1e - 2 " <50>	
+       7900
+ FCCD  0534 0524 0000				dw	0534h, 0524h, 0000h, 7b00h ;25 - 4 $ <51>
+       7B00
+ FCD5  0433 0423 0000				dw	0433h, 0423h, 0000h, 7a00h ;26 - 3 # <52>
+       7A00
+ FCDD  3920 3920 3920				dw	3920h, 3920h, 3920h, 3920h ;29 - SPC <53>	
+       3920
+ FCE5  0635 0625 0000				dw	0635h, 0625h, 0000h, 7c00h ;2e - 5 % <54>
+       7C00
+ FCED  0736 0826 071E				dw	0736h, 0826h, 071eh, 7d00h ;36 - 6 & <55>
+       7D00
+ FCF5  0837 2827 0000				dw	0837h, 2827h, 0000h, 7e00h ;3d - 7 ' <56>
+       7E00
+ FCFD  0938 0A28 0000				dw	0938h, 0a28h, 0000h, 7f00h ;3e - 8 ( <57>
+       7F00
+ FD05  332C 333C 0000				dw	332ch, 333ch, 0000h, 3300h ;41 - , < <58>
+       3300
+ FD0D  0B30 0000 0000				dw	0b30h, 0000h, 0000h, 8100h ;45 - 0   <59>
+       8100
+ FD15  0A39 0B29 0000				dw	0a39h, 0b29h, 0000h, 8000h ;46 - 9 ) <60>
+       8000
+ FD1D  342E 343E 0000				dw	342eh, 343eh, 0000h, 3400h ;49 - . > <61>
+       3400
+ FD25  352F 353F 0000				dw	352fh, 353fh, 0000h, 3500h ;4a - / ? <62>
+       3500
+ FD2D  E02F E02F 9500				dw	0e02fh, 0e02fh, 9500h, 0a400h ;4a - (e0)KP/ <63>
+       A400
+ FD35  273B 0D2B 0000				dw	273bh, 0d2bh, 0000h, 2700h ;4c - ; + <64>
+       2700
+ FD3D  0C2D 0D3D 0C1F				dw	0c2dh, 0d3dh, 0c1fh, 8200h ;4e - - = <65>
+       8200
+ FD45  273A 092A 0000				dw	273ah, 092ah, 0000h, 2800h ;52 - : * <66>
+       2800
+ FD4D  0340 2960 1A1B				dw	0340h, 2960h, 1a1bh, 1a00h ;54 - @ ` <67>
+       1A00
+ FD55  075E 077E 0000				dw	075eh, 077eh, 0000h, 8300h ;55 - ^ ~ <68>	? 077e
+       8300
+ FD5D  1C0D 1C0D 1C0A				dw	1c0dh, 1c0dh, 1c0ah, 1c00h ;5a - Enter, (E0)KPEnter <69>
+       1C00
+ FD65  1A5B 1A7B 1B1D				dw	1a5bh, 1a7bh, 1b1dh, 1b00h ;5b - [ { <70>
+       1B00
+ FD6D  1B5D 1B7D 2B1C				dw	1b5dh, 1b7dh, 2b1ch, 2b00h ;5d - ] } <71>
+       2B00
+				ELSE    ;
+				ENDIF
+
+ FD75  0E08 0E08 0E7F				dw	0e08h, 0e08h, 0e7fh, 0e00h ;66 - BKSP <72>
+       0E00
+ FD7D  4F00 4F00 7500				dw	4f00h, 4f00h, 7500h, 9f00h ;69 - (E0)END <73>
+       9F00
+ FD85  4B00 4B00 7300				dw	4b00h, 4b00h, 7300h, 9b00h ;6b - (E0)LEFT <74>
+       9B00
+ FD8D  4700 4700 7700				dw	4700h, 4700h, 7700h, 9700h ;6c - (E0)HOME <75>
+       9700
+ FD95  5200 5200 9200				dw	5200h, 5200h, 9200h, 0a200h ;70 - (E0)INS <76>
+       A200
+ FD9D  5300 5300 9300				dw	5300h, 5300h, 9300h, 0a300h ;71 - (E0)DEL <77>
+       A300
+ FDA5  5000 5000 9100				dw	5000h, 5000h, 9100h, 0a000h ;72 - (E0)DOWN <78>
+       A000
+ FDAD  4300 5C00 6600				dw	4300h, 5c00h, 6600h, 7000h ;01 - F9 <79>
+       7000
+ FDB5  4D00 4D00 7400				dw	4d00h, 4d00h, 7400h, 9d00h ;74 - (E0)RIGHT <80>
+       9D00
+ FDBD  4800 4800 8D00				dw	4800h, 4800h, 8d00h, 9800h ;75 - (E0)UP <81>
+       9800
+ FDC5  011B 011B 011B				dw	011bh, 011bh, 011bh, 0100h ;76 - ESC <82>
+       0100
+ FDCD  8500 8700 8900				dw	8500h, 8700h, 8900h, 8b00h ;78 - F11 <83>
+       8B00
+ FDD5  4E2B 4E2B 9000				dw	4e2bh, 4e2bh, 9000h, 4e00h ;79 - KP+ <84>
+       4E00
+ FDDD  5100 5100 7600				dw	5100h, 5100h, 7600h, 0a100h ;7a - (E0)PGDN <85>
+       A100
+ FDE5  4A2D 4A2D 8E00				dw	4a2dh, 4a2dh, 8e00h, 4a00h ;7b - KP- <86>
+       4A00
+ FDED  372A 372A 9600				dw	372ah, 372ah, 9600h, 3700h ;7c - KP* --- on VMWare, it does not send 3710h with CTL <87>
+       3700
+ FDF5  4900 4900 8400				dw	4900h, 4900h, 8400h, 9900h ;7d - (E0)PGUP <88>
+       9900
+ FDFD  4600 4600 4600				dw	4600h, 4600h, 4600h, 4600h ;7e - SCRL <89>
+       4600
+ FE05  4100 5A00 6400				dw	4100h, 5a00h, 6400h, 6e00h ;83 - F7 <90>
+       6E00
+
+ FE0D  2B5C 2B7C 0000				dw	2b5ch, 2b7ch, 0000h, 0000h ;14 - \ | <91>  106JP Only
+       0000
+ FE15  0000 0000 0000				dw	0000h, 0000h, 0000h, 0000h ;<92>
+       0000
+ FE1D  0000 0000 0000				dw	0000h, 0000h, 0000h, 0000h ;<93>
+       0000
+ FE25  2B5C 0C5F 0000				dw	2b5ch, 0c5fh, 0000h, 0000h ;56 - \ _ <94>  106JP Only
+       0000
+
+				; ------------------------- POWER ON RESET -----------------------
+						org     0fff0h
+						
+ FFF0  EA					db      0eah
+ FFF1  E05B R F000				dw      coldboot, 0f000h
+ FFF5  31 35 2F 30 32 2F			db      '15/02/19'
+       31 39
+ FFFD  FF FF 00					db      0ffh, 0ffh, 0
+				end bios
+Microsoft (R) Macro Assembler Version 6.14.8444		    11/30/22 10:43:35
+BIOS_Next186.asm					     Symbols 2 - 1
+
+
+
+
+Macros:
+
+                N a m e                 Type
+
+OFFDX  . . . . . . . . . . . . .	Proc
+
+
+Segments and Groups:
+
+                N a m e                 Size     Length   Align   Combine Class
+
+DGROUP . . . . . . . . . . . . .	GROUP
+_TEXT  . . . . . . . . . . . . .	16 Bit	 00010000 Word	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	16 Bit	 0000	  Word	  Public  'DATA'	
+
+
+Procedures,  parameters and locals:
+
+                N a m e                 Type     Value    Attr
+
+KeyLock  . . . . . . . . . . . .	P Near	 E585	  _TEXT	Length= 0016 Public
+  s2 . . . . . . . . . . . . . .	L Near	 E592	  _TEXT	
+  exit . . . . . . . . . . . . .	L Near	 E59A	  _TEXT	
+defint . . . . . . . . . . . . .	P Near	 F5BF	  _TEXT	Length= 0001 Public
+enableKbIfPresent  . . . . . . .	P Near	 F5B3	  _TEXT	Length= 000C Public
+  noenablekb . . . . . . . . . .	L Near	 F5BE	  _TEXT	
+getps2byte . . . . . . . . . . .	P Near	 F588	  _TEXT	Length= 001A Public
+  gps2b2 . . . . . . . . . . . .	L Near	 F58D	  _TEXT	
+  gps2b1 . . . . . . . . . . . .	L Near	 F59D	  _TEXT	
+int07  . . . . . . . . . . . . .	P Near	 E2F4	  _TEXT	Length= 0030 Public
+  int07_pfx  . . . . . . . . . .	L Near	 E2FD	  _TEXT	
+  int072 . . . . . . . . . . . .	L Near	 E316	  _TEXT	
+int08  . . . . . . . . . . . . .	P Near	 E324	  _TEXT	Length= 0046 Public
+  int081 . . . . . . . . . . . .	L Near	 E34C	  _TEXT	
+  kloop  . . . . . . . . . . . .	L Near	 E352	  _TEXT	
+  kbdata . . . . . . . . . . . .	L Near	 E364	  _TEXT	
+  nokey  . . . . . . . . . . . .	L Near	 E366	  _TEXT	
+int09  . . . . . . . . . . . . .	P Near	 E36A	  _TEXT	Length= 021B Public
+  SecondACK  . . . . . . . . . .	L Near	 E394	  _TEXT	
+  ToggleACK  . . . . . . . . . .	L Near	 E397	  _TEXT	
+  SetFlags1  . . . . . . . . . .	L Near	 E39A	  _TEXT	
+  noACK  . . . . . . . . . . . .	L Near	 E39D	  _TEXT	
+  noE0 . . . . . . . . . . . . .	L Near	 E3A6	  _TEXT	
+  noE1 . . . . . . . . . . . . .	L Near	 E3AF	  _TEXT	
+  noF0 . . . . . . . . . . . . .	L Near	 E3B8	  _TEXT	
+  NormalKey1 . . . . . . . . . .	L Near	 E3C6	  _TEXT	
+  noF01  . . . . . . . . . . . .	L Near	 E3C9	  _TEXT	
+  noDEL  . . . . . . . . . . . .	L Near	 E3D4	  _TEXT	
+  noKeyUp  . . . . . . . . . . .	L Near	 E3E1	  _TEXT	
+  noLSDown . . . . . . . . . . .	L Near	 E3EF	  _TEXT	
+  noLSUp . . . . . . . . . . . .	L Near	 E3F8	  _TEXT	
+  noRSDown . . . . . . . . . . .	L Near	 E401	  _TEXT	
+  noRSUp . . . . . . . . . . . .	L Near	 E40A	  _TEXT	
+  LALTDn . . . . . . . . . . . .	L Near	 E41B	  _TEXT	
+  noALTDown  . . . . . . . . . .	L Near	 E421	  _TEXT	
+  LALTUp . . . . . . . . . . . .	L Near	 E432	  _TEXT	
+  ALTUp  . . . . . . . . . . . .	L Near	 E436	  _TEXT	
+  noALTUp  . . . . . . . . . . .	L Near	 E443	  _TEXT	
+  SetFlagsKey2 . . . . . . . . .	L Near	 E452	  _TEXT	
+  LCTLDn . . . . . . . . . . . .	L Near	 E454	  _TEXT	
+  noCTLDown  . . . . . . . . . .	L Near	 E45A	  _TEXT	
+  LCTLUp . . . . . . . . . . . .	L Near	 E46B	  _TEXT	
+  noCTLUp  . . . . . . . . . . .	L Near	 E471	  _TEXT	
+  noScrLock  . . . . . . . . . .	L Near	 E4A4	  _TEXT	
+  testINS  . . . . . . . . . . .	L Near	 E4B3	  _TEXT	
+  noIns  . . . . . . . . . . . .	L Near	 E4B9	  _TEXT	
+  SetFlagsKey1 . . . . . . . . .	L Near	 E4CD	  _TEXT	
+  E0Key  . . . . . . . . . . . .	L Near	 E4D0	  _TEXT	
+  noPause  . . . . . . . . . . .	L Near	 E4E5	  _TEXT	
+  NormalKey  . . . . . . . . . .	L Near	 E4E7	  _TEXT	
+  KeyDown  . . . . . . . . . . .	L Near	 E4F6	  _TEXT	
+  noShift  . . . . . . . . . . .	L Near	 E4FF	  _TEXT	
+  noCaps . . . . . . . . . . . .	L Near	 E50D	  _TEXT	
+  NumDown  . . . . . . . . . . .	L Near	 E518	  _TEXT	
+  noNum  . . . . . . . . . . . .	L Near	 E51B	  _TEXT	
+  noCtrl . . . . . . . . . . . .	L Near	 E522	  _TEXT	
+  noAlt  . . . . . . . . . . . .	L Near	 E529	  _TEXT	
+  pushKey  . . . . . . . . . . .	L Near	 E547	  _TEXT	
+  nopush . . . . . . . . . . . .	L Near	 E557	  _TEXT	
+  SetFlagsKey  . . . . . . . . .	L Near	 E55B	  _TEXT	
+  SetFlags . . . . . . . . . . .	L Near	 E55E	  _TEXT	
+  SF1  . . . . . . . . . . . . .	L Near	 E579	  _TEXT	
+  int09Exit  . . . . . . . . . .	L Near	 E581	  _TEXT	
+int10  . . . . . . . . . . . . .	P Near	 E59B	  _TEXT	Length= 088F Public
+  exit . . . . . . . . . . . . .	L Near	 E5BA	  _TEXT	
+  svga . . . . . . . . . . . . .	L Near	 E5BD	  _TEXT	
+  VESAGetInfo  . . . . . . . . .	L Near	 E5D2	  _TEXT	
+  VESASupportedClear . . . . . .	L Near	 E5DF	  _TEXT	
+  VESASupported  . . . . . . . .	L Near	 E5E5	  _TEXT	
+  VESASupportedErr . . . . . . .	L Near	 E5E7	  _TEXT	
+  VESAGetModeInfo  . . . . . . .	L Near	 E5EB	  _TEXT	
+  VESAGetModeInfo1 . . . . . . .	L Near	 E5EF	  _TEXT	
+  VESASetMode  . . . . . . . . .	L Near	 E602	  _TEXT	
+  VESASetMode1 . . . . . . . . .	L Near	 E614	  _TEXT	
+  VESAGetMode  . . . . . . . . .	L Near	 E61C	  _TEXT	
+  VESAGetMode1 . . . . . . . . .	L Near	 E632	  _TEXT	
+  VESAMemControl . . . . . . . .	L Near	 E638	  _TEXT	
+  VESAMemControlCB . . . . . . .	L Near	 E63C	  _TEXT	
+  getpageinfo  . . . . . . . . .	L Near	 E659	  _TEXT	
+  VESAModeInfo . . . . . . . . .	L Near	 E68F	  _TEXT	
+  setmode  . . . . . . . . . . .	L Near	 E6A2	  _TEXT	
+  setmode1 . . . . . . . . . . .	L Near	 E6FF	  _TEXT	
+  setmode12  . . . . . . . . . .	L Near	 E71C	  _TEXT	
+  setmode1221  . . . . . . . . .	L Near	 E729	  _TEXT	
+  setmode122 . . . . . . . . . .	L Near	 E739	  _TEXT	
+  setmode121 . . . . . . . . . .	L Near	 E75B	  _TEXT	
+  setmode13  . . . . . . . . . .	L Near	 E76A	  _TEXT	
+  setmode3 . . . . . . . . . . .	L Near	 E787	  _TEXT	
+  setmode21  . . . . . . . . . .	L Near	 E7A5	  _TEXT	
+  setmode2 . . . . . . . . . . .	L Near	 E7AD	  _TEXT	
+  clearnext  . . . . . . . . . .	L Near	 E7F2	  _TEXT	
+  clearok  . . . . . . . . . . .	L Near	 E806	  _TEXT	
+  setmode4 . . . . . . . . . . .	L Near	 E806	  _TEXT	
+  setmodeexit  . . . . . . . . .	L Near	 E855	  _TEXT	
+  nullproc . . . . . . . . . . .	L Near	 E857	  _TEXT	
+  cursor . . . . . . . . . . . .	L Near	 E858	  _TEXT	
+  cursor8  . . . . . . . . . . .	L Near	 E869	  _TEXT	
+  curpos . . . . . . . . . . . .	L Near	 E878	  _TEXT	
+  curpos1  . . . . . . . . . . .	L Near	 E8AA	  _TEXT	
+  getcurpos  . . . . . . . . . .	L Near	 E8AD	  _TEXT	
+  lightpen . . . . . . . . . . .	L Near	 E8BD	  _TEXT	
+  apage  . . . . . . . . . . . .	L Near	 E8C0	  _TEXT	
+  apage1 . . . . . . . . . . . .	L Near	 E8EB	  _TEXT	
+  apage3 . . . . . . . . . . . .	L Near	 E8F9	  _TEXT	
+  apage2 . . . . . . . . . . . .	L Near	 E8FB	  _TEXT	
+  apage4 . . . . . . . . . . . .	L Near	 E8FE	  _TEXT	
+  scrollup . . . . . . . . . . .	L Near	 E919	  _TEXT	
+  scrollup6  . . . . . . . . . .	L Near	 E923	  _TEXT	
+  scrollup4  . . . . . . . . . .	L Near	 E93A	  _TEXT	
+  scrollup3  . . . . . . . . . .	L Near	 E947	  _TEXT	
+  scrollup5  . . . . . . . . . .	L Near	 E94C	  _TEXT	
+  scrollexit . . . . . . . . . .	L Near	 E956	  _TEXT	
+  scrolldn . . . . . . . . . . .	L Near	 E959	  _TEXT	
+  scr_params . . . . . . . . . .	L Near	 E96A	  _TEXT	
+  readchar . . . . . . . . . . .	L Near	 E980	  _TEXT	
+  mode3chaddr  . . . . . . . . .	L Near	 E988	  _TEXT	
+  writecharattr  . . . . . . . .	L Near	 E9A6	  _TEXT	
+  writechar  . . . . . . . . . .	L Near	 E9BC	  _TEXT	
+  writechar3 . . . . . . . . . .	L Near	 E9C3	  _TEXT	
+  writecharskip  . . . . . . . .	L Near	 E9CC	  _TEXT	
+  writecharTTY . . . . . . . . .	L Near	 E9CD	  _TEXT	
+  tty  . . . . . . . . . . . . .	L Near	 E9EB	  _TEXT	
+  tty1 . . . . . . . . . . . . .	L Near	 EA10	  _TEXT	
+  bell . . . . . . . . . . . . .	L Near	 EA12	  _TEXT	
+  bs . . . . . . . . . . . . . .	L Near	 EA14	  _TEXT	
+  lf . . . . . . . . . . . . . .	L Near	 EA1C	  _TEXT	
+  crlf . . . . . . . . . . . . .	L Near	 EA20	  _TEXT	
+  cr . . . . . . . . . . . . . .	L Near	 EA22	  _TEXT	
+  readmode . . . . . . . . . . .	L Near	 EA44	  _TEXT	
+  pal  . . . . . . . . . . . . .	L Near	 EA8E	  _TEXT	
+  palexit  . . . . . . . . . . .	L Near	 EA9B	  _TEXT	
+  setonereg  . . . . . . . . . .	L Near	 EA9C	  _TEXT	
+  setonereg1 . . . . . . . . . .	L Near	 EAAB	  _TEXT	
+  setallreg  . . . . . . . . . .	L Near	 EAAC	  _TEXT	
+  setallreg1 . . . . . . . . . .	L Near	 EAB3	  _TEXT	
+  setblink . . . . . . . . . . .	L Near	 EAC0	  _TEXT	
+  setblink1  . . . . . . . . . .	L Near	 EAEA	  _TEXT	
+  readonereg . . . . . . . . . .	L Near	 EAEC	  _TEXT	
+  readallreg . . . . . . . . . .	L Near	 EB01	  _TEXT	
+  readllreg1 . . . . . . . . . .	L Near	 EB06	  _TEXT	
+  readoverscan . . . . . . . . .	L Near	 EB18	  _TEXT	
+  setoneDAC  . . . . . . . . . .	L Near	 EB1B	  _TEXT	
+  setblockDAC  . . . . . . . . .	L Near	 EB31	  _TEXT	
+  paging . . . . . . . . . . . .	L Near	 EB42	  _TEXT	
+  paging1  . . . . . . . . . . .	L Near	 EB63	  _TEXT	
+  paging3  . . . . . . . . . . .	L Near	 EB6A	  _TEXT	
+  paging2  . . . . . . . . . . .	L Near	 EB6F	  _TEXT	
+  readoneDAC . . . . . . . . . .	L Near	 EB72	  _TEXT	
+  readblockDAC . . . . . . . . .	L Near	 EB8A	  _TEXT	
+  setPELmask . . . . . . . . . .	L Near	 EB9B	  _TEXT	
+  getPELmask . . . . . . . . . .	L Near	 EBA4	  _TEXT	
+  getpaging  . . . . . . . . . .	L Near	 EBAD	  _TEXT	
+  getpaging1 . . . . . . . . . .	L Near	 EBC2	  _TEXT	
+  grayscale  . . . . . . . . . .	L Near	 EBC3	  _TEXT	
+  grayscale1 . . . . . . . . . .	L Near	 EBC8	  _TEXT	
+  grayscale2 . . . . . . . . . .	L Near	 EBF0	  _TEXT	
+  loadUDF  . . . . . . . . . . .	L Near	 EBF1	  _TEXT	
+  loadUDF1 . . . . . . . . . . .	L Near	 EBFD	  _TEXT	
+  loadUDFexit1 . . . . . . . . .	L Near	 EC3C	  _TEXT	
+  loadUDFexit  . . . . . . . . .	L Near	 EC3D	  _TEXT	
+  chargen  . . . . . . . . . . .	L Near	 EC3E	  _TEXT	
+  loadROMFont8 . . . . . . . . .	L Near	 EC61	  _TEXT	
+  loadROMFont16  . . . . . . . .	L Near	 EC6C	  _TEXT	
+  loadROMFont161 . . . . . . . .	L Near	 EC75	  _TEXT	
+  set1f  . . . . . . . . . . . .	L Near	 EC84	  _TEXT	
+  setgrUDF . . . . . . . . . . .	L Near	 EC8F	  _TEXT	
+  setgrUDF1  . . . . . . . . . .	L Near	 ECAF	  _TEXT	
+  setgrUDFexit . . . . . . . . .	L Near	 ECBA	  _TEXT	
+  setROMgrFont . . . . . . . . .	L Near	 ECBC	  _TEXT	
+  setROMgrFont1  . . . . . . . .	L Near	 ECCD	  _TEXT	
+  getfontinfo  . . . . . . . . .	L Near	 ECDA	  _TEXT	
+  getfontinfo1 . . . . . . . . .	L Near	 ECF5	  _TEXT	
+  getfontinfoexit  . . . . . . .	L Near	 ED08	  _TEXT	
+  special  . . . . . . . . . . .	L Near	 ED15	  _TEXT	
+  special1 . . . . . . . . . . .	L Near	 ED25	  _TEXT	
+  special2 . . . . . . . . . . .	L Near	 ED39	  _TEXT	
+  writestr . . . . . . . . . . .	L Near	 ED3C	  _TEXT	
+  wstr1  . . . . . . . . . . . .	L Near	 ED4B	  _TEXT	
+  noattr . . . . . . . . . . . .	L Near	 ED59	  _TEXT	
+  wstr2  . . . . . . . . . . . .	L Near	 ED6E	  _TEXT	
+  wstrexit . . . . . . . . . . .	L Near	 ED6F	  _TEXT	
+  getdcc . . . . . . . . . . . .	L Near	 ED70	  _TEXT	
+  setdcc . . . . . . . . . . . .	L Near	 ED7B	  _TEXT	
+  getdccexit . . . . . . . . . .	L Near	 ED80	  _TEXT	
+  querystatus  . . . . . . . . .	L Near	 ED81	  _TEXT	
+  querystatus1 . . . . . . . . .	L Near	 EDB3	  _TEXT	
+  querystatus3 . . . . . . . . .	L Near	 EDBD	  _TEXT	
+int11  . . . . . . . . . . . . .	P Near	 EE2A	  _TEXT	Length= 0009 Public
+int12  . . . . . . . . . . . . .	P Near	 EE33	  _TEXT	Length= 0009 Public
+int13  . . . . . . . . . . . . .	P Near	 EE3C	  _TEXT	Length= 01ED Public
+  inINT13  . . . . . . . . . . .	L Near	 EE5B	  _TEXT	
+  Disk1  . . . . . . . . . . . .	L Near	 EE5F	  _TEXT	
+  exit . . . . . . . . . . . . .	L Near	 EE6F	  _TEXT	
+  exit2  . . . . . . . . . . . .	L Near	 EE73	  _TEXT	
+  exit1  . . . . . . . . . . . .	L Near	 EE7A	  _TEXT	
+  DiskGetType  . . . . . . . . .	L Near	 EECD	  _TEXT	
+  DiskGetTypeexit  . . . . . . .	L Near	 EEE4	  _TEXT	
+  DiskExtInstCheck . . . . . . .	L Near	 EEED	  _TEXT	
+  DiskReset  . . . . . . . . . .	L Near	 EEFB	  _TEXT	
+  DiskChanged  . . . . . . . . .	L Near	 EEFB	  _TEXT	
+  DiskPark . . . . . . . . . . .	L Near	 EEFB	  _TEXT	
+  DiskGetStatus  . . . . . . . .	L Near	 EEFE	  _TEXT	
+  DiskVerify . . . . . . . . . .	L Near	 EF03	  _TEXT	
+  DiskWrite  . . . . . . . . . .	L Near	 EF08	  _TEXT	
+  DiskRead . . . . . . . . . . .	L Near	 EF0D	  _TEXT	
+  DiskRead1  . . . . . . . . . .	L Near	 EF10	  _TEXT	
+  DiskReadend  . . . . . . . . .	L Near	 EF38	  _TEXT	
+  HCStoLBA . . . . . . . . . . .	L Near	 EF39	  _TEXT	
+  DiskFormat . . . . . . . . . .	L Near	 EF57	  _TEXT	
+  DiskInit . . . . . . . . . . .	L Near	 EF57	  _TEXT	
+  DiskSeek . . . . . . . . . . .	L Near	 EF57	  _TEXT	
+  DiskRst  . . . . . . . . . . .	L Near	 EF57	  _TEXT	
+  DiskReady  . . . . . . . . . .	L Near	 EF57	  _TEXT	
+  DiskRecalibrate  . . . . . . .	L Near	 EF57	  _TEXT	
+  DiskDiag . . . . . . . . . . .	L Near	 EF57	  _TEXT	
+  DiskExtSeek  . . . . . . . . .	L Near	 EF57	  _TEXT	
+  notready . . . . . . . . . . .	L Near	 EF63	  _TEXT	
+  DiskGetParams  . . . . . . . .	L Near	 EF66	  _TEXT	
+  dgpok  . . . . . . . . . . . .	L Near	 EF8E	  _TEXT	
+  DiskExtVerify  . . . . . . . .	L Near	 EF9D	  _TEXT	
+  DiskExtWrite . . . . . . . . .	L Near	 EFA2	  _TEXT	
+  DiskExtRead  . . . . . . . . .	L Near	 EFA7	  _TEXT	
+  DiskExtRead1 . . . . . . . . .	L Near	 EFAA	  _TEXT	
+  DiskExtGetParams . . . . . . .	L Near	 EFD9	  _TEXT	
+  DiskReadSectBuffer . . . . . .	L Near	 F026	  _TEXT	
+  DiskWriteSectBuffer  . . . . .	L Near	 F026	  _TEXT	
+  DiskSetDASDType  . . . . . . .	L Near	 F026	  _TEXT	
+  DiskSetMediaType . . . . . . .	L Near	 F026	  _TEXT	
+  DiskExtLock  . . . . . . . . .	L Near	 F026	  _TEXT	
+  DiskExtEject . . . . . . . . .	L Near	 F026	  _TEXT	
+int14  . . . . . . . . . . . . .	P Near	 F029	  _TEXT	Length= 0081 Public
+  SExit  . . . . . . . . . . . .	L Near	 F050	  _TEXT	
+  SetCharFormat  . . . . . . . .	L Near	 F054	  _TEXT	
+  Baud110  . . . . . . . . . . .	L Near	 F06D	  _TEXT	
+  GetPortStatus  . . . . . . . .	L Near	 F083	  _TEXT	
+  GetPortStatus1 . . . . . . . .	L Near	 F086	  _TEXT	
+  STransmit  . . . . . . . . . .	L Near	 F08D	  _TEXT	
+  STr1 . . . . . . . . . . . . .	L Near	 F090	  _TEXT	
+  STr2 . . . . . . . . . . . . .	L Near	 F09B	  _TEXT	
+  SReceive . . . . . . . . . . .	L Near	 F09E	  _TEXT	
+  SReceive1  . . . . . . . . . .	L Near	 F09F	  _TEXT	
+int16  . . . . . . . . . . . . .	P Near	 F312	  _TEXT	Length= 00EB Public
+  kbfunc . . . . . . . . . . . .	L Near	 F33A	  _TEXT	
+  Exit . . . . . . . . . . . . .	L Near	 F33C	  _TEXT	
+  GetKey1  . . . . . . . . . . .	L Near	 F33F	  _TEXT	
+  GetKey . . . . . . . . . . . .	L Near	 F340	  _TEXT	
+  noWrap . . . . . . . . . . . .	L Near	 F356	  _TEXT	
+  TestKey  . . . . . . . . . . .	L Near	 F35C	  _TEXT	
+  StoreKey . . . . . . . . . . .	L Near	 F36B	  _TEXT	
+  NoWrap1  . . . . . . . . . . .	L Near	 F37D	  _TEXT	
+  ExtStatus  . . . . . . . . . .	L Near	 F38C	  _TEXT	
+  NoSysReq . . . . . . . . . . .	L Near	 F397	  _TEXT	
+  GetStatus  . . . . . . . . . .	L Near	 F3A0	  _TEXT	
+  Exit1  . . . . . . . . . . . .	L Near	 F3A3	  _TEXT	
+  SetAutoRpt . . . . . . . . . .	L Near	 F3A5	  _TEXT	
+  timeout1 . . . . . . . . . . .	L Near	 F3DB	  _TEXT	
+  timeout  . . . . . . . . . . .	L Near	 F3E0	  _TEXT	
+  WaitFlag . . . . . . . . . . .	L Near	 F3E3	  _TEXT	
+  wf_loop  . . . . . . . . . . .	L Near	 F3E8	  _TEXT	
+  wf_ok  . . . . . . . . . . . .	L Near	 F3FC	  _TEXT	
+int18  . . . . . . . . . . . . .	P Near	 F3FD	  _TEXT	Length= 007F Public
+  sloop  . . . . . . . . . . . .	L Near	 F427	  _TEXT	
+int19  . . . . . . . . . . . . .	P Near	 F47C	  _TEXT	Length= 001A Public
+  int19err . . . . . . . . . . .	L Near	 F494	  _TEXT	
+int1a  . . . . . . . . . . . . .	P Near	 F496	  _TEXT	Length= 002C Public
+  clockexit1 . . . . . . . . . .	L Near	 F4AC	  _TEXT	
+  clockexit  . . . . . . . . . .	L Near	 F4B1	  _TEXT	
+  setclock . . . . . . . . . . .	L Near	 F4B7	  _TEXT	
+int70  . . . . . . . . . . . . .	P Near	 F4C2	  _TEXT	Length= 002E Public
+  exit1  . . . . . . . . . . . .	L Near	 F4E8	  _TEXT	
+  exit . . . . . . . . . . . . .	L Near	 F4EE	  _TEXT	
+int74  . . . . . . . . . . . . .	P Near	 F4F0	  _TEXT	Length= 0047 Public
+  docall . . . . . . . . . . . .	L Near	 F515	  _TEXT	
+  nocall . . . . . . . . . . . .	L Near	 F534	  _TEXT	
+sdinit . . . . . . . . . . . . .	P Near	 F762	  _TEXT	Length= 009D Public
+  sdinit1  . . . . . . . . . . .	L Near	 F76D	  _TEXT	
+  repinit  . . . . . . . . . . .	L Near	 F79D	  _TEXT	
+  sdexit . . . . . . . . . . . .	L Near	 F7F1	  _TEXT	
+sendcmd  . . . . . . . . . . . .	P Near	 F5A2	  _TEXT	Length= 0011 Public
+  retry  . . . . . . . . . . . .	L Near	 F5A9	  _TEXT	
+  exit . . . . . . . . . . . . .	L Near	 F5B2	  _TEXT	
+sendps2byte  . . . . . . . . . .	P Near	 F563	  _TEXT	Length= 0025 Public
+  sps2b2 . . . . . . . . . . . .	L Near	 F569	  _TEXT	
+  sps2b1 . . . . . . . . . . . .	L Near	 F57A	  _TEXT	
+  sps2_kb  . . . . . . . . . . .	L Near	 F582	  _TEXT	
+  exit . . . . . . . . . . . . .	L Near	 F586	  _TEXT	
+
+
+Symbols:
+
+                N a m e                 Type     Value    Attr
+
+@CodeSize  . . . . . . . . . . .	Number	 0000h	 
+@DataSize  . . . . . . . . . . .	Number	 0000h	 
+@Interface . . . . . . . . . . .	Number	 0000h	 
+@Model . . . . . . . . . . . . .	Number	 0001h	 
+@code  . . . . . . . . . . . . .	Text   	 DGROUP
+@data  . . . . . . . . . . . . .	Text   	 DGROUP
+@fardata?  . . . . . . . . . . .	Text   	 FAR_BSS
+@fardata . . . . . . . . . . . .	Text   	 FAR_DATA
+@stack . . . . . . . . . . . . .	Text   	 DGROUP
+AckReceived  . . . . . . . . . .	Number	 0010h	 
+ActivePage . . . . . . . . . . .	Text   	 ds:[62h]
+ActiveVideoMode  . . . . . . . .	Text   	 ds:[49h]
+AltDown  . . . . . . . . . . . .	Number	 0008h	 
+AltKpd . . . . . . . . . . . . .	Text   	 ds:[19h]
+Buffer . . . . . . . . . . . . .	Text   	 ds:[80h]
+COMFlush . . . . . . . . . . . .	L Near	 E211	  _TEXT	
+CapsLockDown . . . . . . . . . .	Number	 0040h	 
+CapsLockLED  . . . . . . . . . .	Number	 0004h	 
+CapsLock . . . . . . . . . . . .	Number	 0040h	 
+ComPort  . . . . . . . . . . . .	Number	 0000h	 
+CrtMode  . . . . . . . . . . . .	Text   	 ds:[65h]
+CrtPalette . . . . . . . . . . .	Text   	 ds:[66h]
+CtrlBreak  . . . . . . . . . . .	Text   	 ds:[71h]
+CtrlDown . . . . . . . . . . . .	Number	 0004h	 
+CursorPos  . . . . . . . . . . .	Text   	 ds:[50h]
+CursorShape  . . . . . . . . . .	Text   	 ds:[60h]
+DLH  . . . . . . . . . . . . . .	Number	 0001h	 
+DLL  . . . . . . . . . . . . . .	Number	 0000h	 
+DataBuffer . . . . . . . . . . .	Text   	 ds:[0a5h]
+DataCounter  . . . . . . . . . .	Text   	 ds:[067h]
+E0KeyIndex . . . . . . . . . . .	L Near	 FB29	  _TEXT	
+E0KeyList  . . . . . . . . . . .	L Near	 FB1D	  _TEXT	
+EgaMiscInfo2 . . . . . . . . . .	Text   	 ds:[88h]
+EgaMiscInfo  . . . . . . . . . .	Text   	 ds:[87h]
+EndBuf . . . . . . . . . . . . .	Text   	 ds:[82h]
+EquipmentWord  . . . . . . . . .	Text   	 ds:[10h]
+ExtSize  . . . . . . . . . . . .	L Near	 F202	  _TEXT	
+FreeXMSKb  . . . . . . . . . . .	Number	 7B60h	 
+GetConfig  . . . . . . . . . . .	L Near	 F207	  _TEXT	
+HDLastError  . . . . . . . . . .	Text   	 ds:[74h]
+HDOpStarted  . . . . . . . . . .	Text   	 ds:[92h]
+HDSize . . . . . . . . . . . . .	Text   	 ds:[94h]
+HandlerPtr . . . . . . . . . . .	Text   	 ds:[0a1h]
+HeadPtr  . . . . . . . . . . . .	Text   	 ds:[1ah]
+IER  . . . . . . . . . . . . . .	Number	 0001h	 
+IncSeg1  . . . . . . . . . . . .	L Near	 F0B8	  _TEXT	
+IncSeg . . . . . . . . . . . . .	L Near	 F0AA	  _TEXT	
+InsDown  . . . . . . . . . . . .	Number	 0080h	 
+Insert . . . . . . . . . . . . .	Number	 0080h	 
+KbdFlags1  . . . . . . . . . . .	Text   	 ds:[17h]
+KbdFlags2  . . . . . . . . . . .	Text   	 ds:[18h]
+KbdFlags3  . . . . . . . . . . .	Text   	 ds:[96h]
+KbdFlags4  . . . . . . . . . . .	Text   	 ds:[97h]
+KeyCode  . . . . . . . . . . . .	L Near	 FB35	  _TEXT	
+KeyIndex . . . . . . . . . . . .	L Near	 FA99	  _TEXT	
+LAltDown . . . . . . . . . . . .	Number	 0002h	 
+LCR  . . . . . . . . . . . . . .	Number	 0003h	 
+LCtrDown . . . . . . . . . . . .	Number	 0001h	 
+LEDUpdate  . . . . . . . . . . .	Number	 0040h	 
+LSR  . . . . . . . . . . . . . .	Number	 0005h	 
+LShfDown . . . . . . . . . . . .	Number	 0002h	 
+LastE0 . . . . . . . . . . . . .	Number	 0002h	 
+LastE1 . . . . . . . . . . . . .	Number	 0001h	 
+LastF0 . . . . . . . . . . . . .	Number	 0020h	 
+MSR  . . . . . . . . . . . . . .	Number	 0006h	 
+MemorySize . . . . . . . . . . .	Text   	 ds:[13h]
+Mouse  . . . . . . . . . . . . .	L Near	 F210	  _TEXT	
+MovExt1  . . . . . . . . . . . .	L Near	 F124	  _TEXT	
+MovExt2  . . . . . . . . . . . .	L Near	 F136	  _TEXT	
+MovExtLoop . . . . . . . . . . .	L Near	 F11B	  _TEXT	
+MovExtProxy  . . . . . . . . . .	L Near	 F177	  _TEXT	
+MovExt_exit  . . . . . . . . . .	L Near	 F15F	  _TEXT	
+MovExt_next  . . . . . . . . . .	L Near	 F149	  _TEXT	
+MovExt . . . . . . . . . . . . .	L Near	 F0D8	  _TEXT	
+MovSeg . . . . . . . . . . . . .	Number	 0001h	 
+NumLockDown  . . . . . . . . . .	Number	 0020h	 
+NumLockLED . . . . . . . . . . .	Number	 0002h	 
+NumLock  . . . . . . . . . . . .	Number	 0020h	 
+PacketSize . . . . . . . . . . .	Text   	 ds:[068h]
+PageOffset . . . . . . . . . . .	Text   	 ds:[4eh]
+Pal256 . . . . . . . . . . . . .	L Near	 F829	  _TEXT	
+PalEGA . . . . . . . . . . . . .	L Near	 F8F9	  _TEXT	
+PalOffset  . . . . . . . . . . .	Text   	 ds:[69h]
+PalVGA . . . . . . . . . . . . .	L Near	 F9C9	  _TEXT	
+Pause  . . . . . . . . . . . . .	Number	 0008h	 
+PortAddress  . . . . . . . . . .	Text   	 ds:[63h]
+RAMSize  . . . . . . . . . . . .	Number	 0200h	 
+RAltDown . . . . . . . . . . . .	Number	 0008h	 
+RBR  . . . . . . . . . . . . . .	Number	 0000h	 
+RCtrDown . . . . . . . . . . . .	Number	 0004h	 
+RShfDown . . . . . . . . . . . .	Number	 0001h	 
+RegenLength  . . . . . . . . . .	Text   	 ds:[4ch]
+SCANCODE0  . . . . . . . . . . .	Number	 0001h	 
+SCANCODE2  . . . . . . . . . . .	Number	 0001h	 
+SD_CMD0  . . . . . . . . . . . .	Byte	 F7FF	  _TEXT	
+SD_CMD12 . . . . . . . . . . . .	Byte	 F811	  _TEXT	
+SD_CMD41 . . . . . . . . . . . .	Byte	 F817	  _TEXT	
+SD_CMD55 . . . . . . . . . . . .	Byte	 F81D	  _TEXT	
+SD_CMD58 . . . . . . . . . . . .	Byte	 F823	  _TEXT	
+SD_CMD8  . . . . . . . . . . . .	Byte	 F805	  _TEXT	
+SD_CMD9  . . . . . . . . . . . .	Byte	 F80B	  _TEXT	
+ScanLinesChar  . . . . . . . . .	Text   	 ds:[85h]
+ScrLockDown  . . . . . . . . . .	Number	 0010h	 
+ScrLockLED . . . . . . . . . . .	Number	 0001h	 
+ScrLock  . . . . . . . . . . . .	Number	 0010h	 
+ScreenRows . . . . . . . . . . .	Text   	 ds:[84h]
+ScreenWidth  . . . . . . . . . .	Text   	 ds:[4ah]
+SetEventWait . . . . . . . . . .	L Near	 F1B4	  _TEXT	
+SetRepeat  . . . . . . . . . . .	Number	 0008h	 
+SetSeg1  . . . . . . . . . . . .	L Near	 F0D0	  _TEXT	
+SetSeg2  . . . . . . . . . . . .	L Near	 F0C8	  _TEXT	
+SetSegExit . . . . . . . . . . .	L Near	 F0D1	  _TEXT	
+SetSeg . . . . . . . . . . . . .	L Near	 F0BD	  _TEXT	
+SysParams  . . . . . . . . . . .	Byte	 F308	  _TEXT	
+SysReqDown . . . . . . . . . . .	Number	 0004h	 
+THR  . . . . . . . . . . . . . .	Number	 0000h	 
+TailPtr  . . . . . . . . . . . .	Text   	 ds:[1ch]
+UFPtr  . . . . . . . . . . . . .	Text   	 ds:[98h]
+UWaitFlag  . . . . . . . . . . .	Text   	 ds:[0a0h]
+VESAInfo . . . . . . . . . . . .	Byte	 E664	  _TEXT	
+VESAModes  . . . . . . . . . . .	Word	 E68B	  _TEXT	
+VESAOEM  . . . . . . . . . . . .	Byte	 E678	  _TEXT	
+VgaFlags2  . . . . . . . . . . .	Text   	 ds:[8ah]
+VgaFlags . . . . . . . . . . . .	Text   	 ds:[89h]
+Wait1  . . . . . . . . . . . . .	L Near	 F1E9	  _TEXT	
+WaitCount  . . . . . . . . . . .	Text   	 ds:[9ch]
+badparam . . . . . . . . . . . .	L Near	 F295	  _TEXT	
+bioscont . . . . . . . . . . . .	Byte	 E278	  _TEXT	
+biosmsg  . . . . . . . . . . . .	Byte	 E000	  _TEXT	
+bios . . . . . . . . . . . . . .	L Near	 E000	  _TEXT	
+booterrmsg . . . . . . . . . . .	Byte	 F435	  _TEXT	
+busy . . . . . . . . . . . . . .	L Near	 F1E5	  _TEXT	
+cancel . . . . . . . . . . . . .	L Near	 F1DE	  _TEXT	
+coldboot . . . . . . . . . . . .	L Near	 E05B	  _TEXT	
+dccval . . . . . . . . . . . . .	Word	 ED7B	  _TEXT	
+disktbl  . . . . . . . . . . . .	Word	 EE87	  _TEXT	
+dispAX1  . . . . . . . . . . . .	L Near	 F5F4	  _TEXT	
+dispAX . . . . . . . . . . . . .	L Near	 F5E5	  _TEXT	
+dly1 . . . . . . . . . . . . . .	L Near	 F55A	  _TEXT	
+dlybit . . . . . . . . . . . . .	L Near	 F556	  _TEXT	
+done . . . . . . . . . . . . . .	L Near	 F1AB	  _TEXT	
+en_dis . . . . . . . . . . . . .	L Near	 F268	  _TEXT	
+errexit  . . . . . . . . . . . .	L Near	 F221	  _TEXT	
+exit15 . . . . . . . . . . . . .	L Near	 F1AC	  _TEXT	
+exit_ax  . . . . . . . . . . . .	L Near	 F1AF	  _TEXT	
+exit_iret  . . . . . . . . . . .	L Near	 F1B3	  _TEXT	
+exit_success1  . . . . . . . . .	L Near	 F27D	  _TEXT	
+exit_success . . . . . . . . . .	L Near	 F278	  _TEXT	
+exitok . . . . . . . . . . . . .	L Near	 F222	  _TEXT	
+extend . . . . . . . . . . . . .	L Near	 F2D3	  _TEXT	
+flush1 . . . . . . . . . . . . .	L Near	 F5CD	  _TEXT	
+flush_nostack  . . . . . . . . .	L Near	 F5C5	  _TEXT	
+flushbh  . . . . . . . . . . . .	Word	 F5E3	  _TEXT	
+flushret . . . . . . . . . . . .	Word	 F5E1	  _TEXT	
+flush  . . . . . . . . . . . . .	L Near	 F5C0	  _TEXT	
+font8x14 . . . . . . . . . . . .	Text   	 font8x16 - 0e00h
+font8x16 . . . . . . . . . . . .	Text   	 font8x8 - 1000h
+font8x8  . . . . . . . . . . . .	Text   	 bios - 800h
+fontinfo . . . . . . . . . . . .	Word	 ED09	  _TEXT	
+gettype  . . . . . . . . . . . .	L Near	 F2BB	  _TEXT	
+if_err1  . . . . . . . . . . . .	L Near	 F276	  _TEXT	
+if_err . . . . . . . . . . . . .	L Near	 F21C	  _TEXT	
+int15  . . . . . . . . . . . . .	L Near	 F17A	  _TEXT	
+kbi1 . . . . . . . . . . . . . .	L Near	 E182	  _TEXT	
+kbi2 . . . . . . . . . . . . . .	L Near	 E191	  _TEXT	
+kbok . . . . . . . . . . . . . .	L Near	 E1B7	  _TEXT	
+l1 . . . . . . . . . . . . . . .	L Near	 F54B	  _TEXT	
+mapi1  . . . . . . . . . . . . .	L Near	 E0A8	  _TEXT	
+mapi . . . . . . . . . . . . . .	L Near	 E09F	  _TEXT	
+mouse_present  . . . . . . . . .	L Near	 F232	  _TEXT	
+mousei0  . . . . . . . . . . . .	L Near	 E1BF	  _TEXT	
+mousei1  . . . . . . . . . . . .	L Near	 E1CD	  _TEXT	
+mouseok  . . . . . . . . . . . .	L Near	 E1E9	  _TEXT	
+msgkb  . . . . . . . . . . . . .	Byte	 E047	  _TEXT	
+msgmb  . . . . . . . . . . . . .	Byte	 E03A	  _TEXT	
+msgmouse . . . . . . . . . . . .	Byte	 E263	  _TEXT	
+nokbmsg  . . . . . . . . . . . .	L Near	 E248	  _TEXT	
+nokb . . . . . . . . . . . . . .	L Near	 E1B2	  _TEXT	
+nomousemsg . . . . . . . . . . .	L Near	 E255	  _TEXT	
+nomouse  . . . . . . . . . . . .	L Near	 E1E0	  _TEXT	
+nowait . . . . . . . . . . . . .	L Near	 F1E6	  _TEXT	
+p3c0r10  . . . . . . . . . . . .	Byte	 E6A1	  _TEXT	
+paltable . . . . . . . . . . . .	Word	 EA56	  _TEXT	
+prtse  . . . . . . . . . . . . .	L Near	 F60A	  _TEXT	
+prts . . . . . . . . . . . . . .	L Near	 F5FE	  _TEXT	
+raligned . . . . . . . . . . . .	L Near	 F142	  _TEXT	
+reset  . . . . . . . . . . . . .	L Near	 F281	  _TEXT	
+resolution . . . . . . . . . . .	L Near	 F2B1	  _TEXT	
+sample_tbl . . . . . . . . . . .	Byte	 F301	  _TEXT	
+sampling . . . . . . . . . . . .	L Near	 F292	  _TEXT	
+savesp . . . . . . . . . . . . .	Word	 F0D4	  _TEXT	
+savess . . . . . . . . . . . . .	Word	 F0D2	  _TEXT	
+sdcmd1 . . . . . . . . . . . . .	L Near	 F663	  _TEXT	
+sdcmd8T  . . . . . . . . . . . .	L Near	 F64D	  _TEXT	
+sdcmd  . . . . . . . . . . . . .	L Near	 F650	  _TEXT	
+sdr11  . . . . . . . . . . . . .	L Near	 F6D8	  _TEXT	
+sdr1s  . . . . . . . . . . . . .	L Near	 F678	  _TEXT	
+sdr1 . . . . . . . . . . . . . .	L Near	 F6D9	  _TEXT	
+sdr2 . . . . . . . . . . . . . .	L Near	 F6CF	  _TEXT	
+sdr3 . . . . . . . . . . . . . .	L Near	 F6C2	  _TEXT	
+sdrblk1  . . . . . . . . . . . .	L Near	 F629	  _TEXT	
+sdrblk . . . . . . . . . . . . .	L Near	 F627	  _TEXT	
+sdrb . . . . . . . . . . . . . .	L Near	 F60B	  _TEXT	
+sdread1  . . . . . . . . . . . .	L Near	 F66C	  _TEXT	
+sdread . . . . . . . . . . . . .	L Near	 F669	  _TEXT	
+sdresp1  . . . . . . . . . . . .	L Near	 F658	  _TEXT	
+sdresp . . . . . . . . . . . . .	L Near	 F656	  _TEXT	
+sdrms  . . . . . . . . . . . . .	L Near	 F699	  _TEXT	
+sdsb1  . . . . . . . . . . . . .	L Near	 F60F	  _TEXT	
+sdsb . . . . . . . . . . . . . .	L Near	 F60D	  _TEXT	
+sdvblk1  . . . . . . . . . . . .	L Near	 F63F	  _TEXT	
+sdvblk . . . . . . . . . . . . .	L Near	 F63C	  _TEXT	
+sdverify . . . . . . . . . . . .	L Near	 F664	  _TEXT	
+sdw1s1 . . . . . . . . . . . . .	L Near	 F728	  _TEXT	
+sdw1s  . . . . . . . . . . . . .	L Near	 F6F0	  _TEXT	
+sdwblk1  . . . . . . . . . . . .	L Near	 F61C	  _TEXT	
+sdwblk . . . . . . . . . . . . .	L Near	 F61A	  _TEXT	
+sdwms  . . . . . . . . . . . . .	L Near	 F711	  _TEXT	
+sdwrite  . . . . . . . . . . . .	L Near	 F6E4	  _TEXT	
+sdwwait1 . . . . . . . . . . . .	L Near	 F758	  _TEXT	
+sdwwait  . . . . . . . . . . . .	L Near	 F741	  _TEXT	
+send1c . . . . . . . . . . . . .	L Near	 F2AB	  _TEXT	
+send2c . . . . . . . . . . . . .	L Near	 F2A4	  _TEXT	
+setscaling . . . . . . . . . . .	L Near	 F2F6	  _TEXT	
+srecb  . . . . . . . . . . . . .	L Near	 F537	  _TEXT	
+srstb  . . . . . . . . . . . . .	L Near	 F53F	  _TEXT	
+staticfunctable  . . . . . . . .	Byte	 EDE0	  _TEXT	
+ten  . . . . . . . . . . . . . .	Word	 F5FC	  _TEXT	
+vidtbl . . . . . . . . . . . . .	Word	 EDF0	  _TEXT	
+warmboot . . . . . . . . . . . .	L Near	 E05B	  _TEXT	
+wbusy  . . . . . . . . . . . . .	L Near	 F1FE	  _TEXT	
+wloop  . . . . . . . . . . . . .	L Near	 F1F7	  _TEXT	
+
+	   0 Warnings
+	   0 Errors

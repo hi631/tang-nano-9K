@@ -1,0 +1,137 @@
+<?xml version="1" encoding="UTF-8"?>
+<GAO_CONFIG>
+    <Version>3.0</Version>
+    <Mode>Standard</Mode>
+    <AoCore index="0" sample_clock="sys_inst/clk_cpu" trig_type="0" storage_depth="1024" window_num="1" capture_amount="1024" trigger_pos="100" module_name="Next186_SoC" force_trigger_by_falling_edge="false">
+        <SignalList>
+            <Signal>sys_inst/CPUUnit/cpu/RST</Signal>
+            <Bus name="sys_inst/CPUUnit/cpu/REGS/IP[15:0]">
+                <Signal>sys_inst/CPUUnit/cpu/REGS/IP[15]</Signal>
+                <Signal>sys_inst/CPUUnit/cpu/REGS/IP[14]</Signal>
+                <Signal>sys_inst/CPUUnit/cpu/REGS/IP[13]</Signal>
+                <Signal>sys_inst/CPUUnit/cpu/REGS/IP[12]</Signal>
+                <Signal>sys_inst/CPUUnit/cpu/REGS/IP[11]</Signal>
+                <Signal>sys_inst/CPUUnit/cpu/REGS/IP[10]</Signal>
+                <Signal>sys_inst/CPUUnit/cpu/REGS/IP[9]</Signal>
+                <Signal>sys_inst/CPUUnit/cpu/REGS/IP[8]</Signal>
+                <Signal>sys_inst/CPUUnit/cpu/REGS/IP[7]</Signal>
+                <Signal>sys_inst/CPUUnit/cpu/REGS/IP[6]</Signal>
+                <Signal>sys_inst/CPUUnit/cpu/REGS/IP[5]</Signal>
+                <Signal>sys_inst/CPUUnit/cpu/REGS/IP[4]</Signal>
+                <Signal>sys_inst/CPUUnit/cpu/REGS/IP[3]</Signal>
+                <Signal>sys_inst/CPUUnit/cpu/REGS/IP[2]</Signal>
+                <Signal>sys_inst/CPUUnit/cpu/REGS/IP[1]</Signal>
+                <Signal>sys_inst/CPUUnit/cpu/REGS/IP[0]</Signal>
+            </Bus>
+            <Bus name="sys_inst/CPUUnit/CPU_INSTR[7:0]">
+                <Signal>sys_inst/CPUUnit/CPU_INSTR[7]</Signal>
+                <Signal>sys_inst/CPUUnit/CPU_INSTR[6]</Signal>
+                <Signal>sys_inst/CPUUnit/CPU_INSTR[5]</Signal>
+                <Signal>sys_inst/CPUUnit/CPU_INSTR[4]</Signal>
+                <Signal>sys_inst/CPUUnit/CPU_INSTR[3]</Signal>
+                <Signal>sys_inst/CPUUnit/CPU_INSTR[2]</Signal>
+                <Signal>sys_inst/CPUUnit/CPU_INSTR[1]</Signal>
+                <Signal>sys_inst/CPUUnit/CPU_INSTR[0]</Signal>
+            </Bus>
+            <Signal>sys_inst/cache_ctl/boot_rom_cs</Signal>
+            <Signal>sys_inst/cache_ctl/boot_ram_cs</Signal>
+            <Signal>sys_inst/cache_ctl/ce</Signal>
+            <Signal>sys_inst/cache_ctl/mreq</Signal>
+            <Bus name="sys_inst/cache_ctl/addr[15:0]">
+                <Signal>sys_inst/cache_ctl/addr[15]</Signal>
+                <Signal>sys_inst/cache_ctl/addr[14]</Signal>
+                <Signal>sys_inst/cache_ctl/addr[13]</Signal>
+                <Signal>sys_inst/cache_ctl/addr[12]</Signal>
+                <Signal>sys_inst/cache_ctl/addr[11]</Signal>
+                <Signal>sys_inst/cache_ctl/addr[10]</Signal>
+                <Signal>sys_inst/cache_ctl/addr[9]</Signal>
+                <Signal>sys_inst/cache_ctl/addr[8]</Signal>
+                <Signal>sys_inst/cache_ctl/addr[7]</Signal>
+                <Signal>sys_inst/cache_ctl/addr[6]</Signal>
+                <Signal>sys_inst/cache_ctl/addr[5]</Signal>
+                <Signal>sys_inst/cache_ctl/addr[4]</Signal>
+                <Signal>sys_inst/cache_ctl/addr[3]</Signal>
+                <Signal>sys_inst/cache_ctl/addr[2]</Signal>
+                <Signal>sys_inst/cache_ctl/addr[1]</Signal>
+                <Signal>sys_inst/cache_ctl/addr[0]</Signal>
+            </Bus>
+        </SignalList>
+        <Triggers>
+            <Trigger index="0">
+                <SignalList>
+                    <Signal>sys_inst/CPUUnit/RST</Signal>
+                </SignalList>
+            </Trigger>
+            <Trigger index="1">
+                <SignalList>
+                    <Signal>sys_inst/cache_ctl/boot_rom_cs</Signal>
+                </SignalList>
+            </Trigger>
+            <Trigger index="2">
+                <SignalList>
+                    <Signal>sys_inst/cache_ctl/boot_ram_cs</Signal>
+                </SignalList>
+            </Trigger>
+            <Trigger index="3">
+                <SignalList>
+                    <Signal>sys_inst/cache_ctl/psram_cs</Signal>
+                </SignalList>
+            </Trigger>
+            <Trigger index="4">
+                <SignalList>
+                    <Bus restorename="sys_inst/CPUUnit/cpu/IP[15:0]">
+                        <Signal>sys_inst/CPUUnit/cpu/IP[15]</Signal>
+                        <Signal>sys_inst/CPUUnit/cpu/IP[14]</Signal>
+                        <Signal>sys_inst/CPUUnit/cpu/IP[13]</Signal>
+                        <Signal>sys_inst/CPUUnit/cpu/IP[12]</Signal>
+                        <Signal>sys_inst/CPUUnit/cpu/IP[11]</Signal>
+                        <Signal>sys_inst/CPUUnit/cpu/IP[10]</Signal>
+                        <Signal>sys_inst/CPUUnit/cpu/IP[9]</Signal>
+                        <Signal>sys_inst/CPUUnit/cpu/IP[8]</Signal>
+                        <Signal>sys_inst/CPUUnit/cpu/IP[7]</Signal>
+                        <Signal>sys_inst/CPUUnit/cpu/IP[6]</Signal>
+                        <Signal>sys_inst/CPUUnit/cpu/IP[5]</Signal>
+                        <Signal>sys_inst/CPUUnit/cpu/IP[4]</Signal>
+                        <Signal>sys_inst/CPUUnit/cpu/IP[3]</Signal>
+                        <Signal>sys_inst/CPUUnit/cpu/IP[2]</Signal>
+                        <Signal>sys_inst/CPUUnit/cpu/IP[1]</Signal>
+                        <Signal>sys_inst/CPUUnit/cpu/IP[0]</Signal>
+                    </Bus>
+                </SignalList>
+            </Trigger>
+            <Trigger index="5"/>
+            <Trigger index="6"/>
+            <Trigger index="7"/>
+            <Trigger index="8"/>
+            <Trigger index="9"/>
+            <Trigger index="10"/>
+            <Trigger index="11"/>
+            <Trigger index="12"/>
+            <Trigger index="13"/>
+            <Trigger index="14"/>
+            <Trigger index="15"/>
+        </Triggers>
+        <MatchUnits>
+            <MatchUnit index="0" enabled="0" match_type="1" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="F" value1="0" trigger="0"/>
+            <MatchUnit index="1" enabled="0" match_type="1" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="R" value1="0" trigger="1"/>
+            <MatchUnit index="2" enabled="0" match_type="1" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="R" value1="0" trigger="2"/>
+            <MatchUnit index="3" enabled="0" match_type="1" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="R" value1="0" trigger="3"/>
+            <MatchUnit index="4" enabled="1" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="1100000000000101" value1="0000000000000000" trigger="4"/>
+            <MatchUnit index="5" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="6" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="7" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="8" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="9" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="10" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="11" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="12" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="13" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="14" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="15" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+        </MatchUnits>
+        <Expressions type="Static">
+            <Expression>M4</Expression>
+        </Expressions>
+    </AoCore>
+    <GAO_ID>1000110110111011</GAO_ID>
+</GAO_CONFIG>

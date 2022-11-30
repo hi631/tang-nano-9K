@@ -1,0 +1,1387 @@
+Microsoft (R) Macro Assembler Version 6.14.8444		    11/30/22 10:40:54
+bootstrap.asm						     Page 1 - 1
+
+
+				.186
+				.model tiny
+ 0000				.code
+
+ = 0010				BIOSSIZE    EQU     16      ; sectors
+				;BOOTOFFSET  EQU     0fc00h  ; bootstrap code offset in segment 0f000h
+ = CC00				BOOTOFFSET  EQU     0cc00h  ; bootstrap code offset in segment 0f000h
+ = BOOTOFFSET - begin		POFS        EQU     BOOTOFFSET - begin
+ = F000				MONSEG      EQU     0f000h
+ = 03FC				RSDATA		EQU		03fch	; 03f8h(com1)
+ = 03FD				RSRXBSY		EQU		03fdh	; 03f9h
+ = 03FE				RSTXRDY		EQU		03feh	; 03fah
+ = 03FF				BOOTSW		EQU		03ffh	;
+
+ = C800				WORKTOP		EQU		0C800h
+ = C800				SAVECS		EQU		WORKTOP+000h
+ = C802				SAVEIP		EQU		WORKTOP+002h
+ = C804				SAVESS		EQU		WORKTOP+004h
+ = C806				SAVESP		EQU		WORKTOP+006h
+ = C80E				SAVEBX		EQU		WORKTOP+00eh
+ = C810				CMDBUF		EQU		WORKTOP+010h
+ = C830				WADDR		EQU		CMDBUF+020h
+ = C832				WDATA		EQU		WADDR+002h
+ = C834				WDTDL		EQU		WADDR+004h
+ = C836				WDT0		EQU		WADDR+006h
+ = C838				WSEG		EQU		WADDR+008h
+				; this code is for bootstrap deployment only, it will not be present in ROM (cache)
+				;---------------- EXECUTE -----------------
+
+				; Loads BIOS (8K = 16 sectors) from last sectors of SD card (if present)
+				; If no SD card detected, wait on RS232 115200bps and load program at F000:100h
+				; the following code is placed in the last 1kB of cache (last 4 lines), each with the dirty bit set
+				; the corresponding position in RAM will be F000:BOOTOFFSET
+				; ----------------- RS232 bootstrap - last 256byte cache line ---------------
+
+						org		000h        ; this code is loaded at 0f000h:f000h
+ 0000				exec    label near
+				;-- Debug Program ------
+ 0000				memprg:
+ 0000  8C D2					mov		dx,ss
+ 0002  B8 E000					mov		ax,0e000h
+ 0005  8E D0					mov		ss,ax
+ 0007  B8 1234					mov		ax,01234h
+ 000A  BB 5678					mov		bx,05678h
+ 000D  50					push	ax
+ 000E  58					pop		ax
+ 000F  8E D2					mov		ss,dx
+ 0011  B9 9ABC					mov		cx,09abch
+ 0014  C3					ret
+ 0015				memprge:
+
+ 0015				dbgdmy:
+ 0015  90			        nop
+ 0016  8C D0					mov		ax,ss
+ 0018  A3 C804					mov     word ptr ds:[SAVESS], ax
+ 001B  8B C4					mov		ax,sp
+ 001D  A3 C806					mov     word ptr ds:[SAVESP], ax
+ 0020  90					nop
+ 0021  90			        nop
+ 0022  C3			        ret
+
+ 0023				retnmi:
+ 0023  54			        push    sp
+ 0024  53					push    bx
+ 0025  16			        push    ss
+ 0026  06					push    es
+ 0027  1E					push    ds
+ 0028  0E					push    cs
+ 0029  55					push    bp
+ 002A  57					push    di
+ 002B  56					push    si
+ 002C  52					push    dx
+ 002D  51					push    cx
+ 002E  53					push    bx
+ 002F  50			        push    ax
+						
+ 0030  0E					push	cs
+ 0031  1F					pop		ds							; ds = cs
+ 0032  8C 16 C804				mov		word ptr ds:[SAVESS],ss
+ 0036  89 26 C806				mov		word ptr ds:[SAVESP],sp
+ 003A  8B DC			        mov     bx,sp						; bx = reg.arry.top
+ 003C  89 1E C80E				mov		word ptr ds:[SAVEBX],bx
+ 0040  36: 8B 47 1A				mov		ax,ss:[bx+26]
+ 0044  A3 C802					mov		word ptr ds:[SAVEIP],ax
+
+ 0047  FA					cli
+ 0048  FC					cld
+ 0049  8C C8					mov		ax, cs        ; cs = 0f000h
+ 004B  8E D8					mov		ds, ax
+ 004D  8E C0					mov		es, ax
+ 004F  8E D0					mov		ss, ax
+ 0051  BC CBC0					mov		sp, BOOTOFFSET-040h
+
+ 0054  A1 C804					mov		ax,ds:[SAVESS]
+ 0057  E8 0481					call	puth4
+ 005A  E8 03FD					call	putsp
+ 005D  A1 C806					mov		ax,ds:[SAVESP]
+ 0060  E8 0478					call	puth4
+ 0063  E8 03F4					call	putsp
+ 0066  A1 C802					mov		ax,ds:[SAVEIP]
+ 0069  E8 046F					call	puth4
+ 006C  E8 03EB					call	putsp
+ 006F  E8 03F0					call	putcrlf
+
+ 0072  8B 1E C80E				mov		bx,ds:[SAVEBX]
+ 0076  E8 005B					call	bkdisp
+ 0079  E8 001D					call	ipdisp
+
+ 007C  E8 0119			        call    dbgloop
+ 007F  8E 16 C804				mov		ss,ds:[SAVESS]
+ 0083  8B 26 C806				mov		sp,ds:[SAVESP]
+				;		call	settsig
+
+ 0087  58			        pop     ax
+ 0088  5B					pop     bx
+ 0089  59					pop     cx
+ 008A  5A			        pop     dx
+ 008B  5E					pop     si
+ 008C  5F					pop     di
+ 008D  5D					pop     bp
+				;		pop		sp
+ 008E  83 C4 02					add     sp,2		; skip
+ 0091  1F					pop     ds
+ 0092  07					pop     es
+				;		pop     ss
+ 0093  83 C4 02					add     sp,2		; skip
+ 0096  5B					pop     bx
+ 0097  5C					pop     sp
+ 0098  CF			        iret
+
+ 0099				ipdisp:
+ 0099  E8 03C6					call	putcrlf
+ 009C  8B 36 C802				mov		si,ds:[SAVEIP]	; IP
+ 00A0  0E					push	cs
+ 00A1  07					pop		es
+ 00A2  E8 0379					call	dpadr
+ 00A5  B9 0004					mov		cx,4
+ 00A8  8A 04			ipdisp2:mov		al,[si]
+ 00AA  E8 0439					call	puth2
+ 00AD  E8 03AA					call	putsp
+ 00B0  46					inc		si
+ 00B1  E2 F5					loop	ipdisp2
+ 00B3  C3					ret
+
+				;                 00              16        26
+ 00B4 41 58 42 58 43 58		ppsregs  db      'AXBXCXDXSIDIBP  DSESSS  SPIPCSSF'
+       44 58 53 49 44 49
+       42 50 20 20 44 53
+       45 53 53 53 20 20
+       53 50 49 50 43 53
+       53 46
+ 00D4				bkdisp:
+ 00D4  B9 0010			        mov     cx,16
+ 00D7  BE C0B4			        mov		si,ppsregs + POFS
+ 00DA  A1 C804					mov		ax,ds:[SAVESS]
+ 00DD  8E C0					mov		es,ax
+				;		call    putcrlf
+ 00DF  8A 04			rloop:  mov     al,[si]
+ 00E1  3C 20			        cmp     al,20h
+ 00E3  75 04					jnz     rloop2
+ 00E5  46					inc     si
+ 00E6  46					inc     si
+ 00E7  EB 18					jmp     rloop3
+ 00E9  E8 0438			rloop2: call    putch
+ 00EC  46					inc     si
+ 00ED  8A 04					mov     al,[si]
+ 00EF  E8 0432					call    putch
+ 00F2  46					inc     si
+ 00F3  B0 3A					mov     al,3ah
+ 00F5  E8 042C					call    putch
+ 00F8  26: 8B 07		        mov     ax,es:[bx]
+ 00FB  E8 03DD			        call    puth4
+ 00FE  E8 0359					call    putsp
+ 0101  43			rloop3:	inc     bx
+ 0102  43					inc     bx
+ 0103  80 F9 0A					cmp     cl,10
+ 0106  75 03					jnz     rloop4
+ 0108  E8 0357					call    putcrlf
+ 010B  E2 D2			rloop4:	loop    rloop
+ 010D  C3					ret
+
+ 010E				dtest:
+ 010E  E8 0001					call	dtestex
+ 0111  C3					ret
+ 0112				dtestex:
+ 0112  52					push	dx
+ 0113  80 E2 F0					and		dl,0f0h
+ 0116  74 09					jz		dtest0
+ 0118  E8 0167			        call    nmivset
+ 011B  BA C17F					mov     dx,settsig+3 + POFS
+ 011E  E8 0148					call    brkaset
+ 0121				dtest0:
+ 0121  5A					pop		dx
+ 0122  80 E2 0F					and		dl,00fh
+ 0125  80 FA 01			        cmp     dl,1
+ 0128  74 0A					jz      dtest1		; RAM No.CE
+ 012A  80 FA 02					cmp     dl,2
+ 012D  74 1B					jz      dtest2		; RAM One.CE
+ 012F  80 FA 03					cmp     dl,3
+ 0132  74 2C					jz      dtest3		; Dram Use.CE
+
+ 0134  BE C000			dtest1: mov		si, memprg + POFS
+ 0137  BF C900					mov		di, 0c900h
+ 013A  B9 0015					mov		cx, memprge - memprg
+ 013D  F3/ A4					rep		movsb
+ 013F  BB C900					mov		bx,0c900h
+ 0142  BE C910					mov     si,0c910h
+ 0145  BF C920					mov		di,0c920h
+ 0148  EB 2A					jmp		dtest9
+
+ 014A  BE C000			dtest2: mov		si, memprg + POFS
+ 014D  BF CA00					mov		di, 0ca00h
+ 0150  B9 0015					mov		cx, memprge - memprg
+ 0153  F3/ A4					rep		movsb
+ 0155  BB CA00			        mov     bx,0ca00h
+ 0158  BE CA10					mov     si,0ca10h
+ 015B  BF CA20					mov		di,0ca20h
+ 015E  EB 14					jmp		dtest9
+
+ 0160  BE C000			dtest3:	mov		si, memprg + POFS
+ 0163  BF 0000					mov		di, 0000h
+ 0166  B9 0015					mov		cx, memprge - memprg
+ 0169  F3/ A4					rep		movsb
+ 016B  BB 0000					mov     bx,0000h
+ 016E  BE 0010					mov     si,0010h
+ 0171  BF 0020					mov		di,0020h
+ 0174				dtest9:
+ 0174  B9 0004					mov		cx,4
+ 0177  E8 0002					call	settsig
+ 017A  FF E3					jmp		bx
+ 017C				settsig:
+ 017C  BD CFFF					mov		bp,0cfffh
+ 017F  2E: 8A 46 00				mov		al,cs:[bp]		; trigger
+ 0183  C3					ret
+
+				;-------------------------------
+ 0184				dbgcold:
+ 0184  8C 0E C838				mov		DS:[WSEG],cs
+ 0188  E8 014B					call	dinit
+ 018B  8E 06 C838				mov		es,DS:[WSEG]
+ 018F  E8 036E					call	bootchk
+ 0192  BE C544			        mov		si,ppimsg + POFS
+ 0195  E8 039F					call    puts
+ 0198				dbgloop:
+ 0198  8E 06 C838				mov		es,DS:[WSEG]
+ 019C  BE C54B			        mov		si,ppcmsg + POFS
+ 019F  E8 0395					call    puts
+ 01A2  E8 0272					call    getsb
+ 01A5  BE C811			        mov     si,CMDBUF+1
+ 01A8  8A 04					mov     al,[si]
+ 01AA  3C 66					cmp     al,66h
+ 01AC  76 01					jbe     dbgnx1          ; jmp al >= 'f'(66h)
+ 01AE  46					inc     si              ; cchhhh  cc:2byte cmd  hhhh:hexdata
+ 01AF				dbgnx1:
+ 01AF  E8 02B8					call    gethx           ; dx = Mem.Addr
+ 01B2  BF C810					mov     di,CMDBUF
+ 01B5  8A 05					mov     al,[di]
+ 01B7  8A 65 01					mov     ah,[di+1]
+ 01BA  3C 64					cmp     al,64h          ; d:dump
+ 01BC  75 28					jnz     dbgnx2
+ 01BE  80 FC 6E			        cmp     ah,6eh          ; dn NMI.Test
+ 01C1  75 14					jnz     dbgnx12
+ 01C3  E8 00BC			        call    nmivset
+ 01C6  BA C015					mov     dx,dbgdmy + POFS
+ 01C9  E8 009D					call    brkaset
+ 01CC  B8 1234					mov     ax,01234h
+ 01CF  BB 5678					mov     bx,05678h
+ 01D2  E8 FE40					call    dbgdmy
+ 01D5  EB 77					jmp     dbgnxe
+ 01D7				dbgnx12:
+ 01D7  80 FC 74			        cmp     ah,74h          ; dt Test.Data
+ 01DA  75 05			        jnz     dbgnx13
+ 01DC  E8 FF2F			        call    dtest
+ 01DF  EB 6D			        jmp     dbgnxe
+ 01E1				dbgnx13:
+ 01E1  E8 0256					call    dump
+ 01E4  EB 68					jmp     dbgnxe
+ 01E6				dbgnx2:
+ 01E6  3C 6D					cmp     al,6dh          ; m:mem
+ 01E8  75 05					jnz     dbgnx3
+ 01EA  E8 0151					call    memrw
+ 01ED  EB 5F					jmp     dbgnxe
+ 01EF				dbgnx3:
+ 01EF  3C 73			        cmp     al,73h          ; s:set
+ 01F1  75 14					jnz     dbgnx4
+ 01F3  80 FC 73					cmp     ah,73h
+ 01F6  75 05					jnz     dbgnx32
+ 01F8  E8 0133					call    setes
+ 01FB  EB 51					jmp     dbgnxe
+ 01FD				dbgnx32:
+ 01FD  80 FC 70			        cmp     ah,70h
+ 0200  75 05					jne     dbgnx4
+ 0202  E8 0116					call    setpio
+ 0205  EB 47					jmp     dbgnxe
+ 0207				dbgnx4:
+ 0207  3C 66			        cmp     al,66h          ; f:fill
+ 0209  75 05					jnz     dbgnx5
+ 020B  E8 00F4					call    filldt
+ 020E  EB 3E					jmp     dbgnxe
+ 0210				dbgnx5:
+ 0210  3C 69			        cmp     al,69h          ; i:init
+ 0212  75 05					jnz     dbgnx6
+ 0214  E8 00BF			        call    dinit
+ 0217  EB 35			        jmp     dbgnxe
+ 0219				dbgnx6:
+ 0219				dbgnx9:
+ 0219				dbgnx91:
+ 0219  3C 62					cmp     al,62h          ; b Boot
+ 021B  75 1D					jnz     dbgnx94
+ 021D  80 FC 70					cmp     ah,70h          ; bp
+ 0220  75 13					jnz     dbgnx93
+ 0222  8B C6					mov		ax,si
+ 0224  3C 13					cmp		al,CMDBUF-WORKTOP+3		; bp+(ret)
+ 0226  75 05					jnz		dbgnx92
+ 0228  E8 003A					call	brkaclr
+ 022B  EB 21					jmp		dbgnxe
+ 022D  E8 0039			dbgnx92:call    brkaset
+ 0230  E8 004F					call    nmivset
+ 0233  EB 19					jmp     dbgnxe
+ 0235				dbgnx93:
+ 0235  E8 006E			        call    dboot
+ 0238  EB 14					jmp     dbgnxe
+ 023A  3C 67			dbgnx94:cmp     al,67h          ; g go/ret
+ 023C  75 08					jnz     dbgnx96
+ 023E  80 FE 00					cmp		dh,0
+ 0241  74 02					jz		dbgnx95
+ 0243  FF D2			        call	dx
+ 0245  C3			dbgnx95:ret
+ 0246				dbgnx96:
+ 0246  3C 74			        cmp     al,74h          ; t trace
+ 0248  75 04					jnz     dbgnxe
+ 024A  E8 0004			        call    trace
+ 024D  C3					ret
+ 024E  E9 FF47			dbgnxe:	jmp     dbgloop
+
+ 0251				trace:
+ 0251  8B CA					mov		cx,dx
+ 0253  8B 16 C802		        mov     dx,ds:[SAVEIP]      ; next pc
+ 0257  80 FC 73					cmp		ah,73h				; s:ts trace.skip
+ 025A  75 02					jnz		trace2
+ 025C  03 D1					add		dx,cx				; skip n
+ 025E				trace2:
+ 025E  E8 0008					call    brkaset
+ 0261  E8 001E					call    nmivset
+ 0264  C3					ret
+
+ 0265				brkaclr:
+ 0265  B7 80					mov		bh,80h
+ 0267  EB 02					jmp		brkaset2
+ 0269				brkaset:
+ 0269  B7 00					mov		bh,0
+ 026B				brkaset2:
+ 026B  53					push	bx
+ 026C  8B C2					mov		ax,dx
+ 026E  BA 02F0					mov     dx,02f0h
+ 0271  EF					out     dx,ax
+ 0272  A1 C838					mov     ax,DS:[WSEG]
+ 0275  8A C4					mov     al,ah
+ 0277  C0 E8 04					shr     al,4
+ 027A  5B					pop     bx
+ 027B  8A E7					mov		ah,bh
+ 027D  BA 02F2					mov     dx,02f2h
+ 0280  EF					out     dx,ax
+ 0281  C3			        ret
+ 0282				nmivset:
+ 0282  B8 0000			        mov     ax,0
+ 0285  8B F0					mov     si,ax
+ 0287  06					push    es
+ 0288  8E C0					mov     es,ax
+ 028A  B8 C023					mov     ax,retnmi + POFS
+ 028D  26: 89 44 08				mov     es:[si+8],ax
+ 0291  B8 F000					mov     ax,0f000h
+ 0294  26: 89 44 0A				mov     es:[si+10],ax
+ 0298  07					pop     es
+ 0299  C3			        ret
+
+ 029A				movbios:
+ 029A  BE E000					mov		si,0e000h
+ 029D  BF E000					mov		di,0e000h
+ 02A0  B9 1000					mov		cx,1000h
+ 02A3  F3/ A5					rep		movsw			; bios_rom -> psram e000 - ffff
+ 02A5  C3					ret
+ 02A6				dboot:	                        ; bnnnn dx = nnnn
+ 02A6  E8 FFF1					call	movbios
+ 02A9  80 FC 62			        cmp     ah,62h          ; bb
+ 02AC  75 0B					jne     dboot1
+ 02AE  BA E05B					mov     dx,0e05bh
+ 02B1  E8 FFB5					call    brkaset
+ 02B4  E8 FFCB					call    nmivset
+ 02B7  EB 17					jmp		dbootgo
+ 02B9				dboot1:
+				;		mov     ax,0f000h
+				;		mov     es,ax
+ 02B9  80 FA 01					cmp     dl,1
+ 02BC  75 05			        jne     dboot2
+ 02BE  E8 094F			        call    bootbeg
+ 02C1  EB 12					jmp     dboote
+ 02C3				dboot2:
+ 02C3  80 FA 02			        cmp     dl,2
+ 02C6  75 08					jne     dbootgo
+ 02C8  E8 0945			        call    bootbeg
+ 02CB  E8 0976					call    bootbeg2
+ 02CE  EB 05					jmp     dboote
+ 02D0				dbootgo:
+ 02D0  BA E05B					mov		dx,0e05bh
+ 02D3  FF E2					jmp		dx
+ 02D5  C3			dboote: ret
+
+ 02D6				dinit:
+ 02D6  E8 09E4					call    initio
+ 02D9  E8 09F8			        call    initcrt
+ 02DC  E8 0014					call	dispmon
+ 02DF  E8 0AE8					call	sdinit_
+ 02E2  E8 FF80					call	brkaclr
+ 02E5  E8 FF9A					call    nmivset
+ 02E8  C3			        ret
+
+ 02E9 6D 01 6F 01 6E 01		ppmimsg db      'm',1,'o',1,'n',1,'8',1,'6',1
+       38 01 36 01
+ 02F3				dispmon:
+ 02F3  68 B800					push	0b800h      ; clear screen
+ 02F6  07					pop		es
+ 02F7  BE C2E9					mov		si,ppmimsg + POFS
+ 02FA  33 FF					xor		di, di
+ 02FC  B9 0005			        mov     cx,5h
+ 02FF  F3/ A5					rep     movsw		; si -> di
+ 0301  C3					ret
+
+ 0302				filldt:
+ 0302  FC					cld
+ 0303  8B FA			        mov     di,dx           ; addr
+ 0305  E8 0162					call    gethx
+ 0308  8B CA					mov     cx,dx           ; dl
+ 030A  E8 015D					call    gethx
+ 030D  8B C2					mov     ax,dx           ; data
+ 030F  80 FC 00					cmp     ah,0h
+ 0312  74 04					jz      filldt2
+ 0314  F3/ AB					rep     stosw           ; ES:[DI] <- ax
+ 0316  EB 02					jmp     filldte
+ 0318  F3/ AA			filldt2:rep     stosb           ; ES:[DI] <- al
+ 031A  C3			filldte:ret
+
+ 031B				setpio:                         ; pohhhh xxxx
+ 031B  80 FC 6F					cmp     ah,6fh          ; o.. po
+ 031E  74 05					jz      setpio2
+ 0320  E8 09E4					call    setpal
+ 0323  EB 08					jmp     setpioe
+ 0325  52			setpio2:push    dx
+ 0326  E8 0141					call    gethx
+ 0329  8B C2					mov     ax,dx
+ 032B  5A					pop     dx
+ 032C  EF					out     dx,ax
+ 032D  C3			setpioe:ret
+
+ 032E				setes:
+ 032E  BE C811			        mov     si,[CMDBUF+1]
+ 0331  8A 24					mov     ah,[si]
+ 0333  80 FC 0D					cmp     ah,0dh          ; .
+ 0336  75 03			        jnz     setes2
+ 0338  BA F000					mov     dx,0f000h       ; init ES
+ 033B  52			setes2:	push    dx
+ 033C  07					pop     es
+ 033D  C3					ret
+
+ 033E				memrw:
+				;		push	es
+				;		mov		es,DS:[WSEG]
+ 033E  BF C811			        mov     di,CMDBUF+1
+ 0341  8A 05					mov     al,[di]
+ 0343  3C 74					cmp     al,74h          ; t
+ 0345  74 45					jz      mtest
+ 0347  8B F2					mov     si,dx
+ 0349  E8 00D2			memrw2:	call    dpadr
+ 034C  26: 8A 04		        mov     al,es:[si]
+ 034F  E8 0194					call    puth2
+ 0352  E8 0105			memrw3:	call    putsp
+ 0355  56					push    si
+ 0356  E8 00BE					call    getsb
+ 0359  BE C810			        mov     si,CMDBUF
+ 035C  8A 24					mov     ah,[si]
+ 035E  80 FC 2E					cmp     ah,2eh          ; .
+ 0361  74 27					jz      memrwe
+ 0363  80 FC 0D					cmp     ah,0dh
+ 0366  75 03					jnz     memrw4
+ 0368  5E					pop     si
+ 0369  EB 1C					jmp     memrw6
+ 036B  E8 00FC			memrw4:	call    gethx           ; dx = Data
+ 036E  5E					pop     si
+ 036F  80 FE 00					cmp     dh,0
+ 0372  74 10					jz      memrw5
+ 0374  26: 89 14				mov     es:[si],dx      ; 2Byte
+ 0377  46					inc     si
+ 0378  46					inc     si
+ 0379  E8 00A2			        call    dpadr
+ 037C  26: 8B 04		        mov     ax,es:[si]
+ 037F  E8 0159					call    puth4
+ 0382  EB CE					jmp     memrw3
+ 0384  26: 88 14		memrw5:	mov     es:[si],dl      ; 1Byte
+ 0387  46			memrw6:	inc     si
+ 0388  EB BF			        jmp     memrw2
+ 038A  5E			memrwe: pop     si
+				;		pop		es
+ 038B  C3			        ret
+
+ 038C				mtest:
+ 038C  BB C830					mov     bx,WADDR
+ 038F  89 16 C830		        mov     word ptr ds:[WADDR],dx         ; wadr
+ 0393  E8 00D4			        call    gethx
+ 0396  89 16 C834				mov     word ptr ds:[WDTDL],dx       ; wdl
+ 039A  E8 00CD			        call    gethx
+ 039D  89 16 C836				mov     word ptr ds:[WDT0],dx       ; w0(ptn)
+
+ 03A1  B0 00			        mov     al,0
+ 03A3  8B 3F					mov     di,[bx+0]
+ 03A5  8B 4F 04			        mov     cx,[bx+4]
+ 03A8				mtestw:
+ 03A8  80 F9 00			        cmp     cl,0
+ 03AB  75 04					jnz     mtestw2
+ 03AD  02 06 C836				add     al,DS:[WDT0]
+ 03B1				mtestw2:
+ 03B1  26: 88 05		        mov     es:[di],al
+
+ 03B4  26: 8A 25		        mov     ah,es:[di]
+ 03B7  38 E0			        cmp     al,ah
+ 03B9  74 17			        jz      mtestw3
+ 03BB  50					push    ax
+ 03BC  E8 00A3			        call    putcrlf
+ 03BF  50					push    ax
+ 03C0  8B F7					mov     si,di
+ 03C2  E8 0059					call    dpadr
+ 03C5  58					pop     ax
+ 03C6  E8 011D					call    puth2
+ 03C9  E8 008E					call    putsp
+ 03CC  8A C4					mov     al,ah
+ 03CE  E8 0115					call    puth2
+ 03D1  58					pop     ax
+
+ 03D2				mtestw3:
+ 03D2  47					inc     di
+ 03D3  02 06 C836				add     al,DS:[WDT0]
+ 03D7  E2 CF			        loop    mtestw
+				;		ret
+ 03D9  B0 2E			        mov     al,2eh
+ 03DB  E8 0146					call    putch
+				;
+ 03DE  B0 00			        mov     al,0
+ 03E0  8B 3E C830				mov     di,DS:[WADDR]
+ 03E4  8B 0E C834		        mov     cx,DS:[WDTDL]
+ 03E8				mtestr:
+ 03E8  80 F9 00			        cmp     cl,0
+ 03EB  75 04					jnz     mtestr2
+ 03ED  02 06 C836				add     al,DS:[WDT0]
+ 03F1				mtestr2:
+ 03F1  26: 8A 25		        mov     ah,es:[di]
+ 03F4  38 E0			        cmp     al,ah
+ 03F6  74 17			        jz      mtestr3
+ 03F8  50					push    ax
+ 03F9  E8 0066			        call    putcrlf
+ 03FC  50					push    ax
+ 03FD  8B F7					mov     si,di
+ 03FF  E8 001C					call    dpadr
+ 0402  58					pop     ax
+ 0403  E8 00E0					call    puth2
+ 0406  E8 0051					call    putsp
+ 0409  8A C4					mov     al,ah
+ 040B  E8 00D8					call    puth2
+ 040E  58					pop     ax
+ 040F				mtestr3:
+ 040F  47					inc     di
+ 0410  02 06 C836				add     al,DS:[WDT0]
+ 0414  E2 D2			        loop    mtestr
+
+ 0416  C3			        ret
+
+
+ 0417				getsb:
+ 0417  BE C810					mov     si,CMDBUF	;sbuf + POFS
+ 041A  E8 009B					call    gets
+ 041D  C3			        ret
+ 041E				dpadr:
+ 041E  8B C6					mov     ax,si
+ 0420  C1 E8 04					shr     ax,4
+ 0423  8C C2					mov     dx,es
+ 0425  03 C2					add     ax,dx
+ 0427  E8 00B1					call    puth4
+ 042A  8B C6					mov     ax,si
+ 042C  24 0F					and     al,0fh
+ 042E  E8 00C5					call    puth1
+ 0431  B0 3A					mov     al,3ah
+ 0433  E8 00EE					call    putch           ; addr:
+ 0436  E8 0021					call    putsp
+ 0439  C3			        ret
+
+ 043A				dump:
+				;		push	es
+				;		mov		es,DS:[WSEG]
+ 043A  8B F2					mov     si,dx
+ 043C  B5 04			        mov     ch,4
+ 043E				dump2:
+ 043E  E8 FFDD			        call    dpadr
+ 0441  B1 10			        mov     cl,16
+ 0443  26: 8A 04		dump3:  mov     al,es:[si]
+ 0446  46			        inc     si
+ 0447  E8 009C					call    puth2
+ 044A  E8 000D					call    putsp
+ 044D  42					inc     dx
+ 044E  FE C9					dec     cl
+ 0450  75 F1					jnz     dump3
+ 0452  E8 000D					call    putcrlf
+ 0455  FE CD			        dec     ch
+ 0457  75 E5					jnz     dump2
+				;		pop		es
+ 0459  C3					ret
+
+ 045A  50			putsp:  push    ax
+ 045B  B0 20			        mov     al,20h
+ 045D  E8 00C4			        call    putch
+ 0460  58					pop     ax
+ 0461  C3					ret
+ 0462  50			putcrlf:push    ax
+ 0463  B0 0D			        mov     al,0dh
+ 0465  E8 00BC			        call    putch
+ 0468  58					pop     ax
+ 0469  C3					ret
+
+ 046A  50			gethx:  push    ax          ; return dx <- hex
+ 046B  51			        push    cx
+ 046C  BA 0000			        mov     dx,0        ; res
+ 046F  B1 00			        mov     cl,0
+ 0471  8A 04			gethx1: mov     al,[si]
+ 0473  3C 20			        cmp     al,20h
+ 0475  75 03					jnz     gethx2
+ 0477  46					inc     si
+ 0478  EB F7					jmp     gethx1
+ 047A  8A 04			gethx2: mov     al,[si]
+ 047C  46					inc     si
+ 047D  E8 0023					call    as2hh       ; hex <- ascii(1char)
+ 0480  3C FF					cmp     al,0ffh
+ 0482  74 1C					jz      gethxe
+ 0484  80 F9 04					cmp     cl,4
+ 0487  74 04					jz      gethx3
+ 0489  FE C1			        inc     cl
+ 048B  EB 0C			        jmp     gethx4
+ 048D  52			gethx3: push    dx
+ 048E  81 E2 F000		        and     dx,0f000h
+ 0492  8E C2					mov		es,dx
+ 0494  89 16 C838				mov     DS:[WSEG],dx
+ 0498  5A					pop     dx
+ 0499  C1 E2 04			gethx4:	shl     dx,4
+ 049C  0A D0					or      dl,al
+ 049E  EB DA					jmp     gethx2
+ 04A0  59			gethxe: pop     cx
+ 04A1  58			        pop     ax
+ 04A2  C3			        ret
+
+ 04A3				as2hh:
+ 04A3  3C 30			        cmp     al,30h
+ 04A5  72 0C					jb      as2hxee     ; jmp al<30h
+ 04A7  3C 40					cmp     al,40h
+ 04A9  72 05					jb      as2hh2      ; jmp <
+ 04AB  2C 37					sub     al,37h      ; A - F
+ 04AD  24 0F					and     al,0fh
+ 04AF  C3					ret
+ 04B0  2C 30			as2hh2: sub     al,30h      ; 0 - 9
+ 04B2  C3			        ret
+ 04B3  8A E0			as2hxee:mov     ah,al       ; ah <- last.byte
+ 04B5  B0 FF			        mov     al,0ffh
+ 04B7  C3			        ret
+
+ 04B8  B4 00			gets:   mov     ah,0
+ 04BA  E8 0056			gets2:  call    getch
+ 04BD  3C 08					cmp     al,08h      ; BS
+ 04BF  75 0D					jnz     gets3
+ 04C1  80 FC 00					cmp     ah,0
+ 04C4  74 F4					jz      gets2
+ 04C6  E8 005B					call    putch
+ 04C9  4E					dec     si
+ 04CA  FE CC					dec     ah
+ 04CC  EB EC					jmp     gets2
+ 04CE  E8 0053			gets3:	call    putch
+ 04D1  88 04			        mov     [si],al
+ 04D3  46					inc     si
+ 04D4  FE C4					inc     ah
+ 04D6  3C 0D					cmp     al,0dh
+ 04D8  75 E0					jnz     gets2
+ 04DA  C3					ret
+
+ 04DB  50			puth4:  push    ax
+ 04DC  8A C4			        mov     al,ah
+ 04DE  E8 0005					call    puth2
+ 04E1  58					pop     ax
+ 04E2  E8 0001					call    puth2
+ 04E5  C3					ret
+
+ 04E6  50			puth2:  push    ax
+ 04E7  50			        push    ax
+ 04E8  C0 E8 04			        shr     al,4
+ 04EB  E8 0008					call    puth1
+ 04EE  58					pop     ax
+ 04EF  24 0F					and     al,0fh
+ 04F1  E8 0002					call    puth1
+ 04F4  58					pop     ax
+ 04F5  C3					ret
+
+ 04F6  3C 0A			puth1:  cmp     al,10
+ 04F8  72 02			        jb      puth11      ; jmp <
+ 04FA  04 07					add     al,7
+ 04FC  04 30			puth11: add     al,30h
+ 04FE  EB 24			        jmp     putch
+
+ 0500				bootchk:
+ 0500  BA 03FF					mov		dx, BOOTSW
+ 0503  EC					in      al,dx
+ 0504  24 80					and		al,80h
+ 0506  3C 00					cmp		al,00h
+ 0508  75 08					jnz		bootchke
+ 050A  E8 FD8D					call	movbios
+ 050D  BA E05B					mov		dx,0e05bh
+ 0510  FF E2					jmp		dx
+ 0512				bootchke:
+ 0512  C3					ret
+
+ 0513  52			getch:  push    dx
+ 0514  BA 03FD			        mov		dx, RSRXBSY
+ 0517  EC			getchlp:in      al,dx
+ 0518  24 80					and		al,80h
+ 051A  84 C0					test	al, al
+ 051C  74 F9			        jz      getchlp
+ 051E  BA 03FC					mov		dx, RSDATA
+ 0521  EC					in      al,dx
+ 0522  5A					pop     dx
+ 0523  C3			        ret
+
+ 0524  52			putch:  push    dx
+ 0525  50			        push    ax
+ 0526  BA 03FE					mov     dx,RSTXRDY
+ 0529  EC			putchlp:in      al,dx
+ 052A  24 80					and		al,80h
+ 052C  84 C0			        test    al,al
+ 052E  75 F9					jnz     putchlp
+ 0530  58					pop     ax
+ 0531  BA 03FC					mov     dx,RSDATA
+ 0534  EE					out     dx,al
+ 0535  5A					pop     dx
+ 0536  C3					ret
+
+ 0537  8A 04			puts:   mov     al,[si]
+ 0539  84 C0			        test    al,al
+ 053B  74 06					jz      putse
+ 053D  E8 FFE4					call    putch
+ 0540  46			        inc     si
+ 0541  EB F4			        jmp     puts
+ 0543  C3			putse:  ret
+
+ 0544 0D 6D 6F 6E 38 36		ppimsg  db      0dh,'mon86',0
+       00
+ 054B 0D 3E 00			ppcmsg  db      0dh,3eh,0
+
+				;---------------------------------------------
+
+				        org     0C00h         ; Original Start
+ 0C00				begin label far               ; this code is placed at F000:BOOTOFFSET
+ 0C00				rststart:
+ 0C00  FA					cli
+ 0C01  FC					cld
+ 0C02  8C C8					mov		ax, cs        ; cs = 0f000h
+ 0C04  8E D8					mov		ds, ax
+ 0C06  8E C0					mov		es, ax
+ 0C08  8E D0					mov		ss, ax
+ 0C0A  BC CC00					mov		sp, BOOTOFFSET
+				;;----------------------------
+ 0C0D  E9 F574			        jmp     dbgcold
+				;;----------------------------
+ 0C10				bootbeg:
+ 0C10  E8 00AA			        call    initio
+ 0C13  E8 00BE					call    initcrt
+ 0C16  E8 01B1					call	sdinit_
+
+ 0C19  E8 F8BF					call    puth4
+ 0C1C  E8 F83B					call    putsp
+
+ 0C1F  85 C0					test	ax, ax
+ 0C21  74 4E					jz		short RS232
+ 0C23  8B D0					mov		dx, ax
+ 0C25  C1 EA 06					shr		dx, 6
+ 0C28  C1 E0 0A					shl		ax, 10
+ 0C2B  B9 0010					mov		cx, BIOSSIZE       ;  sectors
+ 0C2E  2B C1					sub		ax, cx
+ 0C30  83 DA 00					sbb		dx, 0
+
+ 0C33  50					push    ax
+ 0C34  8B C2			        mov     ax,dx
+ 0C36  E8 F8A2			        call    puth4
+ 0C39  E8 F81E			        call    putsp
+ 0C3C  58			        pop     ax
+ 0C3D  E8 F89B					call    puth4
+ 0C40  E8 F81F					call    putcrlf
+ 0C43  C3			        ret
+
+ 0C44				bootbeg2:
+ 0C44  33 DB					xor		bx, bx       ; read BIOSSIZE/2 KB BIOS at 0f000h:0h
+ 0C46				nextsect:
+ 0C46  50					push		ax
+ 0C47  52					push		dx
+ 0C48  51					push		cx
+ 0C49  E8 0144					call		sdread_
+ 0C4C  49					dec		cx
+ 0C4D  59					pop		cx
+ 0C4E  5A					pop		dx
+ 0C4F  58					pop		ax
+ 0C50  75 1F					jnz		short RS232  ; cx was not 1
+ 0C52  83 C0 01					add		ax, 1
+ 0C55  83 D2 00					adc		dx, 0
+ 0C58  81 C3 0200				add		bx, 512    
+ 0C5C  E2 E8					loop	nextsect
+ 0C5E  C3					ret
+
+ 0C5F				bootbeg3:
+ 0C5F  81 3E 0000 654E				cmp		word ptr ds:[0], 'eN'
+ 0C65  75 0A					jne		short RS232             
+ 0C67  81 3E 0002 7478				cmp		word ptr ds:[2], 'tx'
+ 0C6D  74 31					je		short   BIOSOK
+ 0C6F  EB 00			        jmp     RS232
+
+ 0C71				RS232: 
+ 0C71  E8 0060			        call    initcrt
+ 0C74  E8 009E					call    initmsg
+
+ 0C77  BB 4000					mov		bx, 4000h
+ 0C7A				flush:        
+ 0C7A  8A 07					mov		al, [bx]
+ 0C7C  83 EB 40					sub		bx, 40h
+ 0C7F  75 F9					jnz		flush
+					
+ 0C81  BE 0100					mov		si, 100h
+ 0C84  E8 00A7					call		srecb
+ 0C87  8A FC					mov		bh, ah
+ 0C89  E8 00A2					call		srecb
+ 0C8C  8A DC					mov		bl, ah
+
+ 0C8E				sloop:	
+ 0C8E  E8 009D					call		srecb
+ 0C91  88 24					mov		[si], ah
+ 0C93  46					inc		si
+ 0C94  4B					dec		bx
+ 0C95  75 F7					jnz		sloop
+ 0C97  33 E4					xor		sp, sp
+ 0C99  8E D4					mov		ss, sp
+ 0C9B  EA					db		0eah
+ 0C9C  0100 F000				dw		100h,0f000h ; execute loaded program
+
+ 0CA0				BIOSOK:
+ 0CA0  BE CCB4					mov		si, reloc + BOOTOFFSET - begin
+ 0CA3  8B FB					mov		di, bx
+ 0CA5  B9 0009					mov		cx, endreloc - reloc
+ 0CA8  F3/ A4					rep		movsb       ; relocate code from reloc to endreloc after loaded BIOS
+ 0CAA  BF E000					mov		di, -BIOSSIZE*512
+ 0CAD  33 F6					xor		si, si
+ 0CAF  B9 1000					mov		cx, BIOSSIZE*512/2
+ 0CB2  FF E3					jmp		bx
+ 0CB4				reloc:      
+ 0CB4  F3/ A5					rep		movsw
+ 0CB6  90					nop
+ 0CB7  90					nop
+ 0CB8  EA					db		0eah
+ 0CB9  0000 FFFF				dw		0, -1       ; CPU reset, execute BIOS
+ 0CBD				endreloc:
+
+				;----------------------
+ 0CBD				initio:
+ 0CBD  33 C0					xor		ax, ax        ; map seg0
+ 0CBF  E7 80					out		80h, ax
+ 0CC1  B0 0B					mov		al, 0bh       ; map text segB
+ 0CC3  E7 8B					out		8bh, ax
+ 0CC5  B0 0F					mov		al, 0fh       ; map ROM segF
+ 0CC7  E7 8F					out		8fh, ax
+
+ 0CC9  B0 34					mov		al, 34h
+ 0CCB  E6 43					out		43h, al
+ 0CCD  32 C0					xor		al, al
+ 0CCF  E6 40					out		40h, al
+ 0CD1  E6 40					out		40h, al       ; program PIT for RS232
+ 0CD3  C3			        ret
+
+ 0CD4				initcrt:
+ 0CD4  06			        push    es
+ 0CD5  BA 03C0					mov		dx, 3c0h
+ 0CD8  B0 10					mov		al, 10h
+ 0CDA  EE					out		dx, al
+ 0CDB  B0 08					mov		al, 8h
+ 0CDD  EE					out		dx, al      ; set text mode
+ 0CDE  BA 03D4					mov		dx, 3d4h
+ 0CE1  B0 0A					mov		al, 0ah
+ 0CE3  EE					out		dx, al
+ 0CE4  42					inc		dx
+ 0CE5  B0 20					mov		al, 1 shl 5 ; hide cursor
+ 0CE7  EE					out		dx, al
+ 0CE8  4A					dec		dx
+ 0CE9  B0 0C					mov		al, 0ch
+ 0CEB  EE					out		dx, al
+ 0CEC  42					inc		dx
+ 0CED  B0 00					mov		al, 0
+ 0CEF  EE					out		dx, al
+ 0CF0  4A					dec		dx
+ 0CF1  B0 0D					mov		al, 0dh
+ 0CF3  EE					out		dx, al
+ 0CF4  42					inc		dx
+ 0CF5  B0 00					mov		al, 0
+ 0CF7  EE					out		dx, al      ; reset video offset
+				      
+ 0CF8  68 B800					push	0b800h      ; clear screen
+ 0CFB  07					pop		es
+ 0CFC  33 FF					xor		di, di
+				;		mov		cx, 25*80
+				;		xor		ax, ax
+ 0CFE  B9 0C00			        mov     cx,0c00h
+ 0D01  B8 012E					mov     ax,012eh      ; .
+ 0D04  F3/ AB					rep		stosw
+
+				;		xor		di, di
+				;		mov     ax,0141h        ; A
+				;		mov     cx,0004h
+				;		rep		stosw
+
+ 0D06  07					pop     es
+ 0D07				setpal:	
+ 0D07  BA 03C8					mov		dx, 3c8h    ; set palette entry 1
+ 0D0A  B8 0101					mov		ax, 101h
+ 0D0D  EE					out		dx, al
+ 0D0E  42					inc		dx
+ 0D0F  B0 2A					mov		al, 2ah
+ 0D11  EE					out		dx, al
+ 0D12  EE					out		dx, al
+ 0D13  EE					out		dx, al
+ 0D14  C3					ret
+
+ 0D15				initmsg:
+ 0D15  06			        push    es
+ 0D16  B8 B800					mov     ax,0b800h
+ 0D19  8E C0					mov     es,ax
+ 0D1B  33 FF					xor		di, di      
+ 0D1D  BE CE50					mov		si, booterrmsg + BOOTOFFSET - begin
+ 0D20  B4 01					mov     ah,01h
+ 0D22  AC					lodsb
+ 0D23				nextchar:
+ 0D23  E8 F7FE			        call    putch       ; rs
+ 0D26  AB					stosw
+ 0D27  AC					lodsb
+ 0D28  84 C0					test		al, al
+ 0D2A  75 F7					jnz		short nextchar
+ 0D2C  07					pop     es
+ 0D2D  C3			        ret
+
+				; ----------------  serial receive byte 115200 bps --------------
+ 0D2E				srecb:  
+ 0D2E  B4 80					mov		ah, 80h
+ 0D30  BA 03DA					mov		dx, 3dah
+ 0D33  B9 FA52					mov		cx, -5aeh ; (half start bit)
+ 0D36				srstb:  
+ 0D36  EC					in		al, dx
+ 0D37  C0 E8 02					shr		al, 2
+ 0D3A  72 FA					jc		srstb
+
+ 0D3C  E4 40					in		al, 40h ; lo counter
+ 0D3E  02 E8					add		ch, al
+ 0D40  E4 40					in		al, 40h ; hi counter, ignore
+ 0D42				l1:
+ 0D42  E8 0008					call		dlybit
+ 0D45  EC					in		al, dx
+ 0D46  C0 E8 02					shr		al, 2
+ 0D49  D0 DC					rcr		ah, 1
+ 0D4B  73 F5					jnc		l1
+ 0D4D				dlybit:
+ 0D4D  81 E9 0A5B				sub		cx, 0a5bh  ;  (full bit)
+ 0D51				dly1:
+ 0D51  E4 40					in		al, 40h
+ 0D53  38 E8					cmp		al, ch
+ 0D55  E4 40					in		al, 40h
+ 0D57  75 F8					jnz		dly1
+ 0D59  C3					ret
+
+				;---------------------  read/write byte ----------------------
+ 0D5A				sdrb:   
+ 0D5A  B0 FF					mov		al, 0ffh
+ 0D5C				sdsb:               ; in AL=byte, DX = 03dah, out AX=result
+ 0D5C  B4 01					mov		ah, 1
+ 0D5E				sdsb1:
+ 0D5E  EE					out		dx, al
+				;		add		ax, ax
+				;		jnc		sdsb1
+ 0D5F  90					nop
+ 0D60  90					nop
+ 0D61  90					nop
+ 0D62  90					nop
+ 0D63  90					nop
+ 0D64  90					nop
+ 0D65  90					nop
+ 0D66  90					nop
+ 0D67  ED					in		ax, dx
+ 0D68  C3					ret
+
+				;---------------------  write block ----------------------
+ 0D69				sdwblk:              ; in DS:SI=data ptr, DX=03dah, CX=size
+ 0D69  AC					lodsb
+ 0D6A  E8 FFEF					call		sdsb
+ 0D6D  E2 FA					loop		sdwblk
+ 0D6F  C3					ret
+
+				;---------------------  read block ----------------------
+ 0D70				sdrblk:              ; in DS:DI=data ptr, DX=03dah, CX=size
+ 0D70  E8 FFE7					call		sdrb
+ 0D73  88 25					mov		[di], ah
+ 0D75  47					inc		di
+ 0D76  E2 F8					loop		sdrblk
+ 0D78  C3					ret
+
+				;---------------------  write command ----------------------
+ 0D79				sdcmd8T:
+ 0D79  E8 FFDE					call	sdrb
+ 0D7C				sdcmd:              ; in DS:SI=6 bytes cmd buffer, DX=03dah, out AH = 0ffh on error
+ 0D7C  B9 0006					mov		cx, 6
+ 0D7F  E8 FFE7					call		sdwblk
+ 0D82				sdresp:
+ 0D82  33 F6					xor		si, si
+ 0D84				sdresp1:
+ 0D84  E8 FFD3					call		sdrb
+ 0D87  46					inc		si
+ 0D88  74 05					jz		sdcmd1
+ 0D8A  80 FC FF					cmp		ah, 0ffh
+ 0D8D  74 F5					je		sdresp1
+ 0D8F				sdcmd1: 
+ 0D8F  C3					ret         
+
+				;---------------------  read one sector ----------------------
+ 0D90				sdread_ proc near   ; DX:AX sector, DS:BX buffer, returns CX=read sectors
+ 0D90  50					push		ax
+ 0D91  8A C2					mov		al, dl
+ 0D93  50					push		ax
+ 0D94  B2 51					mov		dl, 51h     ; CMD17
+ 0D96  52					push		dx
+ 0D97  8B F4					mov		si, sp
+
+ 0D99  BA 03DA					mov		dx, 3dah
+ 0D9C  B4 01					mov		ah, 1
+ 0D9E  EF					out		dx, ax      ; CS on
+ 0D9F  C6 44 05 FF				mov		byte ptr [si+5], 0ffh ; checksum
+ 0DA3  E8 FFD6					call		sdcmd
+ 0DA6  83 C4 06					add		sp, 6
+ 0DA9  0A E4					or		ah, ah
+ 0DAB  75 16					jnz		sdr1        ; error (cx=0)
+ 0DAD  E8 FFD2					call		sdresp      ; wait for 0feh token
+ 0DB0  80 FC FE					cmp		ah, 0feh
+ 0DB3  75 0E					jne		sdr1        ; read token error (cx=0)
+ 0DB5  B5 02					mov		ch, 2       ; 512 bytes
+ 0DB7  8B FB					mov		di, bx
+ 0DB9  E8 FFB4					call		sdrblk
+ 0DBC  E8 FF9B					call		sdrb        ; ignore CRC
+ 0DBF  E8 FF98					call		sdrb        ; ignore CRC
+ 0DC2  41					inc		cx          ; 1 block
+ 0DC3				 sdr1:       
+ 0DC3  33 C0					xor		ax, ax
+ 0DC5  EF					out		dx, ax
+ 0DC6  E8 FF91					call		sdrb        ; 8T
+ 0DC9  C3					ret     
+ 0DCA				sdread_ endp
+				        
+				;---------------------  init SD ----------------------
+ 0DCA				sdinit_ proc near       ; returns AX = num kilosectors
+ 0DCA  BA 03DA					mov		dx, 3dah
+ 0DCD  B9 000A					mov		cx, 10
+ 0DD0				sdinit1:                   ; send 80T
+ 0DD0  E8 FF87					call		sdrb
+ 0DD3  E2 FB					loop		sdinit1
+
+ 0DD5  B4 01					mov		ah, 1
+ 0DD7  EF					out		dx, ax       ; select SD
+
+ 0DD8  BE CEA0					mov		si, SD_CMD0 + BOOTOFFSET - begin
+ 0DDB  E8 FF9E					call		sdcmd
+ 0DDE  FE CC					dec		ah
+ 0DE0  75 65					jnz		sdexit      ; error
+						
+ 0DE2  BE CEA6					mov		si, SD_CMD8 + BOOTOFFSET - begin
+ 0DE5  E8 FF91					call		sdcmd8T
+ 0DE8  FE CC					dec		ah
+ 0DEA  75 5B					jnz		sdexit      ; error
+ 0DEC  B1 04					mov		cl, 4
+ 0DEE  2B E1					sub		sp, cx
+ 0DF0  8B FC					mov		di, sp
+ 0DF2  E8 FF7B					call		sdrblk
+ 0DF5  58					pop		ax
+ 0DF6  58					pop		ax
+ 0DF7  80 FC AA					cmp		ah, 0aah
+ 0DFA  75 4B					jne		sdexit      ; CMD8 error
+ 0DFC				repinit:        
+ 0DFC  BE CEB8					mov		si, SD_CMD55 + BOOTOFFSET - begin
+ 0DFF  E8 FF77					call		sdcmd8T
+ 0E02  E8 FF55					call		sdrb
+ 0E05  BE CEB2					mov		si, SD_CMD41 + BOOTOFFSET - begin
+ 0E08  E8 FF71					call		sdcmd
+ 0E0B  FE CC					dec		ah
+ 0E0D  74 ED					jz		repinit
+						
+ 0E0F  BE CEBE					mov		si, SD_CMD58 + BOOTOFFSET - begin
+ 0E12  E8 FF64					call		sdcmd8T
+ 0E15  B1 04					mov		cl, 4
+ 0E17  2B E1					sub		sp, cx
+ 0E19  8B FC					mov		di, sp
+ 0E1B  E8 FF52					call		sdrblk
+ 0E1E  58					pop		ax
+ 0E1F  A8 40					test		al, 40h     ; test OCR bit 30 (CCS)
+ 0E21  58					pop		ax
+ 0E22  74 23					jz		sdexit      ; no SDHC
+
+ 0E24  BE CEAC					mov		si, SD_CMD9 + BOOTOFFSET - begin ; get size info
+ 0E27  E8 FF4F					call		sdcmd8T
+ 0E2A  0A E4					or		ah, ah
+ 0E2C  75 19					jnz		sdexit
+ 0E2E  E8 FF51					call		sdresp      ; wait for 0feh token
+ 0E31  80 FC FE					cmp		ah, 0feh
+ 0E34  75 11					jne		sdexit
+ 0E36  B1 12					mov		cl, 18      ; 16bytes + 2bytes CRC
+ 0E38  2B E1					sub		sp, cx
+ 0E3A  8B FC					mov		di, sp
+ 0E3C  E8 FF31					call		sdrblk
+ 0E3F  8B 4D F6					mov		cx, [di-10]
+ 0E42  86 CD					xchg		cl, ch
+ 0E44  41					inc		cx
+ 0E45  8B E7					mov		sp, di
+ 0E47				sdexit: 
+ 0E47  33 C0					xor		ax, ax      ; raise CS
+ 0E49  EF					out		dx, ax
+ 0E4A  E8 FF0D					call	sdrb
+ 0E4D  8B C1					mov		ax, cx       
+ 0E4F  C3					ret
+ 0E50				sdinit_ endp
+
+				    
+ 0E50 42 49 4F 53 20 6E		booterrmsg  db  'BIOS not present on SDCard last 8KB, waiting on RS232 (115200bps, f000:100) ...', 0
+       6F 74 20 70 72 65
+       73 65 6E 74 20 6F
+       6E 20 53 44 43 61
+       72 64 20 6C 61 73
+       74 20 38 4B 42 2C
+       20 77 61 69 74 69
+       6E 67 20 6F 6E 20
+       52 53 32 33 32 20
+       28 31 31 35 32 30
+       30 62 70 73 2C 20
+       66 30 30 30 3A 31
+       30 30 29 20 2E 2E
+       2E 00
+ 0EA0 40 00 00 00 00 95		SD_CMD0		db		40h, 0, 0, 0, 0, 95h
+ 0EA6 48 00 00 01 AA 87		SD_CMD8		db		48h, 0, 0, 1, 0aah, 087h
+ 0EAC 49 00 00 00 00 FF		SD_CMD9		db		49h, 0, 0, 0, 0, 0ffh
+ 0EB2 69 40 00 00 00 FF		SD_CMD41	db		69h, 40h, 0, 0, 0, 0ffh
+ 0EB8 77 00 00 00 00 FF		SD_CMD55	db		77h, 0, 0, 0, 0, 0ffh
+ 0EBE 7A 00 00 00 00 FF		SD_CMD58	db		7ah, 0, 0, 0, 0, 0ffh
+
+
+				; ---------------- RESET ------------------
+				;		org 05f0h
+						org 05f0h+0A00h
+ 0FF0				start:
+ 0FF0  EA					db		0eah
+ 0FF1  CC00 F000				dw		BOOTOFFSET, 0f000h
+ 0FF5  00 00 00 00 00 00			db		0,0,0,0,0,0,0,0,0,0,0
+       00 00 00 00 00
+				       
+				end exec
+Microsoft (R) Macro Assembler Version 6.14.8444		    11/30/22 10:40:54
+bootstrap.asm						     Symbols 2 - 1
+
+
+
+
+Segments and Groups:
+
+                N a m e                 Size     Length   Align   Combine Class
+
+DGROUP . . . . . . . . . . . . .	GROUP
+_TEXT  . . . . . . . . . . . . .	16 Bit	 1000	  Word	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	16 Bit	 0000	  Word	  Public  'DATA'	
+
+
+Procedures,  parameters and locals:
+
+                N a m e                 Type     Value    Attr
+
+sdinit_  . . . . . . . . . . . .	P Near	 0DCA	  _TEXT	Length= 0086 Public
+  sdinit1  . . . . . . . . . . .	L Near	 0DD0	  _TEXT	
+  repinit  . . . . . . . . . . .	L Near	 0DFC	  _TEXT	
+  sdexit . . . . . . . . . . . .	L Near	 0E47	  _TEXT	
+sdread_  . . . . . . . . . . . .	P Near	 0D90	  _TEXT	Length= 003A Public
+  sdr1 . . . . . . . . . . . . .	L Near	 0DC3	  _TEXT	
+
+
+Symbols:
+
+                N a m e                 Type     Value    Attr
+
+@CodeSize  . . . . . . . . . . .	Number	 0000h	 
+@DataSize  . . . . . . . . . . .	Number	 0000h	 
+@Interface . . . . . . . . . . .	Number	 0000h	 
+@Model . . . . . . . . . . . . .	Number	 0001h	 
+@code  . . . . . . . . . . . . .	Text   	 DGROUP
+@data  . . . . . . . . . . . . .	Text   	 DGROUP
+@fardata?  . . . . . . . . . . .	Text   	 FAR_BSS
+@fardata . . . . . . . . . . . .	Text   	 FAR_DATA
+@stack . . . . . . . . . . . . .	Text   	 DGROUP
+BIOSOK . . . . . . . . . . . . .	L Near	 0CA0	  _TEXT	
+BIOSSIZE . . . . . . . . . . . .	Number	 0010h	 
+BOOTOFFSET . . . . . . . . . . .	Number	 CC00h	 
+BOOTSW . . . . . . . . . . . . .	Number	 03FFh	 
+CMDBUF . . . . . . . . . . . . .	Number	 C810h	 
+MONSEG . . . . . . . . . . . . .	Number	 F000h	 
+POFS . . . . . . . . . . . . . .	Text   	 BOOTOFFSET - begin
+RS232  . . . . . . . . . . . . .	L Near	 0C71	  _TEXT	
+RSDATA . . . . . . . . . . . . .	Number	 03FCh	 
+RSRXBSY  . . . . . . . . . . . .	Number	 03FDh	 
+RSTXRDY  . . . . . . . . . . . .	Number	 03FEh	 
+SAVEBX . . . . . . . . . . . . .	Number	 C80Eh	 
+SAVECS . . . . . . . . . . . . .	Number	 C800h	 
+SAVEIP . . . . . . . . . . . . .	Number	 C802h	 
+SAVESP . . . . . . . . . . . . .	Number	 C806h	 
+SAVESS . . . . . . . . . . . . .	Number	 C804h	 
+SD_CMD0  . . . . . . . . . . . .	Byte	 0EA0	  _TEXT	
+SD_CMD41 . . . . . . . . . . . .	Byte	 0EB2	  _TEXT	
+SD_CMD55 . . . . . . . . . . . .	Byte	 0EB8	  _TEXT	
+SD_CMD58 . . . . . . . . . . . .	Byte	 0EBE	  _TEXT	
+SD_CMD8  . . . . . . . . . . . .	Byte	 0EA6	  _TEXT	
+SD_CMD9  . . . . . . . . . . . .	Byte	 0EAC	  _TEXT	
+WADDR  . . . . . . . . . . . . .	Number	 C830h	 
+WDATA  . . . . . . . . . . . . .	Number	 C832h	 
+WDT0 . . . . . . . . . . . . . .	Number	 C836h	 
+WDTDL  . . . . . . . . . . . . .	Number	 C834h	 
+WORKTOP  . . . . . . . . . . . .	Number	 C800h	 
+WSEG . . . . . . . . . . . . . .	Number	 C838h	 
+as2hh2 . . . . . . . . . . . . .	L Near	 04B0	  _TEXT	
+as2hh  . . . . . . . . . . . . .	L Near	 04A3	  _TEXT	
+as2hxee  . . . . . . . . . . . .	L Near	 04B3	  _TEXT	
+begin  . . . . . . . . . . . . .	L Far	 0C00	  _TEXT	
+bkdisp . . . . . . . . . . . . .	L Near	 00D4	  _TEXT	
+bootbeg2 . . . . . . . . . . . .	L Near	 0C44	  _TEXT	
+bootbeg3 . . . . . . . . . . . .	L Near	 0C5F	  _TEXT	
+bootbeg  . . . . . . . . . . . .	L Near	 0C10	  _TEXT	
+bootchke . . . . . . . . . . . .	L Near	 0512	  _TEXT	
+bootchk  . . . . . . . . . . . .	L Near	 0500	  _TEXT	
+booterrmsg . . . . . . . . . . .	Byte	 0E50	  _TEXT	
+brkaclr  . . . . . . . . . . . .	L Near	 0265	  _TEXT	
+brkaset2 . . . . . . . . . . . .	L Near	 026B	  _TEXT	
+brkaset  . . . . . . . . . . . .	L Near	 0269	  _TEXT	
+dbgcold  . . . . . . . . . . . .	L Near	 0184	  _TEXT	
+dbgdmy . . . . . . . . . . . . .	L Near	 0015	  _TEXT	
+dbgloop  . . . . . . . . . . . .	L Near	 0198	  _TEXT	
+dbgnx12  . . . . . . . . . . . .	L Near	 01D7	  _TEXT	
+dbgnx13  . . . . . . . . . . . .	L Near	 01E1	  _TEXT	
+dbgnx1 . . . . . . . . . . . . .	L Near	 01AF	  _TEXT	
+dbgnx2 . . . . . . . . . . . . .	L Near	 01E6	  _TEXT	
+dbgnx32  . . . . . . . . . . . .	L Near	 01FD	  _TEXT	
+dbgnx3 . . . . . . . . . . . . .	L Near	 01EF	  _TEXT	
+dbgnx4 . . . . . . . . . . . . .	L Near	 0207	  _TEXT	
+dbgnx5 . . . . . . . . . . . . .	L Near	 0210	  _TEXT	
+dbgnx6 . . . . . . . . . . . . .	L Near	 0219	  _TEXT	
+dbgnx91  . . . . . . . . . . . .	L Near	 0219	  _TEXT	
+dbgnx92  . . . . . . . . . . . .	L Near	 022D	  _TEXT	
+dbgnx93  . . . . . . . . . . . .	L Near	 0235	  _TEXT	
+dbgnx94  . . . . . . . . . . . .	L Near	 023A	  _TEXT	
+dbgnx95  . . . . . . . . . . . .	L Near	 0245	  _TEXT	
+dbgnx96  . . . . . . . . . . . .	L Near	 0246	  _TEXT	
+dbgnx9 . . . . . . . . . . . . .	L Near	 0219	  _TEXT	
+dbgnxe . . . . . . . . . . . . .	L Near	 024E	  _TEXT	
+dboot1 . . . . . . . . . . . . .	L Near	 02B9	  _TEXT	
+dboot2 . . . . . . . . . . . . .	L Near	 02C3	  _TEXT	
+dboote . . . . . . . . . . . . .	L Near	 02D5	  _TEXT	
+dbootgo  . . . . . . . . . . . .	L Near	 02D0	  _TEXT	
+dboot  . . . . . . . . . . . . .	L Near	 02A6	  _TEXT	
+dinit  . . . . . . . . . . . . .	L Near	 02D6	  _TEXT	
+dispmon  . . . . . . . . . . . .	L Near	 02F3	  _TEXT	
+dly1 . . . . . . . . . . . . . .	L Near	 0D51	  _TEXT	
+dlybit . . . . . . . . . . . . .	L Near	 0D4D	  _TEXT	
+dpadr  . . . . . . . . . . . . .	L Near	 041E	  _TEXT	
+dtest0 . . . . . . . . . . . . .	L Near	 0121	  _TEXT	
+dtest1 . . . . . . . . . . . . .	L Near	 0134	  _TEXT	
+dtest2 . . . . . . . . . . . . .	L Near	 014A	  _TEXT	
+dtest3 . . . . . . . . . . . . .	L Near	 0160	  _TEXT	
+dtest9 . . . . . . . . . . . . .	L Near	 0174	  _TEXT	
+dtestex  . . . . . . . . . . . .	L Near	 0112	  _TEXT	
+dtest  . . . . . . . . . . . . .	L Near	 010E	  _TEXT	
+dump2  . . . . . . . . . . . . .	L Near	 043E	  _TEXT	
+dump3  . . . . . . . . . . . . .	L Near	 0443	  _TEXT	
+dump . . . . . . . . . . . . . .	L Near	 043A	  _TEXT	
+endreloc . . . . . . . . . . . .	L Near	 0CBD	  _TEXT	
+exec . . . . . . . . . . . . . .	L Near	 0000	  _TEXT	
+filldt2  . . . . . . . . . . . .	L Near	 0318	  _TEXT	
+filldte  . . . . . . . . . . . .	L Near	 031A	  _TEXT	
+filldt . . . . . . . . . . . . .	L Near	 0302	  _TEXT	
+flush  . . . . . . . . . . . . .	L Near	 0C7A	  _TEXT	
+getchlp  . . . . . . . . . . . .	L Near	 0517	  _TEXT	
+getch  . . . . . . . . . . . . .	L Near	 0513	  _TEXT	
+gethx1 . . . . . . . . . . . . .	L Near	 0471	  _TEXT	
+gethx2 . . . . . . . . . . . . .	L Near	 047A	  _TEXT	
+gethx3 . . . . . . . . . . . . .	L Near	 048D	  _TEXT	
+gethx4 . . . . . . . . . . . . .	L Near	 0499	  _TEXT	
+gethxe . . . . . . . . . . . . .	L Near	 04A0	  _TEXT	
+gethx  . . . . . . . . . . . . .	L Near	 046A	  _TEXT	
+gets2  . . . . . . . . . . . . .	L Near	 04BA	  _TEXT	
+gets3  . . . . . . . . . . . . .	L Near	 04CE	  _TEXT	
+getsb  . . . . . . . . . . . . .	L Near	 0417	  _TEXT	
+gets . . . . . . . . . . . . . .	L Near	 04B8	  _TEXT	
+initcrt  . . . . . . . . . . . .	L Near	 0CD4	  _TEXT	
+initio . . . . . . . . . . . . .	L Near	 0CBD	  _TEXT	
+initmsg  . . . . . . . . . . . .	L Near	 0D15	  _TEXT	
+ipdisp2  . . . . . . . . . . . .	L Near	 00A8	  _TEXT	
+ipdisp . . . . . . . . . . . . .	L Near	 0099	  _TEXT	
+l1 . . . . . . . . . . . . . . .	L Near	 0D42	  _TEXT	
+memprge  . . . . . . . . . . . .	L Near	 0015	  _TEXT	
+memprg . . . . . . . . . . . . .	L Near	 0000	  _TEXT	
+memrw2 . . . . . . . . . . . . .	L Near	 0349	  _TEXT	
+memrw3 . . . . . . . . . . . . .	L Near	 0352	  _TEXT	
+memrw4 . . . . . . . . . . . . .	L Near	 036B	  _TEXT	
+memrw5 . . . . . . . . . . . . .	L Near	 0384	  _TEXT	
+memrw6 . . . . . . . . . . . . .	L Near	 0387	  _TEXT	
+memrwe . . . . . . . . . . . . .	L Near	 038A	  _TEXT	
+memrw  . . . . . . . . . . . . .	L Near	 033E	  _TEXT	
+movbios  . . . . . . . . . . . .	L Near	 029A	  _TEXT	
+mtestr2  . . . . . . . . . . . .	L Near	 03F1	  _TEXT	
+mtestr3  . . . . . . . . . . . .	L Near	 040F	  _TEXT	
+mtestr . . . . . . . . . . . . .	L Near	 03E8	  _TEXT	
+mtestw2  . . . . . . . . . . . .	L Near	 03B1	  _TEXT	
+mtestw3  . . . . . . . . . . . .	L Near	 03D2	  _TEXT	
+mtestw . . . . . . . . . . . . .	L Near	 03A8	  _TEXT	
+mtest  . . . . . . . . . . . . .	L Near	 038C	  _TEXT	
+nextchar . . . . . . . . . . . .	L Near	 0D23	  _TEXT	
+nextsect . . . . . . . . . . . .	L Near	 0C46	  _TEXT	
+nmivset  . . . . . . . . . . . .	L Near	 0282	  _TEXT	
+ppcmsg . . . . . . . . . . . . .	Byte	 054B	  _TEXT	
+ppimsg . . . . . . . . . . . . .	Byte	 0544	  _TEXT	
+ppmimsg  . . . . . . . . . . . .	Byte	 02E9	  _TEXT	
+ppsregs  . . . . . . . . . . . .	Byte	 00B4	  _TEXT	
+putchlp  . . . . . . . . . . . .	L Near	 0529	  _TEXT	
+putch  . . . . . . . . . . . . .	L Near	 0524	  _TEXT	
+putcrlf  . . . . . . . . . . . .	L Near	 0462	  _TEXT	
+puth11 . . . . . . . . . . . . .	L Near	 04FC	  _TEXT	
+puth1  . . . . . . . . . . . . .	L Near	 04F6	  _TEXT	
+puth2  . . . . . . . . . . . . .	L Near	 04E6	  _TEXT	
+puth4  . . . . . . . . . . . . .	L Near	 04DB	  _TEXT	
+putse  . . . . . . . . . . . . .	L Near	 0543	  _TEXT	
+putsp  . . . . . . . . . . . . .	L Near	 045A	  _TEXT	
+puts . . . . . . . . . . . . . .	L Near	 0537	  _TEXT	
+reloc  . . . . . . . . . . . . .	L Near	 0CB4	  _TEXT	
+retnmi . . . . . . . . . . . . .	L Near	 0023	  _TEXT	
+rloop2 . . . . . . . . . . . . .	L Near	 00E9	  _TEXT	
+rloop3 . . . . . . . . . . . . .	L Near	 0101	  _TEXT	
+rloop4 . . . . . . . . . . . . .	L Near	 010B	  _TEXT	
+rloop  . . . . . . . . . . . . .	L Near	 00DF	  _TEXT	
+rststart . . . . . . . . . . . .	L Near	 0C00	  _TEXT	
+sdcmd1 . . . . . . . . . . . . .	L Near	 0D8F	  _TEXT	
+sdcmd8T  . . . . . . . . . . . .	L Near	 0D79	  _TEXT	
+sdcmd  . . . . . . . . . . . . .	L Near	 0D7C	  _TEXT	
+sdrblk . . . . . . . . . . . . .	L Near	 0D70	  _TEXT	
+sdrb . . . . . . . . . . . . . .	L Near	 0D5A	  _TEXT	
+sdresp1  . . . . . . . . . . . .	L Near	 0D84	  _TEXT	
+sdresp . . . . . . . . . . . . .	L Near	 0D82	  _TEXT	
+sdsb1  . . . . . . . . . . . . .	L Near	 0D5E	  _TEXT	
+sdsb . . . . . . . . . . . . . .	L Near	 0D5C	  _TEXT	
+sdwblk . . . . . . . . . . . . .	L Near	 0D69	  _TEXT	
+setes2 . . . . . . . . . . . . .	L Near	 033B	  _TEXT	
+setes  . . . . . . . . . . . . .	L Near	 032E	  _TEXT	
+setpal . . . . . . . . . . . . .	L Near	 0D07	  _TEXT	
+setpio2  . . . . . . . . . . . .	L Near	 0325	  _TEXT	
+setpioe  . . . . . . . . . . . .	L Near	 032D	  _TEXT	
+setpio . . . . . . . . . . . . .	L Near	 031B	  _TEXT	
+settsig  . . . . . . . . . . . .	L Near	 017C	  _TEXT	
+sloop  . . . . . . . . . . . . .	L Near	 0C8E	  _TEXT	
+srecb  . . . . . . . . . . . . .	L Near	 0D2E	  _TEXT	
+srstb  . . . . . . . . . . . . .	L Near	 0D36	  _TEXT	
+start  . . . . . . . . . . . . .	L Near	 0FF0	  _TEXT	
+trace2 . . . . . . . . . . . . .	L Near	 025E	  _TEXT	
+trace  . . . . . . . . . . . . .	L Near	 0251	  _TEXT	
+
+	   0 Warnings
+	   0 Errors

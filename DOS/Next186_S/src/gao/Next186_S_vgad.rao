@@ -1,0 +1,119 @@
+<?xml version="1" encoding="UTF-8"?>
+<GAO_CONFIG>
+    <Version>3.0</Version>
+    <Mode>Standard</Mode>
+    <AoCore index="0" sample_clock="sys_inst/cache_ctl/clk_mctr" trig_type="0" storage_depth="1024" window_num="1" capture_amount="1024" trigger_pos="10" module_name="Next186_SoC" force_trigger_by_falling_edge="false">
+        <SignalList>
+            <Bus name="sys_inst/cache_ctl/sys_CMD[1:0]">
+                <Signal>sys_inst/cache_ctl/sys_CMD[1]</Signal>
+                <Signal>sys_inst/cache_ctl/sys_CMD[0]</Signal>
+            </Bus>
+            <Bus name="sys_inst/cache_ctl/sys_cmd_ack[1:0]">
+                <Signal>sys_inst/cache_ctl/sys_cmd_ack[1]</Signal>
+                <Signal>sys_inst/cache_ctl/sys_cmd_ack[0]</Signal>
+            </Bus>
+            <Signal>sys_inst/cache_ctl/cmd_en</Signal>
+            <Signal>sys_inst/cache_ctl/cmd</Signal>
+            <Signal>sys_inst/cache_ctl/rd_valid</Signal>
+            <Bus name="sys_inst/cache_ctl/psbp[3:0]">
+                <Signal>sys_inst/cache_ctl/psbp[3]</Signal>
+                <Signal>sys_inst/cache_ctl/psbp[2]</Signal>
+                <Signal>sys_inst/cache_ctl/psbp[1]</Signal>
+                <Signal>sys_inst/cache_ctl/psbp[0]</Signal>
+            </Bus>
+            <Signal>sys_inst/cache_ctl/sys_rd_data_valid</Signal>
+            <Bus name="sys_inst/cache_ctl/psvadr[5:0]">
+                <Signal>sys_inst/cache_ctl/psvadr[5]</Signal>
+                <Signal>sys_inst/cache_ctl/psvadr[4]</Signal>
+                <Signal>sys_inst/cache_ctl/psvadr[3]</Signal>
+                <Signal>sys_inst/cache_ctl/psvadr[2]</Signal>
+                <Signal>sys_inst/cache_ctl/psvadr[1]</Signal>
+                <Signal>sys_inst/cache_ctl/psvadr[0]</Signal>
+            </Bus>
+            <Bus name="sys_inst/cache_ctl/sys_DOUT[15:0]">
+                <Signal>sys_inst/cache_ctl/sys_DOUT[15]</Signal>
+                <Signal>sys_inst/cache_ctl/sys_DOUT[14]</Signal>
+                <Signal>sys_inst/cache_ctl/sys_DOUT[13]</Signal>
+                <Signal>sys_inst/cache_ctl/sys_DOUT[12]</Signal>
+                <Signal>sys_inst/cache_ctl/sys_DOUT[11]</Signal>
+                <Signal>sys_inst/cache_ctl/sys_DOUT[10]</Signal>
+                <Signal>sys_inst/cache_ctl/sys_DOUT[9]</Signal>
+                <Signal>sys_inst/cache_ctl/sys_DOUT[8]</Signal>
+                <Signal>sys_inst/cache_ctl/sys_DOUT[7]</Signal>
+                <Signal>sys_inst/cache_ctl/sys_DOUT[6]</Signal>
+                <Signal>sys_inst/cache_ctl/sys_DOUT[5]</Signal>
+                <Signal>sys_inst/cache_ctl/sys_DOUT[4]</Signal>
+                <Signal>sys_inst/cache_ctl/sys_DOUT[3]</Signal>
+                <Signal>sys_inst/cache_ctl/sys_DOUT[2]</Signal>
+                <Signal>sys_inst/cache_ctl/sys_DOUT[1]</Signal>
+                <Signal>sys_inst/cache_ctl/sys_DOUT[0]</Signal>
+            </Bus>
+            <Signal>sys_inst/wrreq</Signal>
+            <Bus name="sys_inst/col_counter[4:0]">
+                <Signal>sys_inst/col_counter[4]</Signal>
+                <Signal>sys_inst/col_counter[3]</Signal>
+                <Signal>sys_inst/col_counter[2]</Signal>
+                <Signal>sys_inst/col_counter[1]</Signal>
+                <Signal>sys_inst/col_counter[0]</Signal>
+            </Bus>
+            <Signal>sys_inst/crw</Signal>
+            <Signal>sys_inst/cache_ctl/cmd1_bsy</Signal>
+            <Bus name="sys_inst/cache_ctl/ddrrct[5:0]">
+                <Signal>sys_inst/cache_ctl/ddrrct[5]</Signal>
+                <Signal>sys_inst/cache_ctl/ddrrct[4]</Signal>
+                <Signal>sys_inst/cache_ctl/ddrrct[3]</Signal>
+                <Signal>sys_inst/cache_ctl/ddrrct[2]</Signal>
+                <Signal>sys_inst/cache_ctl/ddrrct[1]</Signal>
+                <Signal>sys_inst/cache_ctl/ddrrct[0]</Signal>
+            </Bus>
+        </SignalList>
+        <Triggers>
+            <Trigger index="0">
+                <SignalList>
+                    <Signal>sys_inst/cache_ctl/cmd_en</Signal>
+                </SignalList>
+            </Trigger>
+            <Trigger index="1">
+                <SignalList>
+                    <Signal>sys_inst/cache_ctl/cmd0_en</Signal>
+                </SignalList>
+            </Trigger>
+            <Trigger index="2"/>
+            <Trigger index="3"/>
+            <Trigger index="4"/>
+            <Trigger index="5"/>
+            <Trigger index="6"/>
+            <Trigger index="7"/>
+            <Trigger index="8"/>
+            <Trigger index="9"/>
+            <Trigger index="10"/>
+            <Trigger index="11"/>
+            <Trigger index="12"/>
+            <Trigger index="13"/>
+            <Trigger index="14"/>
+            <Trigger index="15"/>
+        </Triggers>
+        <MatchUnits>
+            <MatchUnit index="0" enabled="1" match_type="1" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="R" value1="0" trigger="0"/>
+            <MatchUnit index="1" enabled="0" match_type="1" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="R" value1="0" trigger="1"/>
+            <MatchUnit index="2" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="3" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="4" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="5" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="6" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="7" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="8" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="9" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="10" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="11" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="12" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="13" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="14" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="15" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+        </MatchUnits>
+        <Expressions type="Static">
+            <Expression>M0</Expression>
+        </Expressions>
+    </AoCore>
+    <GAO_ID>1111010010000110</GAO_ID>
+</GAO_CONFIG>

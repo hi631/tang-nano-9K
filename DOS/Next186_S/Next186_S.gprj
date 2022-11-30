@@ -1,0 +1,52 @@
+<?xml version="1" encoding="UTF-8"?>
+<!DOCTYPE gowin-fpga-project>
+<Project>
+    <Template>FPGA</Template>
+    <Version>5</Version>
+    <Device name="GW1NR-9C" pn="GW1NR-LV9QN88PC6/I5">gw1nr9c-004</Device>
+    <FileList>
+        <File path="src/DSP32.v" type="file.verilog" enable="1"/>
+        <File path="src/KB_8042.v" type="file.verilog" enable="1"/>
+        <File path="src/Next186/Next186_ALU.v" type="file.verilog" enable="1"/>
+        <File path="src/Next186/Next186_BIU_2T_delayread.v" type="file.verilog" enable="1"/>
+        <File path="src/Next186/Next186_CPU.v" type="file.verilog" enable="1"/>
+        <File path="src/Next186/Next186_Regs.v" type="file.verilog" enable="1"/>
+        <File path="src/Next186_SoC.v" type="file.verilog" enable="1"/>
+        <File path="src/NextZ80CPU.v" type="file.verilog" enable="1"/>
+        <File path="src/PIC_8259.v" type="file.verilog" enable="1"/>
+        <File path="src/UART_8250.v" type="file.verilog" enable="1"/>
+        <File path="src/fifo_hs/fifo_hs_qbus.v" type="file.verilog" enable="1"/>
+        <File path="src/fifo_hs/fifo_hs_vga.v" type="file.verilog" enable="1"/>
+        <File path="src/gowin_clkdiv/gowin_clkdiv.v" type="file.verilog" enable="1"/>
+        <File path="src/gowin_dpb/gowin_dpb_dac.v" type="file.verilog" enable="1"/>
+        <File path="src/gowin_dpb/gowin_dpb_font.v" type="file.verilog" enable="1"/>
+        <File path="src/gowin_prom/gowin_prom_bios.v" type="file.verilog" enable="1"/>
+        <File path="src/gowin_prom/gowin_prom_boot.v" type="file.verilog" enable="1"/>
+        <File path="src/gowin_rpll/gowin_rpll.v" type="file.verilog" enable="1"/>
+        <File path="src/gowin_rpll/gowin_rpll2.v" type="file.verilog" enable="1"/>
+        <File path="src/gowin_sdpb/gowin_sdpb_RdRegs.v" type="file.verilog" enable="1"/>
+        <File path="src/gowin_sdpb/gowin_sdpb_instmem.v" type="file.verilog" enable="1"/>
+        <File path="src/gowin_sdpb/gowin_sdpb_instram.v" type="file.verilog" enable="1"/>
+        <File path="src/gowin_sp/gowin_sp_256x8.v" type="file.verilog" enable="1"/>
+        <File path="src/hdmi/svo_defines.vh" type="file.verilog" enable="1"/>
+        <File path="src/hdmi/svo_enc.v" type="file.verilog" enable="1"/>
+        <File path="src/hdmi/svo_hdmi_out.v" type="file.verilog" enable="1"/>
+        <File path="src/hdmi/svo_tcard.v" type="file.verilog" enable="1"/>
+        <File path="src/hdmi/svo_tmds.v" type="file.verilog" enable="1"/>
+        <File path="src/i2c_master_byte.v" type="file.verilog" enable="1"/>
+        <File path="src/mem_controller.v" type="file.verilog" enable="1"/>
+        <File path="src/opl3.v" type="file.verilog" enable="1"/>
+        <File path="src/opl3seq.v" type="file.verilog" enable="1"/>
+        <File path="src/psram_memory_interface_hs/psram_memory_interface_hs_B32.v" type="file.verilog" enable="1"/>
+        <File path="src/q1.v" type="file.verilog" enable="1"/>
+        <File path="src/rs232_phy.v" type="file.verilog" enable="1"/>
+        <File path="src/rs232c.v" type="file.verilog" enable="1"/>
+        <File path="src/soundwave.v" type="file.verilog" enable="1"/>
+        <File path="src/system.v" type="file.verilog" enable="1"/>
+        <File path="src/timer8253.v" type="file.verilog" enable="1"/>
+        <File path="src/unit186.v" type="file.verilog" enable="1"/>
+        <File path="src/vga.v" type="file.verilog" enable="1"/>
+        <File path="src/Next186_SoC.cst" type="file.cst" enable="1"/>
+        <File path="src/gao/Next186_S_mem4.rao" type="file.gao" enable="1"/>
+    </FileList>
+</Project>

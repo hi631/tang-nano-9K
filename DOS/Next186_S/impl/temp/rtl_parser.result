@@ -1,0 +1,578 @@
+[
+ {
+  "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/DSP32.v",
+  "InstLine" : 69,
+  "InstName" : "DSP32",
+  "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/DSP32.v",
+  "ModuleLine" : 69,
+  "ModuleName" : "DSP32",
+  "SubInsts" : [
+   {
+    "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/DSP32.v",
+    "InstLine" : 125,
+    "InstName" : "qbus",
+    "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/fifo_hs/fifo_hs_qbus.v",
+    "ModuleLine" : 339,
+    "ModuleName" : "FIFO_HS_qbus",
+    "SubInsts" : [
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/fifo_hs/fifo_hs_qbus.v",
+      "InstLine" : 364,
+      "InstName" : "fifo_inst",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/fifo_hs/fifo_hs_qbus.v",
+      "ModuleLine" : 1,
+      "ModuleName" : "~fifo.FIFO_HS_qbus"
+     }
+    ]
+   },
+   {
+    "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/DSP32.v",
+    "InstLine" : 147,
+    "InstName" : "Code",
+    "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/gowin_sdpb/gowin_sdpb_instmem.v",
+    "ModuleLine" : 9,
+    "ModuleName" : "Gowin_SDPB_instmem"
+   },
+   {
+    "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/DSP32.v",
+    "InstLine" : 159,
+    "InstName" : "DSRegs",
+    "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/DSP32.v",
+    "ModuleLine" : 256,
+    "ModuleName" : "regs",
+    "SubInsts" : [
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/DSP32.v",
+      "InstLine" : 284,
+      "InstName" : "RdRegs",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/gowin_sdpb/gowin_sdpb_RdRegs.v",
+      "ModuleLine" : 9,
+      "ModuleName" : "Gowin_SDPB_RdRegs"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/Next186_SoC.v",
+  "InstLine" : 6,
+  "InstName" : "Next186_SoC",
+  "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/Next186_SoC.v",
+  "ModuleLine" : 6,
+  "ModuleName" : "Next186_SoC",
+  "SubInsts" : [
+   {
+    "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/Next186_SoC.v",
+    "InstLine" : 91,
+    "InstName" : "clkgen",
+    "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/gowin_rpll/gowin_rpll.v",
+    "ModuleLine" : 9,
+    "ModuleName" : "Gowin_rPLL"
+   },
+   {
+    "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/Next186_SoC.v",
+    "InstLine" : 99,
+    "InstName" : "u_pll",
+    "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/gowin_rpll/gowin_rpll2.v",
+    "ModuleLine" : 9,
+    "ModuleName" : "Gowin_rPLL2"
+   },
+   {
+    "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/Next186_SoC.v",
+    "InstLine" : 100,
+    "InstName" : "u_div_5",
+    "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/gowin_clkdiv/gowin_clkdiv.v",
+    "ModuleLine" : 9,
+    "ModuleName" : "Gowin_CLKDIV"
+   },
+   {
+    "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/Next186_SoC.v",
+    "InstLine" : 115,
+    "InstName" : "u_hdmi",
+    "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/hdmi/svo_hdmi_out.v",
+    "ModuleLine" : 23,
+    "ModuleName" : "svo_hdmi_out",
+    "SubInsts" : [
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/hdmi/svo_hdmi_out.v",
+      "InstLine" : 95,
+      "InstName" : "svo_tcard",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/hdmi/svo_tcard.v",
+      "ModuleLine" : 23,
+      "ModuleName" : "svo_tcard"
+     },
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/hdmi/svo_hdmi_out.v",
+      "InstLine" : 116,
+      "InstName" : "svo_enc",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/hdmi/svo_enc.v",
+      "ModuleLine" : 23,
+      "ModuleName" : "svo_enc"
+     },
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/hdmi/svo_hdmi_out.v",
+      "InstLine" : 135,
+      "InstName" : "svo_tmds_0",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/hdmi/svo_tmds.v",
+      "ModuleLine" : 23,
+      "ModuleName" : "svo_tmds"
+     },
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/hdmi/svo_hdmi_out.v",
+      "InstLine" : 145,
+      "InstName" : "svo_tmds_1",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/hdmi/svo_tmds.v",
+      "ModuleLine" : 23,
+      "ModuleName" : "svo_tmds"
+     },
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/hdmi/svo_hdmi_out.v",
+      "InstLine" : 155,
+      "InstName" : "svo_tmds_2",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/hdmi/svo_tmds.v",
+      "ModuleLine" : 23,
+      "ModuleName" : "svo_tmds"
+     }
+    ]
+   },
+   {
+    "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/Next186_SoC.v",
+    "InstLine" : 184,
+    "InstName" : "sys_inst",
+    "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/system.v",
+    "ModuleLine" : 151,
+    "ModuleName" : "system",
+    "SubInsts" : [
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/system.v",
+      "InstLine" : 437,
+      "InstName" : "CPUUnit",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/unit186.v",
+      "ModuleLine" : 46,
+      "ModuleName" : "unit186",
+      "SubInsts" : [
+       {
+        "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/unit186.v",
+        "InstLine" : 167,
+        "InstName" : "cpu",
+        "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/Next186/Next186_CPU.v",
+        "ModuleLine" : 67,
+        "ModuleName" : "Next186_CPU",
+        "SubInsts" : [
+         {
+          "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/Next186/Next186_CPU.v",
+          "InstLine" : 200,
+          "InstName" : "REGS",
+          "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/Next186/Next186_Regs.v",
+          "ModuleLine" : 43,
+          "ModuleName" : "Next186_Regs"
+         },
+         {
+          "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/Next186/Next186_CPU.v",
+          "InstLine" : 242,
+          "InstName" : "ALU16",
+          "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/Next186/Next186_ALU.v",
+          "ModuleLine" : 79,
+          "ModuleName" : "Next186_ALU"
+         },
+         {
+          "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/Next186/Next186_CPU.v",
+          "InstLine" : 263,
+          "InstName" : "EA",
+          "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/Next186/Next186_ALU.v",
+          "ModuleLine" : 297,
+          "ModuleName" : "Next186_EA"
+         }
+        ]
+       },
+       {
+        "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/unit186.v",
+        "InstLine" : 194,
+        "InstName" : "BIU",
+        "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/Next186/Next186_BIU_2T_delayread.v",
+        "ModuleLine" : 81,
+        "ModuleName" : "BIU186_32bSync_2T_DelayRead"
+       }
+      ]
+     },
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/system.v",
+      "InstLine" : 538,
+      "InstName" : "cache_ctl",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/mem_controller.v",
+      "ModuleLine" : 4,
+      "ModuleName" : "mem_controller",
+      "SubInsts" : [
+       {
+        "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/mem_controller.v",
+        "InstLine" : 72,
+        "InstName" : "bootrom",
+        "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/gowin_prom/gowin_prom_boot.v",
+        "ModuleLine" : 9,
+        "ModuleName" : "Gowin_pROM_boot"
+       },
+       {
+        "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/mem_controller.v",
+        "InstLine" : 76,
+        "InstName" : "bios",
+        "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/gowin_prom/gowin_prom_bios.v",
+        "ModuleLine" : 9,
+        "ModuleName" : "Gowin_pROM_bios"
+       },
+       {
+        "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/mem_controller.v",
+        "InstLine" : 84,
+        "InstName" : "bootram0",
+        "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/gowin_sp/gowin_sp_256x8.v",
+        "ModuleLine" : 9,
+        "ModuleName" : "Gowin_SP_256x8"
+       },
+       {
+        "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/mem_controller.v",
+        "InstLine" : 87,
+        "InstName" : "bootram1",
+        "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/gowin_sp/gowin_sp_256x8.v",
+        "ModuleLine" : 9,
+        "ModuleName" : "Gowin_SP_256x8"
+       },
+       {
+        "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/mem_controller.v",
+        "InstLine" : 90,
+        "InstName" : "bootram2",
+        "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/gowin_sp/gowin_sp_256x8.v",
+        "ModuleLine" : 9,
+        "ModuleName" : "Gowin_SP_256x8"
+       },
+       {
+        "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/mem_controller.v",
+        "InstLine" : 93,
+        "InstName" : "bootram3",
+        "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/gowin_sp/gowin_sp_256x8.v",
+        "ModuleLine" : 9,
+        "ModuleName" : "Gowin_SP_256x8"
+       },
+       {
+        "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/mem_controller.v",
+        "InstLine" : 176,
+        "InstName" : "u_psram_top",
+        "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/psram_memory_interface_hs/psram_memory_interface_hs_B32.v",
+        "ModuleLine" : 5179,
+        "ModuleName" : "PSRAM_Memory_Interface_HS_Top_B32",
+        "SubInsts" : [
+         {
+          "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/psram_memory_interface_hs/psram_memory_interface_hs_B32.v",
+          "InstLine" : 5222,
+          "InstName" : "u_psram_top",
+          "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/psram_memory_interface_hs/psram_memory_interface_hs_B32.v",
+          "ModuleLine" : 1,
+          "ModuleName" : "~psram_top.PSRAM_Memory_Interface_HS_Top_B32"
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/system.v",
+      "InstLine" : 587,
+      "InstName" : "rs232c",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/rs232c.v",
+      "ModuleLine" : 10,
+      "ModuleName" : "rs232c"
+     },
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/system.v",
+      "InstLine" : 593,
+      "InstName" : "VGA",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/vga.v",
+      "ModuleLine" : 48,
+      "ModuleName" : "VGA_SG"
+     },
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/system.v",
+      "InstLine" : 614,
+      "InstName" : "dac",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/vga.v",
+      "ModuleLine" : 145,
+      "ModuleName" : "VGA_DAC",
+      "SubInsts" : [
+       {
+        "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/vga.v",
+        "InstLine" : 195,
+        "InstName" : "vga_dac",
+        "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/gowin_dpb/gowin_dpb_dac.v",
+        "ModuleLine" : 9,
+        "ModuleName" : "Gowin_DPB_dac"
+       }
+      ]
+     },
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/system.v",
+      "InstLine" : 637,
+      "InstName" : "crt",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/vga.v",
+      "ModuleLine" : 252,
+      "ModuleName" : "VGA_CRT"
+     },
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/system.v",
+      "InstLine" : 657,
+      "InstName" : "sc",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/vga.v",
+      "ModuleLine" : 307,
+      "ModuleName" : "VGA_SC"
+     },
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/system.v",
+      "InstLine" : 670,
+      "InstName" : "gc",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/vga.v",
+      "ModuleLine" : 338,
+      "ModuleName" : "VGA_GC"
+     },
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/system.v",
+      "InstLine" : 690,
+      "InstName" : "vga_font",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/gowin_dpb/gowin_dpb_font.v",
+      "ModuleLine" : 9,
+      "ModuleName" : "Gowin_DPB_font"
+     },
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/system.v",
+      "InstLine" : 710,
+      "InstName" : "PIC",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/PIC_8259.v",
+      "ModuleLine" : 47,
+      "ModuleName" : "PIC_8259"
+     },
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/system.v",
+      "InstLine" : 725,
+      "InstName" : "timer",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/timer8253.v",
+      "ModuleLine" : 47,
+      "ModuleName" : "timer_8253",
+      "SubInsts" : [
+       {
+        "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/timer8253.v",
+        "InstLine" : 81,
+        "InstName" : "counter0",
+        "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/timer8253.v",
+        "ModuleLine" : 110,
+        "ModuleName" : "counter"
+       },
+       {
+        "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/timer8253.v",
+        "InstLine" : 92,
+        "InstName" : "counter2",
+        "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/timer8253.v",
+        "ModuleLine" : 110,
+        "ModuleName" : "counter"
+       }
+      ]
+     },
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/system.v",
+      "InstLine" : 742,
+      "InstName" : "KB_Mouse",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/KB_8042.v",
+      "ModuleLine" : 58,
+      "ModuleName" : "KB_Mouse_8042",
+      "SubInsts" : [
+       {
+        "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/KB_8042.v",
+        "InstLine" : 104,
+        "InstName" : "Keyboard",
+        "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/KB_8042.v",
+        "ModuleLine" : 196,
+        "ModuleName" : "PS2Interface"
+       },
+       {
+        "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/KB_8042.v",
+        "InstLine" : 120,
+        "InstName" : "Mouse",
+        "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/KB_8042.v",
+        "ModuleLine" : 196,
+        "ModuleName" : "PS2Interface"
+       }
+      ]
+     },
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/system.v",
+      "InstLine" : 830,
+      "InstName" : "vga_fifo",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/fifo_hs/fifo_hs_vga.v",
+      "ModuleLine" : 641,
+      "ModuleName" : "FIFO_HS_vga",
+      "SubInsts" : [
+       {
+        "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/fifo_hs/fifo_hs_vga.v",
+        "InstLine" : 668,
+        "InstName" : "fifo_inst",
+        "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/fifo_hs/fifo_hs_vga.v",
+        "ModuleLine" : 1,
+        "ModuleName" : "~fifo.FIFO_HS_vga"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/UART_8250.v",
+  "InstLine" : 46,
+  "InstName" : "UART_8250",
+  "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/UART_8250.v",
+  "ModuleLine" : 46,
+  "ModuleName" : "UART_8250",
+  "SubInsts" : [
+   {
+    "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/UART_8250.v",
+    "InstLine" : 86,
+    "InstName" : "rs232_phy_inst",
+    "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/rs232_phy.v",
+    "ModuleLine" : 46,
+    "ModuleName" : "rs232_phy"
+   }
+  ]
+ },
+ {
+  "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/gowin_sdpb/gowin_sdpb_instram.v",
+  "InstLine" : 9,
+  "InstName" : "Gowin_SDPB_instra",
+  "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/gowin_sdpb/gowin_sdpb_instram.v",
+  "ModuleLine" : 9,
+  "ModuleName" : "Gowin_SDPB_instra"
+ },
+ {
+  "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/i2c_master_byte.v",
+  "InstLine" : 22,
+  "InstName" : "i2c_master_byte",
+  "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/i2c_master_byte.v",
+  "ModuleLine" : 22,
+  "ModuleName" : "i2c_master_byte"
+ },
+ {
+  "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/opl3.v",
+  "InstLine" : 49,
+  "InstName" : "opl3",
+  "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/opl3.v",
+  "ModuleLine" : 49,
+  "ModuleName" : "opl3",
+  "SubInsts" : [
+   {
+    "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/opl3.v",
+    "InstLine" : 110,
+    "InstName" : "opl3seq_inst",
+    "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/opl3seq.v",
+    "ModuleLine" : 70,
+    "ModuleName" : "opl3seq",
+    "SubInsts" : [
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/opl3seq.v",
+      "InstLine" : 165,
+      "InstName" : "sampler_inst",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/opl3seq.v",
+      "ModuleLine" : 458,
+      "ModuleName" : "sampler"
+     }
+    ]
+   },
+   {
+    "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/opl3.v",
+    "InstLine" : 123,
+    "InstName" : "Z80",
+    "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/NextZ80CPU.v",
+    "ModuleLine" : 63,
+    "ModuleName" : "NextZ80",
+    "SubInsts" : [
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/NextZ80CPU.v",
+      "InstLine" : 119,
+      "InstName" : "CPU_REGS",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/NextZ80CPU.v",
+      "ModuleLine" : 1504,
+      "ModuleName" : "Z80Reg",
+      "SubInsts" : [
+       {
+        "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/NextZ80CPU.v",
+        "InstLine" : 1548,
+        "InstName" : "regs_lo",
+        "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/NextZ80CPU.v",
+        "ModuleLine" : 1662,
+        "ModuleName" : "RAM16X8D_regs"
+       },
+       {
+        "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/NextZ80CPU.v",
+        "InstLine" : 1560,
+        "InstName" : "regs_hi",
+        "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/NextZ80CPU.v",
+        "ModuleLine" : 1662,
+        "ModuleName" : "RAM16X8D_regs"
+       },
+       {
+        "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/NextZ80CPU.v",
+        "InstLine" : 1613,
+        "InstName" : "WSelectW",
+        "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/NextZ80CPU.v",
+        "ModuleLine" : 1632,
+        "ModuleName" : "RegSelect"
+       },
+       {
+        "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/NextZ80CPU.v",
+        "InstLine" : 1621,
+        "InstName" : "WSelectR",
+        "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/NextZ80CPU.v",
+        "ModuleLine" : 1632,
+        "ModuleName" : "RegSelect"
+       }
+      ]
+     },
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/NextZ80CPU.v",
+      "InstLine" : 146,
+      "InstName" : "CPU_ALU8",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/NextZ80CPU.v",
+      "ModuleLine" : 1725,
+      "ModuleName" : "ALU8",
+      "SubInsts" : [
+       {
+        "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/NextZ80CPU.v",
+        "InstLine" : 1741,
+        "InstName" : "daa_adjust",
+        "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/NextZ80CPU.v",
+        "ModuleLine" : 1966,
+        "ModuleName" : "daa"
+       }
+      ]
+     },
+     {
+      "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/NextZ80CPU.v",
+      "InstLine" : 159,
+      "InstName" : "CPU_ALU16",
+      "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/NextZ80CPU.v",
+      "ModuleLine" : 2001,
+      "ModuleName" : "ALU16"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/q1.v",
+  "InstLine" : 44,
+  "InstName" : "q1",
+  "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/q1.v",
+  "ModuleLine" : 44,
+  "ModuleName" : "q1"
+ },
+ {
+  "InstFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/soundwave.v",
+  "InstLine" : 52,
+  "InstName" : "soundwave",
+  "ModuleFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/soundwave.v",
+  "ModuleLine" : 52,
+  "ModuleName" : "soundwave"
+ }
+]

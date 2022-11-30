@@ -1,0 +1,17 @@
+[General]
+ipc_version=4
+file=gowin_sdpb_instmem
+module=Gowin_SDPB_instmem
+target_device=gw1n9-004
+type=ram_sdpb
+version=1.0
+
+[Config]
+BYTE_SIZE=0
+DEPTH_A=1024
+DEPTH_B=1024
+LANG=0
+READ=0
+RESET_MODE=true
+WIDTH_A=16
+WIDTH_B=16

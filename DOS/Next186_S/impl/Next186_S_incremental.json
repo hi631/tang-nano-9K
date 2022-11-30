@@ -1,0 +1,582 @@
+[
+ {
+  "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/Next186_SoC.v",
+  "InstLine" : 6,
+  "InstName" : "Next186_SoC",
+  "Mode" : 1,
+  "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/Next186_SoC.v",
+  "ModuleLine" : 6,
+  "ModuleName" : "Next186_SoC",
+  "Process" : 0,
+  "SetMode" : false,
+  "SetProcess" : false,
+  "SubNodes" : [
+   {
+    "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/Next186_SoC.v",
+    "InstLine" : 110,
+    "InstName" : "clkgen",
+    "Mode" : 1,
+    "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/gowin_rpll/gowin_rpll.v",
+    "ModuleLine" : 9,
+    "ModuleName" : "Gowin_rPLL",
+    "Process" : 0,
+    "SetMode" : false,
+    "SetProcess" : false
+   },
+   {
+    "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/Next186_SoC.v",
+    "InstLine" : 146,
+    "InstName" : "sys_inst",
+    "Mode" : 1,
+    "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/ddr_186.v",
+    "ModuleLine" : 149,
+    "ModuleName" : "system",
+    "Process" : 0,
+    "SetMode" : false,
+    "SetProcess" : false,
+    "SubNodes" : [
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/ddr_186.v",
+      "InstLine" : 488,
+      "InstName" : "VGA",
+      "Mode" : 1,
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/vga.v",
+      "ModuleLine" : 48,
+      "ModuleName" : "VGA_SG",
+      "Process" : 0,
+      "SetMode" : false,
+      "SetProcess" : false
+     },
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/ddr_186.v",
+      "InstLine" : 508,
+      "InstName" : "dac",
+      "Mode" : 1,
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/vga.v",
+      "ModuleLine" : 145,
+      "ModuleName" : "VGA_DAC",
+      "Process" : 0,
+      "SetMode" : false,
+      "SetProcess" : false
+     },
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/ddr_186.v",
+      "InstLine" : 530,
+      "InstName" : "crt",
+      "Mode" : 1,
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/vga.v",
+      "ModuleLine" : 241,
+      "ModuleName" : "VGA_CRT",
+      "Process" : 0,
+      "SetMode" : false,
+      "SetProcess" : false
+     },
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/ddr_186.v",
+      "InstLine" : 550,
+      "InstName" : "sc",
+      "Mode" : 1,
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/vga.v",
+      "ModuleLine" : 296,
+      "ModuleName" : "VGA_SC",
+      "Process" : 0,
+      "SetMode" : false,
+      "SetProcess" : false
+     },
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/ddr_186.v",
+      "InstLine" : 563,
+      "InstName" : "gc",
+      "Mode" : 1,
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/vga.v",
+      "ModuleLine" : 327,
+      "ModuleName" : "VGA_GC",
+      "Process" : 0,
+      "SetMode" : false,
+      "SetProcess" : false
+     },
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/ddr_186.v",
+      "InstLine" : 598,
+      "InstName" : "cache_ctl",
+      "Mode" : 1,
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/cache_controller.v",
+      "ModuleLine" : 51,
+      "ModuleName" : "cache_controller",
+      "Process" : 0,
+      "SetMode" : false,
+      "SetProcess" : false,
+      "SubNodes" : [
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/cache_controller.v",
+        "InstLine" : 93,
+        "InstName" : "bootrom",
+        "Mode" : 1,
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/gowin_prom/gowin_prom.v",
+        "ModuleLine" : 9,
+        "ModuleName" : "Gowin_pROM",
+        "Process" : 0,
+        "SetMode" : false,
+        "SetProcess" : false
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/cache_controller.v",
+        "InstLine" : 111,
+        "InstName" : "bootram0",
+        "Mode" : 1,
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/gowin_sp/gowin_sp_256x8.v",
+        "ModuleLine" : 9,
+        "ModuleName" : "Gowin_SP_256x8",
+        "Process" : 0,
+        "SetMode" : false,
+        "SetProcess" : false
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/cache_controller.v",
+        "InstLine" : 114,
+        "InstName" : "bootram1",
+        "Mode" : 1,
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/gowin_sp/gowin_sp_256x8.v",
+        "ModuleLine" : 9,
+        "ModuleName" : "Gowin_SP_256x8",
+        "Process" : 0,
+        "SetMode" : false,
+        "SetProcess" : false
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/cache_controller.v",
+        "InstLine" : 117,
+        "InstName" : "bootram2",
+        "Mode" : 1,
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/gowin_sp/gowin_sp_256x8.v",
+        "ModuleLine" : 9,
+        "ModuleName" : "Gowin_SP_256x8",
+        "Process" : 0,
+        "SetMode" : false,
+        "SetProcess" : false
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/cache_controller.v",
+        "InstLine" : 120,
+        "InstName" : "bootram3",
+        "Mode" : 1,
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/gowin_sp/gowin_sp_256x8.v",
+        "ModuleLine" : 9,
+        "ModuleName" : "Gowin_SP_256x8",
+        "Process" : 0,
+        "SetMode" : false,
+        "SetProcess" : false
+       }
+      ]
+     },
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/ddr_186.v",
+      "InstLine" : 621,
+      "InstName" : "KB_Mouse",
+      "Mode" : 1,
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/KB_8042.v",
+      "ModuleLine" : 58,
+      "ModuleName" : "KB_Mouse_8042",
+      "Process" : 0,
+      "SetMode" : false,
+      "SetProcess" : false,
+      "SubNodes" : [
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/KB_8042.v",
+        "InstLine" : 104,
+        "InstName" : "Keyboard",
+        "Mode" : 1,
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/KB_8042.v",
+        "ModuleLine" : 196,
+        "ModuleName" : "PS2Interface",
+        "Process" : 0,
+        "SetMode" : false,
+        "SetProcess" : false
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/KB_8042.v",
+        "InstLine" : 120,
+        "InstName" : "Mouse",
+        "Mode" : 1,
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/KB_8042.v",
+        "ModuleLine" : 196,
+        "ModuleName" : "PS2Interface",
+        "Process" : 0,
+        "SetMode" : false,
+        "SetProcess" : false
+       }
+      ]
+     },
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/ddr_186.v",
+      "InstLine" : 642,
+      "InstName" : "PIC",
+      "Mode" : 1,
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/PIC_8259.v",
+      "ModuleLine" : 47,
+      "ModuleName" : "PIC_8259",
+      "Process" : 0,
+      "SetMode" : false,
+      "SetProcess" : false
+     },
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/ddr_186.v",
+      "InstLine" : 658,
+      "InstName" : "CPUUnit",
+      "Mode" : 1,
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/unit186.v",
+      "ModuleLine" : 46,
+      "ModuleName" : "unit186",
+      "Process" : 0,
+      "SetMode" : false,
+      "SetProcess" : false,
+      "SubNodes" : [
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/unit186.v",
+        "InstLine" : 130,
+        "InstName" : "cpu",
+        "Mode" : 1,
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/Next186/Next186_CPU.v",
+        "ModuleLine" : 67,
+        "ModuleName" : "Next186_CPU",
+        "Process" : 0,
+        "SetMode" : false,
+        "SetProcess" : false,
+        "SubNodes" : [
+         {
+          "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/Next186/Next186_CPU.v",
+          "InstLine" : 200,
+          "InstName" : "REGS",
+          "Mode" : 1,
+          "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/Next186/Next186_Regs.v",
+          "ModuleLine" : 43,
+          "ModuleName" : "Next186_Regs",
+          "Process" : 0,
+          "SetMode" : false,
+          "SetProcess" : false
+         },
+         {
+          "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/Next186/Next186_CPU.v",
+          "InstLine" : 242,
+          "InstName" : "ALU16",
+          "Mode" : 1,
+          "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/Next186/Next186_ALU.v",
+          "ModuleLine" : 79,
+          "ModuleName" : "Next186_ALU",
+          "Process" : 0,
+          "SetMode" : false,
+          "SetProcess" : false
+         },
+         {
+          "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/Next186/Next186_CPU.v",
+          "InstLine" : 263,
+          "InstName" : "EA",
+          "Mode" : 1,
+          "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/Next186/Next186_ALU.v",
+          "ModuleLine" : 297,
+          "ModuleName" : "Next186_EA",
+          "Process" : 0,
+          "SetMode" : false,
+          "SetProcess" : false
+         }
+        ]
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/unit186.v",
+        "InstLine" : 157,
+        "InstName" : "BIU",
+        "Mode" : 1,
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/Next186/Next186_BIU_2T_delayread.v",
+        "ModuleLine" : 81,
+        "ModuleName" : "BIU186_32bSync_2T_DelayRead",
+        "Process" : 0,
+        "SetMode" : false,
+        "SetProcess" : false
+       }
+      ]
+     },
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/ddr_186.v",
+      "InstLine" : 711,
+      "InstName" : "timer",
+      "Mode" : 1,
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/timer8253.v",
+      "ModuleLine" : 47,
+      "ModuleName" : "timer_8253",
+      "Process" : 0,
+      "SetMode" : false,
+      "SetProcess" : false,
+      "SubNodes" : [
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/timer8253.v",
+        "InstLine" : 81,
+        "InstName" : "counter0",
+        "Mode" : 1,
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/timer8253.v",
+        "ModuleLine" : 110,
+        "ModuleName" : "counter",
+        "Process" : 0,
+        "SetMode" : false,
+        "SetProcess" : false
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/timer8253.v",
+        "InstLine" : 92,
+        "InstName" : "counter2",
+        "Mode" : 1,
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/timer8253.v",
+        "ModuleLine" : 110,
+        "ModuleName" : "counter",
+        "Process" : 0,
+        "SetMode" : false,
+        "SetProcess" : false
+       }
+      ]
+     },
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/ddr_186.v",
+      "InstLine" : 724,
+      "InstName" : "sound_gen",
+      "Mode" : 1,
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/soundwave.v",
+      "ModuleLine" : 52,
+      "ModuleName" : "soundwave",
+      "Process" : 0,
+      "SetMode" : false,
+      "SetProcess" : false
+     },
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/ddr_186.v",
+      "InstLine" : 741,
+      "InstName" : "DSP32_inst",
+      "Mode" : 1,
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/DSP32.v",
+      "ModuleLine" : 69,
+      "ModuleName" : "DSP32",
+      "Process" : 0,
+      "SetMode" : false,
+      "SetProcess" : false,
+      "SubNodes" : [
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/DSP32.v",
+        "InstLine" : 137,
+        "InstName" : "Code",
+        "Mode" : 1,
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/gowin_sdpb/gowin_sdpb_instmem.v",
+        "ModuleLine" : 9,
+        "ModuleName" : "Gowin_SDPB_instmem",
+        "Process" : 0,
+        "SetMode" : false,
+        "SetProcess" : false
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/DSP32.v",
+        "InstLine" : 149,
+        "InstName" : "DSRegs",
+        "Mode" : 1,
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/DSP32.v",
+        "ModuleLine" : 246,
+        "ModuleName" : "regs",
+        "Process" : 0,
+        "SetMode" : false,
+        "SetProcess" : false,
+        "SubNodes" : [
+         {
+          "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/DSP32.v",
+          "InstLine" : 274,
+          "InstName" : "RdRegs",
+          "Mode" : 1,
+          "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/gowin_sdpb/gowin_sdpb_RdRegs.v",
+          "ModuleLine" : 9,
+          "ModuleName" : "Gowin_SDPB_RdRegs",
+          "Process" : 0,
+          "SetMode" : false,
+          "SetProcess" : false
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/ddr_186.v",
+      "InstLine" : 781,
+      "InstName" : "rs232c",
+      "Mode" : 1,
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/rs232c.v",
+      "ModuleLine" : 10,
+      "ModuleName" : "rs232c",
+      "Process" : 0,
+      "SetMode" : false,
+      "SetProcess" : false
+     },
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/ddr_186.v",
+      "InstLine" : 787,
+      "InstName" : "opl3_inst",
+      "Mode" : 1,
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/opl3.v",
+      "ModuleLine" : 49,
+      "ModuleName" : "opl3",
+      "Process" : 0,
+      "SetMode" : false,
+      "SetProcess" : false,
+      "SubNodes" : [
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/opl3.v",
+        "InstLine" : 110,
+        "InstName" : "opl3seq_inst",
+        "Mode" : 1,
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/opl3seq.v",
+        "ModuleLine" : 70,
+        "ModuleName" : "opl3seq",
+        "Process" : 0,
+        "SetMode" : false,
+        "SetProcess" : false,
+        "SubNodes" : [
+         {
+          "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/opl3seq.v",
+          "InstLine" : 165,
+          "InstName" : "sampler_inst",
+          "Mode" : 1,
+          "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/opl3seq.v",
+          "ModuleLine" : 458,
+          "ModuleName" : "sampler",
+          "Process" : 0,
+          "SetMode" : false,
+          "SetProcess" : false
+         }
+        ]
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/opl3.v",
+        "InstLine" : 123,
+        "InstName" : "Z80",
+        "Mode" : 1,
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/NextZ80CPU.v",
+        "ModuleLine" : 63,
+        "ModuleName" : "NextZ80",
+        "Process" : 0,
+        "SetMode" : false,
+        "SetProcess" : false,
+        "SubNodes" : [
+         {
+          "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/NextZ80CPU.v",
+          "InstLine" : 119,
+          "InstName" : "CPU_REGS",
+          "Mode" : 1,
+          "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/NextZ80CPU.v",
+          "ModuleLine" : 1504,
+          "ModuleName" : "Z80Reg",
+          "Process" : 0,
+          "SetMode" : false,
+          "SetProcess" : false,
+          "SubNodes" : [
+           {
+            "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/NextZ80CPU.v",
+            "InstLine" : 1548,
+            "InstName" : "regs_lo",
+            "Mode" : 1,
+            "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/NextZ80CPU.v",
+            "ModuleLine" : 1662,
+            "ModuleName" : "RAM16X8D_regs",
+            "Process" : 0,
+            "SetMode" : false,
+            "SetProcess" : false
+           },
+           {
+            "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/NextZ80CPU.v",
+            "InstLine" : 1560,
+            "InstName" : "regs_hi",
+            "Mode" : 1,
+            "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/NextZ80CPU.v",
+            "ModuleLine" : 1662,
+            "ModuleName" : "RAM16X8D_regs",
+            "Process" : 0,
+            "SetMode" : false,
+            "SetProcess" : false
+           },
+           {
+            "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/NextZ80CPU.v",
+            "InstLine" : 1613,
+            "InstName" : "WSelectW",
+            "Mode" : 1,
+            "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/NextZ80CPU.v",
+            "ModuleLine" : 1632,
+            "ModuleName" : "RegSelect",
+            "Process" : 0,
+            "SetMode" : false,
+            "SetProcess" : false
+           },
+           {
+            "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/NextZ80CPU.v",
+            "InstLine" : 1621,
+            "InstName" : "WSelectR",
+            "Mode" : 1,
+            "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/NextZ80CPU.v",
+            "ModuleLine" : 1632,
+            "ModuleName" : "RegSelect",
+            "Process" : 0,
+            "SetMode" : false,
+            "SetProcess" : false
+           }
+          ]
+         },
+         {
+          "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/NextZ80CPU.v",
+          "InstLine" : 146,
+          "InstName" : "CPU_ALU8",
+          "Mode" : 1,
+          "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/NextZ80CPU.v",
+          "ModuleLine" : 1725,
+          "ModuleName" : "ALU8",
+          "Process" : 0,
+          "SetMode" : false,
+          "SetProcess" : false,
+          "SubNodes" : [
+           {
+            "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/NextZ80CPU.v",
+            "InstLine" : 1741,
+            "InstName" : "daa_adjust",
+            "Mode" : 1,
+            "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/NextZ80CPU.v",
+            "ModuleLine" : 1966,
+            "ModuleName" : "daa",
+            "Process" : 0,
+            "SetMode" : false,
+            "SetProcess" : false
+           }
+          ]
+         },
+         {
+          "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/NextZ80CPU.v",
+          "InstLine" : 159,
+          "InstName" : "CPU_ALU16",
+          "Mode" : 1,
+          "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/NextZ80CPU.v",
+          "ModuleLine" : 2001,
+          "ModuleName" : "ALU16",
+          "Process" : 0,
+          "SetMode" : false,
+          "SetProcess" : false
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/ddr_186.v",
+      "InstLine" : 801,
+      "InstName" : "i2cmb",
+      "Mode" : 1,
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/Next186_S/src/i2c_master_byte.v",
+      "ModuleLine" : 22,
+      "ModuleName" : "i2c_master_byte",
+      "Process" : 0,
+      "SetMode" : false,
+      "SetProcess" : false
+     }
+    ]
+   }
+  ]
+ }
+]

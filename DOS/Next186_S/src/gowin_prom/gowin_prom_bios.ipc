@@ -1,0 +1,15 @@
+[General]
+ipc_version=4
+file=gowin_prom_bios
+module=Gowin_pROM_bios
+target_device=gw1nr9c-004
+type=ram_prom
+version=1.0
+
+[Config]
+DEPTH=2048
+LANG=0
+MEM_FILE=BIOS_Next186.mi
+READ=0
+RESET_MODE=true
+WIDTH=32

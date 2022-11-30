@@ -1,0 +1,176 @@
+{
+ "Files" : [
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/DSP32.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/KB_8042.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/Next186/Next186_ALU.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/Next186/Next186_BIU_2T_delayread.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/Next186/Next186_CPU.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/Next186/Next186_Regs.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/Next186_SoC.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/NextZ80CPU.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/PIC_8259.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/UART_8250.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/fifo_hs/fifo_hs_qbus.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/fifo_hs/fifo_hs_vga.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/gowin_clkdiv/gowin_clkdiv.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/gowin_dpb/gowin_dpb_dac.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/gowin_dpb/gowin_dpb_font.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/gowin_prom/gowin_prom_bios.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/gowin_prom/gowin_prom_boot.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/gowin_rpll/gowin_rpll.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/gowin_rpll/gowin_rpll2.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/gowin_sdpb/gowin_sdpb_RdRegs.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/gowin_sdpb/gowin_sdpb_instmem.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/gowin_sdpb/gowin_sdpb_instram.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/gowin_sp/gowin_sp_256x8.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/hdmi/svo_defines.vh",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/hdmi/svo_enc.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/hdmi/svo_hdmi_out.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/hdmi/svo_tcard.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/hdmi/svo_tmds.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/i2c_master_byte.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/mem_controller.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/opl3.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/opl3seq.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/psram_memory_interface_hs/psram_memory_interface_hs_B32.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/q1.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/rs232_phy.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/rs232c.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/soundwave.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/system.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/timer8253.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/unit186.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/src/vga.v",
+   "Type" : "verilog"
+  }
+ ],
+ "IncludePath" : [
+
+ ],
+ "LoopLimit" : 2000,
+ "ResultFile" : "D:/DATA/Qiita/Github/tang-nano-9K/DOS/Next186_S/impl/temp/rtl_parser.result",
+ "Top" : "Next186_SoC",
+ "VerilogStd" : "verilog_2001",
+ "VhdlStd" : "vhdl_93"
+}

@@ -1,0 +1,23 @@
+-series GW1NR
+-device GW1NR-9C
+-package QFN88P
+-part_number GW1NR-LV9QN88PC6/I5
+
+
+-mod_name Gowin_DPB_dac
+-file_name gowin_dpb_dac
+-path C:/kitahard/Tang_Nano_9K/Next186_S/src/gowin_dpb/
+-type RAM_DP
+-file_type vlg
+-bram_b true
+-dev_type GW1NR-9C
+-depth_0 1024
+-depth_1 256
+-width_0 8
+-width_1 32
+-read_mode_0 bypass
+-read_mode_1 bypass
+-write_mode_0 normal
+-write_mode_1 normal
+-speed false
+-reset_mode sync

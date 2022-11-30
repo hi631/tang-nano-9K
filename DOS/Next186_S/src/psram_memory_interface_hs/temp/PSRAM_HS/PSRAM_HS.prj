@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE gowin-synthesis-project>
+<Project>
+    <Version>beta</Version>
+    <Device id="GW1NR-9C" package="QFN88P" speed="6" partNumber="GW1NR-LV9QN88PC6/I5"/>
+    <FileList>
+        <File path="C:/app/Gowin/Gowin_V1.9.8.03/IDE/ipcore/PSRAM_HS/data/PSRAM_TOP.v" type="verilog"/>
+        <File path="C:/app/Gowin/Gowin_V1.9.8.03/IDE/ipcore/PSRAM_HS/data/psram_code.v" type="verilog"/>
+    </FileList>
+    <OptionList>
+        <Option type="disable_insert_pad" value="1"/>
+        <Option type="dsp_balance" value="1"/>
+        <Option type="include_path" value="C:/app/Gowin/Gowin_V1.9.8.03/IDE/ipcore/PSRAM_HS/data"/>
+        <Option type="include_path" value="C:/kitahard/Tang_Nano_9K/Next186_S/src/psram_memory_interface_hs/temp/PSRAM_HS"/>
+        <Option type="output_file" value="psram_memory_interface_hs_B32.vg"/>
+        <Option type="output_template" value="psram_memory_interface_hs_B32_tmp.v"/>
+        <Option type="ram_balance" value="1"/>
+        <Option type="ram_rw_check" value="1"/>
+        <Option type="verilog_language" value="sysv-2017"/>
+    </OptionList>
+</Project>
