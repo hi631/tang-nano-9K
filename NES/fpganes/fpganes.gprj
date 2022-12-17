@@ -1,0 +1,38 @@
+<?xml version="1" encoding="UTF-8"?>
+<!DOCTYPE gowin-fpga-project>
+<Project>
+    <Template>FPGA</Template>
+    <Version>5</Version>
+    <Device name="GW1NR-9C" pn="GW1NR-LV9QN88PC6/I5">gw1nr9c-004</Device>
+    <FileList>
+        <File path="src/DeltaSigmadac.v" type="file.verilog" enable="1"/>
+        <File path="src/MicroCode.v" type="file.verilog" enable="1"/>
+        <File path="src/NES_TN9.v" type="file.verilog" enable="1"/>
+        <File path="src/apu.v" type="file.verilog" enable="1"/>
+        <File path="src/compat.v" type="file.verilog" enable="1"/>
+        <File path="src/cpu.v" type="file.verilog" enable="1"/>
+        <File path="src/gowin_clkdiv/gowin_clkdiv.v" type="file.verilog" enable="1"/>
+        <File path="src/gowin_clkdiv/gowin_clkdiv2.v" type="file.verilog" enable="1"/>
+        <File path="src/gowin_rpll/gowin_rpll.v" type="file.verilog" enable="1"/>
+        <File path="src/gowin_rpll/gowin_rpll1.v" type="file.verilog" enable="1"/>
+        <File path="src/gowin_sp/gowin_sp_16KBx8.v" type="file.verilog" enable="1"/>
+        <File path="src/gowin_sp/gowin_sp_2KBx8.v" type="file.verilog" enable="1"/>
+        <File path="src/gowin_sp/gowin_sp_32KBx8.v" type="file.verilog" enable="1"/>
+        <File path="src/gowin_sp/gowin_sp_8KBx8.v" type="file.verilog" enable="1"/>
+        <File path="src/hdmi/svo_enc.v" type="file.verilog" enable="1"/>
+        <File path="src/hdmi/svo_hdmi_out.v" type="file.verilog" enable="1"/>
+        <File path="src/hdmi/svo_tcard.v" type="file.verilog" enable="1"/>
+        <File path="src/hdmi/svo_tmds.v" type="file.verilog" enable="1"/>
+        <File path="src/hq2x.v" type="file.verilog" enable="1"/>
+        <File path="src/hw_led.v" type="file.verilog" enable="1"/>
+        <File path="src/hw_uart.v" type="file.verilog" enable="1"/>
+        <File path="src/mmu.v" type="file.verilog" enable="1"/>
+        <File path="src/nes.v" type="file.verilog" enable="1"/>
+        <File path="src/ppu.v" type="file.verilog" enable="1"/>
+        <File path="src/psram_memory_interface_hs/psram_memory_interface_hs_B16.v" type="file.verilog" enable="1"/>
+        <File path="src/rs232c_tx_rx.v" type="file.verilog" enable="1"/>
+        <File path="src/vga.v" type="file.verilog" enable="1"/>
+        <File path="src/NES_TN9.cst" type="file.cst" enable="1"/>
+        <File path="src/gao/fpganes_cpu.rao" type="file.gao" enable="1"/>
+    </FileList>
+</Project>
