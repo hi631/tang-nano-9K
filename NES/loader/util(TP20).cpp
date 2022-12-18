@@ -252,10 +252,10 @@ int scanGamepads() {
 int JOYSTICKID = -1;
 int updateGamepads(gamepad *pad) {
 	JOYINFOEX joy;
-    joy.dwSize = sizeof(joy);
-    joy.dwFlags = JOY_RETURNALL;
+	joy.dwSize = sizeof(joy);
+	joy.dwFlags = JOY_RETURNALL;
 
-	if(JOYSTICKID==-1){
+	if (JOYSTICKID == -1) {
 		for (unsigned int i = 0; i < joyGetNumDevs(); i++) {//サポートされているジョイスティックの数を返す
 			if (JOYERR_NOERROR == joyGetPosEx(i, &joy)) {
 				JOYSTICKID = i;
@@ -263,12 +263,18 @@ int updateGamepads(gamepad *pad) {
 				break;
 			}
 		}
+		if (joyGetPosEx(JOYSTICKID, &joy) != MMSYSERR_NOERROR) {
+			printf("ジョイスティックが接続されていません\n");
+			JOYSTICKID = 0;
+			pad[0].nesKeys = 0;
+			pad[0].osdButton = 0;
+			return 2;
+		}
 	}
 
-	if (joyGetPosEx(JOYSTICKID, &joy) != MMSYSERR_NOERROR) return 0;
 	pad[0].nesKeys = joyinfoToKey(joy);
 	pad[0].osdButton = joy.dwButtons & 0x10;
-
+	return JOYSTICKID;
 /*
     if (joyGetPosEx(JOYSTICKID1, &joy) != MMSYSERR_NOERROR)
         return 0;
@@ -279,8 +285,9 @@ int updateGamepads(gamepad *pad) {
         return 1;
     pad[1].nesKeys = joyinfoToKey(joy);
     pad[1].osdButton = joy.dwButtons & 0x10;
-*/
+
     return 2;
+*/
 }
 
 #else
