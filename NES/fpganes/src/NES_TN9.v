@@ -14,6 +14,8 @@ module NES_TN9(
         output       	tmds_clk_p,
         output [2:0] 	tmds_d_n,
         output [2:0] 	tmds_d_p,
+		// usb
+		inout	usb_dm, usb_dp,
         // Sound board
         //output AUD_MCLK, output AUD_LRCK, output AUD_SCK, output AUD_SDIN,
         output          DACout,
@@ -31,7 +33,7 @@ module NES_TN9(
         output [5:0]	LED
         );
 
-  assign LED = ~{load_mode, 2'b00,load_resct};
+  assign LED = ~{load_mode, ~conerr, 1'b0,load_resct};
   assign cga_ho = vga_h;
   assign vga_vo = vga_v;
   assign vag_ro = vga_r[3];
@@ -151,7 +153,8 @@ svo_hdmi_out u_hdmi (
 
   always @(posedge clk) begin
     if (joypad_strobe) begin
-      joypad_bits <= load_btn;
+      //joypad_bits <= load_btn;
+      joypad_bits <= load_btn | btn_nes;
       joypad_bits2 <= load_btn_2;
     end
     if (!joypad_clock[0] && last_joypad_clock[0])
@@ -286,6 +289,28 @@ svo_hdmi_out u_hdmi (
     if(~breset) load_resct <= 0;
     else if(clk_div[21] && ~clk_div21d && ~load_res) load_resct <= load_resct + 1;
   end
+
+	// USB_KB
+	wire usbclk = uclko; // 125.875MHz/10.5=11.988MHz 
+	reg  [3:0] uclkct;
+	reg        uclkcta, uclko;
+	always @(posedge clk_126) begin
+		if(uclkct<={3'b100,uclkcta}) uclkct <= uclkct + 1;
+		else begin uclkct <=0; uclkcta <= ~uclkcta; end
+		if(uclkct>=5) uclko <= 1;
+		else          uclko <= 0;
+	end
+
+	wire [7:0] btn_nes;
+	wire       conerr;
+	ukp2nes ukp2nes(
+		.usbclk(usbclk),		// 12MHz
+		.usbrst_n(~breset),		// reset
+		.usb_dm(usb_dm), 
+		.usb_dp(usb_dp),
+		.btn_nes(btn_nes),
+		.conerr(conerr) );
+
 endmodule
 
 // Asynchronous PSRAM controller for byte access

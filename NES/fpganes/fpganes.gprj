@@ -31,6 +31,8 @@
         <File path="src/ppu.v" type="file.verilog" enable="1"/>
         <File path="src/psram_memory_interface_hs/psram_memory_interface_hs_B16.v" type="file.verilog" enable="1"/>
         <File path="src/rs232c_tx_rx.v" type="file.verilog" enable="1"/>
+        <File path="src/ukp2nes.v" type="file.verilog" enable="1"/>
+        <File path="src/ukprom.v" type="file.verilog" enable="1"/>
         <File path="src/vga.v" type="file.verilog" enable="1"/>
         <File path="src/NES_TN9.cst" type="file.cst" enable="1"/>
         <File path="src/gao/fpganes_cpu.rao" type="file.gao" enable="1"/>

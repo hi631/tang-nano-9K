@@ -20,6 +20,11 @@ IO_LOC "tmds_d_p[2]" 75,74;
 IO_PORT "tmds_d_p[2]" PULL_MODE=NONE DRIVE=8;
 IO_LOC "tmds_clk_p" 69,68;
 IO_PORT "tmds_clk_p" PULL_MODE=NONE DRIVE=8;
+// USB
+IO_LOC  "usb_dm" 25;
+IO_PORT "usb_dm" IO_TYPE=LVCMOS33 PULL_MODE=DOWN DRIVE=4;
+IO_LOC  "usb_dp" 26;
+IO_PORT "usb_dp" IO_TYPE=LVCMOS33 PULL_MODE=DOWN DRIVE=4;
 /*
 // PS2_KB
 IO_LOC  "ps2_kb_clk" 25;
