@@ -35,6 +35,6 @@
         <File path="src/ukprom.v" type="file.verilog" enable="1"/>
         <File path="src/vga.v" type="file.verilog" enable="1"/>
         <File path="src/NES_TN9.cst" type="file.cst" enable="1"/>
-        <File path="src/gao/fpganes_cpu.rao" type="file.gao" enable="1"/>
+        <File path="src/gao/fpganes_cpu.rao" type="file.gao" enable="0"/>
     </FileList>
 </Project>
