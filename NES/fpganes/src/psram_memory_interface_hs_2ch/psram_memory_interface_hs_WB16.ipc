@@ -1,9 +1,9 @@
 [General]
 ipc_version=4
-file=psram_memory_interface_hs_B16
-module=PSRAM_Memory_Interface_HS_Top_B16
+file=psram_memory_interface_hs_WB16
+module=PSRAM_Memory_Interface_HS_WB16
 target_device=gw1nr9c-004
-type=psram_hs
+type=psram_hs_2ch
 version=1.0
 
 [Config]
@@ -11,7 +11,7 @@ ADDR_WIDTH=21
 BURST_MODE=16
 DEEP_POWER_DOWN=OFF
 DISABLE_IO=true
-DQ_WIDTH=16
+DQ_WIDTH=8
 DRIVE_STRENGTH=50
 HYBRID_SLEEP_MODE=OFF
 INITIAL_LATENCY=6

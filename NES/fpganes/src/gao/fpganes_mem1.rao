@@ -1,0 +1,122 @@
+<?xml version="1" encoding="UTF-8"?>
+<GAO_CONFIG>
+    <Version>3.0</Version>
+    <Mode>Standard</Mode>
+    <AoCore index="0" sample_clock="memory/clk_mctr" trig_type="0" storage_depth="512" window_num="1" capture_amount="512" trigger_pos="100" module_name="NES_TN9" force_trigger_by_falling_edge="true">
+        <SignalList>
+            <Signal>memory/psram1_csu</Signal>
+            <Signal>memory/rd_valid1</Signal>
+            <Signal>memory/cmd1</Signal>
+            <Signal>memory/cmd_en1</Signal>
+            <Signal>memory/cmd_en0</Signal>
+            <Bus name="memory/tmcnt1[5:0]">
+                <Signal>memory/tmcnt1[5]</Signal>
+                <Signal>memory/tmcnt1[4]</Signal>
+                <Signal>memory/tmcnt1[3]</Signal>
+                <Signal>memory/tmcnt1[2]</Signal>
+                <Signal>memory/tmcnt1[1]</Signal>
+                <Signal>memory/tmcnt1[0]</Signal>
+            </Bus>
+            <Bus name="memory/addr_ppu[15:0]">
+                <Signal>memory/addr_ppu[15]</Signal>
+                <Signal>memory/addr_ppu[14]</Signal>
+                <Signal>memory/addr_ppu[13]</Signal>
+                <Signal>memory/addr_ppu[12]</Signal>
+                <Signal>memory/addr_ppu[11]</Signal>
+                <Signal>memory/addr_ppu[10]</Signal>
+                <Signal>memory/addr_ppu[9]</Signal>
+                <Signal>memory/addr_ppu[8]</Signal>
+                <Signal>memory/addr_ppu[7]</Signal>
+                <Signal>memory/addr_ppu[6]</Signal>
+                <Signal>memory/addr_ppu[5]</Signal>
+                <Signal>memory/addr_ppu[4]</Signal>
+                <Signal>memory/addr_ppu[3]</Signal>
+                <Signal>memory/addr_ppu[2]</Signal>
+                <Signal>memory/addr_ppu[1]</Signal>
+                <Signal>memory/addr_ppu[0]</Signal>
+            </Bus>
+            <Bus name="load/load_addr[21:20]">
+                <Signal>load/load_addr[21]</Signal>
+                <Signal>load/load_addr[20]</Signal>
+            </Bus>
+            <Bus name="load/load_addr[15:0]">
+                <Signal>load/load_addr[15]</Signal>
+                <Signal>load/load_addr[14]</Signal>
+                <Signal>load/load_addr[13]</Signal>
+                <Signal>load/load_addr[12]</Signal>
+                <Signal>load/load_addr[11]</Signal>
+                <Signal>load/load_addr[10]</Signal>
+                <Signal>load/load_addr[9]</Signal>
+                <Signal>load/load_addr[8]</Signal>
+                <Signal>load/load_addr[7]</Signal>
+                <Signal>load/load_addr[6]</Signal>
+                <Signal>load/load_addr[5]</Signal>
+                <Signal>load/load_addr[4]</Signal>
+                <Signal>load/load_addr[3]</Signal>
+                <Signal>load/load_addr[2]</Signal>
+                <Signal>load/load_addr[1]</Signal>
+                <Signal>load/load_addr[0]</Signal>
+            </Bus>
+            <Signal>memory/wppudd</Signal>
+            <Signal>memory/psram1_cs</Signal>
+            <Signal>memory/read_ppu</Signal>
+            <Signal>memory/write_ppu</Signal>
+            <Signal>memory/ppumemCS</Signal>
+            <Signal>nes/chr_write</Signal>
+            <Signal>memory/wppudd</Signal>
+            <Signal>load_stb</Signal>
+        </SignalList>
+        <Triggers>
+            <Trigger index="0">
+                <SignalList>
+                    <Signal>ps_calib</Signal>
+                </SignalList>
+            </Trigger>
+            <Trigger index="1">
+                <SignalList>
+                    <Signal>memory/pswr1</Signal>
+                </SignalList>
+            </Trigger>
+            <Trigger index="2">
+                <SignalList>
+                    <Signal>memory/psram1_csu</Signal>
+                </SignalList>
+            </Trigger>
+            <Trigger index="3"/>
+            <Trigger index="4"/>
+            <Trigger index="5"/>
+            <Trigger index="6"/>
+            <Trigger index="7"/>
+            <Trigger index="8"/>
+            <Trigger index="9"/>
+            <Trigger index="10"/>
+            <Trigger index="11"/>
+            <Trigger index="12"/>
+            <Trigger index="13"/>
+            <Trigger index="14"/>
+            <Trigger index="15"/>
+        </Triggers>
+        <MatchUnits>
+            <MatchUnit index="0" enabled="0" match_type="1" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="R" value1="0" trigger="0"/>
+            <MatchUnit index="1" enabled="0" match_type="1" counter_enable="0" counter_width="4" counter="11" countinuous="0" func="0" value0="R" value1="0" trigger="1"/>
+            <MatchUnit index="2" enabled="1" match_type="1" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="R" value1="0" trigger="2"/>
+            <MatchUnit index="3" enabled="0" match_type="1" counter_enable="1" counter_width="4" counter="11" countinuous="0" func="0" value0="R" value1="0" trigger="3"/>
+            <MatchUnit index="4" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="5" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="6" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="7" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="8" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="9" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="10" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="11" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="12" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="13" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="14" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="15" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+        </MatchUnits>
+        <Expressions type="Static">
+            <Expression>M2</Expression>
+        </Expressions>
+    </AoCore>
+    <GAO_ID>0100001111101111</GAO_ID>
+</GAO_CONFIG>

@@ -1,0 +1,908 @@
+[
+ {
+  "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/NES_TN9.v",
+  "InstLine" : 6,
+  "InstName" : "NES_TN9",
+  "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/NES_TN9.v",
+  "ModuleLine" : 6,
+  "ModuleName" : "NES_TN9",
+  "SubInsts" : [
+   {
+    "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/NES_TN9.v",
+    "InstLine" : 44,
+    "InstName" : "cpuclk",
+    "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/gowin_rpll/gowin_rpll.v",
+    "ModuleLine" : 9,
+    "ModuleName" : "Gowin_rPLL"
+   },
+   {
+    "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/NES_TN9.v",
+    "InstLine" : 45,
+    "InstName" : "memclk",
+    "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/gowin_rpll/gowin_rpll1.v",
+    "ModuleLine" : 9,
+    "ModuleName" : "Gowin_rPLL1"
+   },
+   {
+    "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/NES_TN9.v",
+    "InstLine" : 46,
+    "InstName" : "u_div_2",
+    "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/gowin_clkdiv/gowin_clkdiv2.v",
+    "ModuleLine" : 9,
+    "ModuleName" : "Gowin_CLKDIV2"
+   },
+   {
+    "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/NES_TN9.v",
+    "InstLine" : 47,
+    "InstName" : "u_div_5",
+    "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/gowin_clkdiv/gowin_clkdiv.v",
+    "ModuleLine" : 9,
+    "ModuleName" : "Gowin_CLKDIV"
+   },
+   {
+    "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/NES_TN9.v",
+    "InstLine" : 58,
+    "InstName" : "u_hdmi",
+    "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hdmi/svo_hdmi_out.v",
+    "ModuleLine" : 23,
+    "ModuleName" : "svo_hdmi_out",
+    "SubInsts" : [
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hdmi/svo_hdmi_out.v",
+      "InstLine" : 95,
+      "InstName" : "svo_tcard",
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hdmi/svo_tcard.v",
+      "ModuleLine" : 23,
+      "ModuleName" : "svo_tcard"
+     },
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hdmi/svo_hdmi_out.v",
+      "InstLine" : 118,
+      "InstName" : "svo_enc",
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hdmi/svo_enc.v",
+      "ModuleLine" : 23,
+      "ModuleName" : "svo_enc"
+     },
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hdmi/svo_hdmi_out.v",
+      "InstLine" : 137,
+      "InstName" : "svo_tmds_0",
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hdmi/svo_tmds.v",
+      "ModuleLine" : 23,
+      "ModuleName" : "svo_tmds"
+     },
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hdmi/svo_hdmi_out.v",
+      "InstLine" : 147,
+      "InstName" : "svo_tmds_1",
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hdmi/svo_tmds.v",
+      "ModuleLine" : 23,
+      "ModuleName" : "svo_tmds"
+     },
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hdmi/svo_hdmi_out.v",
+      "InstLine" : 157,
+      "InstName" : "svo_tmds_2",
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hdmi/svo_tmds.v",
+      "ModuleLine" : 23,
+      "ModuleName" : "svo_tmds"
+     }
+    ]
+   },
+   {
+    "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/NES_TN9.v",
+    "InstLine" : 72,
+    "InstName" : "uart_demux",
+    "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hw_uart.v",
+    "ModuleLine" : 64,
+    "ModuleName" : "UartDemux",
+    "SubInsts" : [
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hw_uart.v",
+      "InstLine" : 67,
+      "InstName" : "uart",
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hw_uart.v",
+      "ModuleLine" : 33,
+      "ModuleName" : "Rs232Rx"
+     }
+    ]
+   },
+   {
+    "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/NES_TN9.v",
+    "InstLine" : 95,
+    "InstName" : "load",
+    "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/NES_TN9.v",
+    "ModuleLine" : 500,
+    "ModuleName" : "Gameload"
+   },
+   {
+    "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/NES_TN9.v",
+    "InstLine" : 116,
+    "InstName" : "led_driver",
+    "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hw_led.v",
+    "ModuleLine" : 4,
+    "ModuleName" : "LedDriver"
+   },
+   {
+    "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/NES_TN9.v",
+    "InstLine" : 162,
+    "InstName" : "nes",
+    "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/nes.v",
+    "ModuleLine" : 123,
+    "ModuleName" : "NES",
+    "SubInsts" : [
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/nes.v",
+      "InstLine" : 191,
+      "InstName" : "cpu",
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/cpu.v",
+      "ModuleLine" : 173,
+      "ModuleName" : "CPU",
+      "SubInsts" : [
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/cpu.v",
+        "InstLine" : 221,
+        "InstName" : "addgen",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/cpu.v",
+        "ModuleLine" : 107,
+        "ModuleName" : "AddressGenerator"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/cpu.v",
+        "InstLine" : 224,
+        "InstName" : "micro2",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/MicroCode.v",
+        "ModuleLine" : 2060,
+        "ModuleName" : "MicroCodeTable",
+        "SubInsts" : [
+         {
+          "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/MicroCode.v",
+          "InstLine" : 2062,
+          "InstName" : "inner",
+          "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/MicroCode.v",
+          "ModuleLine" : 1,
+          "ModuleName" : "MicroCodeTableInner"
+         }
+        ]
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/cpu.v",
+        "InstLine" : 229,
+        "InstName" : "new_alu",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/cpu.v",
+        "ModuleLine" : 32,
+        "ModuleName" : "NewAlu",
+        "SubInsts" : [
+         {
+          "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/cpu.v",
+          "InstLine" : 82,
+          "InstName" : "addsub",
+          "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/cpu.v",
+          "ModuleLine" : 6,
+          "ModuleName" : "MyAddSub",
+          "SubInsts" : [
+           {
+            "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/cpu.v",
+            "InstLine" : 13,
+            "InstName" : "MUXCY_L0",
+            "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/compat.v",
+            "ModuleLine" : 6,
+            "ModuleName" : "MUXCY_L"
+           },
+           {
+            "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/cpu.v",
+            "InstLine" : 14,
+            "InstName" : "MUXCY_L1",
+            "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/compat.v",
+            "ModuleLine" : 6,
+            "ModuleName" : "MUXCY_L"
+           },
+           {
+            "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/cpu.v",
+            "InstLine" : 15,
+            "InstName" : "MUXCY_L2",
+            "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/compat.v",
+            "ModuleLine" : 6,
+            "ModuleName" : "MUXCY_L"
+           },
+           {
+            "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/cpu.v",
+            "InstLine" : 16,
+            "InstName" : "MUXCY_L3",
+            "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/compat.v",
+            "ModuleLine" : 6,
+            "ModuleName" : "MUXCY_L"
+           },
+           {
+            "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/cpu.v",
+            "InstLine" : 17,
+            "InstName" : "MUXCY_L4",
+            "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/compat.v",
+            "ModuleLine" : 6,
+            "ModuleName" : "MUXCY_L"
+           },
+           {
+            "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/cpu.v",
+            "InstLine" : 18,
+            "InstName" : "MUXCY_L5",
+            "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/compat.v",
+            "ModuleLine" : 6,
+            "ModuleName" : "MUXCY_L"
+           },
+           {
+            "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/cpu.v",
+            "InstLine" : 19,
+            "InstName" : "MUXCY_D6",
+            "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/compat.v",
+            "ModuleLine" : 9,
+            "ModuleName" : "MUXCY_D"
+           },
+           {
+            "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/cpu.v",
+            "InstLine" : 20,
+            "InstName" : "MUXCY_7",
+            "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/compat.v",
+            "ModuleLine" : 3,
+            "ModuleName" : "MUXCY"
+           },
+           {
+            "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/cpu.v",
+            "InstLine" : 21,
+            "InstName" : "XORCY0",
+            "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/compat.v",
+            "ModuleLine" : 13,
+            "ModuleName" : "XORCY"
+           },
+           {
+            "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/cpu.v",
+            "InstLine" : 22,
+            "InstName" : "XORCY1",
+            "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/compat.v",
+            "ModuleLine" : 13,
+            "ModuleName" : "XORCY"
+           },
+           {
+            "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/cpu.v",
+            "InstLine" : 23,
+            "InstName" : "XORCY2",
+            "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/compat.v",
+            "ModuleLine" : 13,
+            "ModuleName" : "XORCY"
+           },
+           {
+            "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/cpu.v",
+            "InstLine" : 24,
+            "InstName" : "XORCY3",
+            "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/compat.v",
+            "ModuleLine" : 13,
+            "ModuleName" : "XORCY"
+           },
+           {
+            "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/cpu.v",
+            "InstLine" : 25,
+            "InstName" : "XORCY4",
+            "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/compat.v",
+            "ModuleLine" : 13,
+            "ModuleName" : "XORCY"
+           },
+           {
+            "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/cpu.v",
+            "InstLine" : 26,
+            "InstName" : "XORCY5",
+            "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/compat.v",
+            "ModuleLine" : 13,
+            "ModuleName" : "XORCY"
+           },
+           {
+            "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/cpu.v",
+            "InstLine" : 27,
+            "InstName" : "XORCY6",
+            "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/compat.v",
+            "ModuleLine" : 13,
+            "ModuleName" : "XORCY"
+           },
+           {
+            "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/cpu.v",
+            "InstLine" : 28,
+            "InstName" : "XORCY7",
+            "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/compat.v",
+            "ModuleLine" : 13,
+            "ModuleName" : "XORCY"
+           },
+           {
+            "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/cpu.v",
+            "InstLine" : 29,
+            "InstName" : "X1",
+            "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/compat.v",
+            "ModuleLine" : 16,
+            "ModuleName" : "XOR2"
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/cpu.v",
+        "InstLine" : 243,
+        "InstName" : "pc",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/cpu.v",
+        "ModuleLine" : 149,
+        "ModuleName" : "ProgramCounter"
+       }
+      ]
+     },
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/nes.v",
+      "InstLine" : 207,
+      "InstName" : "dma",
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/nes.v",
+      "ModuleLine" : 46,
+      "ModuleName" : "DmaController"
+     },
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/nes.v",
+      "InstLine" : 236,
+      "InstName" : "uart",
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/rs232c_tx_rx.v",
+      "ModuleLine" : 8,
+      "ModuleName" : "rs232c_tx_rx"
+     },
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/nes.v",
+      "InstLine" : 246,
+      "InstName" : "apu",
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/apu.v",
+      "ModuleLine" : 624,
+      "ModuleName" : "APU",
+      "SubInsts" : [
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/apu.v",
+        "InstLine" : 664,
+        "InstName" : "len",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/apu.v",
+        "ModuleLine" : 4,
+        "ModuleName" : "LenCtr_Lookup"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/apu.v",
+        "InstLine" : 678,
+        "InstName" : "Sq1",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/apu.v",
+        "ModuleLine" : 46,
+        "ModuleName" : "SquareChan"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/apu.v",
+        "InstLine" : 679,
+        "InstName" : "Sq2",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/apu.v",
+        "ModuleLine" : 46,
+        "ModuleName" : "SquareChan"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/apu.v",
+        "InstLine" : 680,
+        "InstName" : "Tri",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/apu.v",
+        "ModuleLine" : 198,
+        "ModuleName" : "TriangleChan"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/apu.v",
+        "InstLine" : 681,
+        "InstName" : "Noi",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/apu.v",
+        "ModuleLine" : 287,
+        "ModuleName" : "NoiseChan"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/apu.v",
+        "InstLine" : 682,
+        "InstName" : "Dmc",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/apu.v",
+        "ModuleLine" : 405,
+        "ModuleName" : "DmcChan"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/apu.v",
+        "InstLine" : 786,
+        "InstName" : "lookup",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/apu.v",
+        "ModuleLine" : 552,
+        "ModuleName" : "ApuLookupTable"
+       }
+      ]
+     },
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/nes.v",
+      "InstLine" : 277,
+      "InstName" : "ppu",
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ppu.v",
+      "ModuleLine" : 467,
+      "ModuleName" : "PPU",
+      "SubInsts" : [
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ppu.v",
+        "InstLine" : 522,
+        "InstName" : "clock",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ppu.v",
+        "ModuleLine" : 99,
+        "ModuleName" : "ClockGen"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ppu.v",
+        "InstLine" : 529,
+        "InstName" : "loopy0",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ppu.v",
+        "ModuleLine" : 5,
+        "ModuleName" : "LoopyGen"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ppu.v",
+        "InstLine" : 537,
+        "InstName" : "bg_painter",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ppu.v",
+        "ModuleLine" : 387,
+        "ModuleName" : "BgPainter"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ppu.v",
+        "InstLine" : 548,
+        "InstName" : "sprite_ram",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ppu.v",
+        "ModuleLine" : 216,
+        "ModuleName" : "SpriteRAM"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ppu.v",
+        "InstLine" : 567,
+        "InstName" : "address_gen",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ppu.v",
+        "ModuleLine" : 336,
+        "ModuleName" : "SpriteAddressGen"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ppu.v",
+        "InstLine" : 578,
+        "InstName" : "sprite_gen",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ppu.v",
+        "ModuleLine" : 187,
+        "ModuleName" : "SpriteSet",
+        "SubInsts" : [
+         {
+          "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ppu.v",
+          "InstLine" : 196,
+          "InstName" : "sprite7",
+          "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ppu.v",
+          "ModuleLine" : 153,
+          "ModuleName" : "Sprite"
+         },
+         {
+          "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ppu.v",
+          "InstLine" : 197,
+          "InstName" : "sprite6",
+          "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ppu.v",
+          "ModuleLine" : 153,
+          "ModuleName" : "Sprite"
+         },
+         {
+          "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ppu.v",
+          "InstLine" : 198,
+          "InstName" : "sprite5",
+          "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ppu.v",
+          "ModuleLine" : 153,
+          "ModuleName" : "Sprite"
+         },
+         {
+          "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ppu.v",
+          "InstLine" : 199,
+          "InstName" : "sprite4",
+          "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ppu.v",
+          "ModuleLine" : 153,
+          "ModuleName" : "Sprite"
+         },
+         {
+          "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ppu.v",
+          "InstLine" : 200,
+          "InstName" : "sprite3",
+          "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ppu.v",
+          "ModuleLine" : 153,
+          "ModuleName" : "Sprite"
+         },
+         {
+          "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ppu.v",
+          "InstLine" : 201,
+          "InstName" : "sprite2",
+          "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ppu.v",
+          "ModuleLine" : 153,
+          "ModuleName" : "Sprite"
+         },
+         {
+          "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ppu.v",
+          "InstLine" : 202,
+          "InstName" : "sprite1",
+          "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ppu.v",
+          "ModuleLine" : 153,
+          "ModuleName" : "Sprite"
+         },
+         {
+          "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ppu.v",
+          "InstLine" : 203,
+          "InstName" : "sprite0",
+          "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ppu.v",
+          "ModuleLine" : 153,
+          "ModuleName" : "Sprite"
+         }
+        ]
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ppu.v",
+        "InstLine" : 608,
+        "InstName" : "pixel_muxer",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ppu.v",
+        "ModuleLine" : 442,
+        "ModuleName" : "PixelMuxer"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ppu.v",
+        "InstLine" : 624,
+        "InstName" : "palette_ram",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ppu.v",
+        "ModuleLine" : 450,
+        "ModuleName" : "PaletteRam"
+       }
+      ]
+     },
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/nes.v",
+      "InstLine" : 294,
+      "InstName" : "multi_mapper",
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+      "ModuleLine" : 1556,
+      "ModuleName" : "MultiMapper",
+      "SubInsts" : [
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "InstLine" : 1574,
+        "InstName" : "mmc0",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "ModuleLine" : 5,
+        "ModuleName" : "MMC0"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "InstLine" : 1579,
+        "InstName" : "mmc1",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "ModuleLine" : 25,
+        "ModuleName" : "MMC1"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "InstLine" : 1584,
+        "InstName" : "map28",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "ModuleLine" : 947,
+        "ModuleName" : "Mapper28"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "InstLine" : 1589,
+        "InstName" : "mmc2",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "ModuleLine" : 136,
+        "ModuleName" : "MMC2"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "InstLine" : 1594,
+        "InstName" : "mmc3",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "ModuleLine" : 253,
+        "ModuleName" : "MMC3"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "InstLine" : 1601,
+        "InstName" : "mmc5",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "ModuleLine" : 397,
+        "ModuleName" : "MMC5"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "InstLine" : 1607,
+        "InstName" : "map13",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "ModuleLine" : 858,
+        "ModuleName" : "Mapper13"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "InstLine" : 1612,
+        "InstName" : "map15",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "ModuleLine" : 884,
+        "ModuleName" : "Mapper15"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "InstLine" : 1617,
+        "InstName" : "map34",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "ModuleLine" : 1074,
+        "ModuleName" : "Mapper34"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "InstLine" : 1622,
+        "InstName" : "map41",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "ModuleLine" : 1120,
+        "ModuleName" : "Mapper41"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "InstLine" : 1627,
+        "InstName" : "map66",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "ModuleLine" : 1041,
+        "ModuleName" : "Mapper66"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "InstLine" : 1632,
+        "InstName" : "map68",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "ModuleLine" : 1157,
+        "ModuleName" : "Mapper68"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "InstLine" : 1637,
+        "InstName" : "map69",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "ModuleLine" : 1222,
+        "ModuleName" : "Mapper69"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "InstLine" : 1642,
+        "InstName" : "map71",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "ModuleLine" : 1314,
+        "ModuleName" : "Mapper71"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "InstLine" : 1647,
+        "InstName" : "map79",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "ModuleLine" : 1360,
+        "ModuleName" : "Mapper79"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "InstLine" : 1653,
+        "InstName" : "map228",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "ModuleLine" : 1450,
+        "ModuleName" : "Mapper228"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "InstLine" : 1659,
+        "InstName" : "map234",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "ModuleLine" : 1484,
+        "ModuleName" : "Mapper234"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "InstLine" : 1664,
+        "InstName" : "rambo1",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "ModuleLine" : 714,
+        "ModuleName" : "Rambo1"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "InstLine" : 1669,
+        "InstName" : "nesev",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
+        "ModuleLine" : 1392,
+        "ModuleName" : "NesEvent"
+       }
+      ]
+     },
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/nes.v",
+      "InstLine" : 312,
+      "InstName" : "mem",
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/nes.v",
+      "ModuleLine" : 96,
+      "ModuleName" : "MemoryMultiplex"
+     }
+    ]
+   },
+   {
+    "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/NES_TN9.v",
+    "InstLine" : 188,
+    "InstName" : "memory",
+    "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/NES_TN9.v",
+    "ModuleLine" : 283,
+    "ModuleName" : "MemoryController",
+    "SubInsts" : [
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/NES_TN9.v",
+      "InstLine" : 483,
+      "InstName" : "your_instance_name",
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/psram_memory_interface_hs_2ch/psram_memory_interface_hs_WB16.v",
+      "ModuleLine" : 1,
+      "ModuleName" : "PSRAM_Memory_Interface_HS_WB16"
+     },
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/NES_TN9.v",
+      "InstLine" : 344,
+      "InstName" : "cpuram",
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/gowin_sp/gowin_sp_2KBx8.v",
+      "ModuleLine" : 9,
+      "ModuleName" : "Gowin_SP_2KBx8"
+     },
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/NES_TN9.v",
+      "InstLine" : 347,
+      "InstName" : "ppuram",
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/gowin_sp/gowin_sp_2KBx8.v",
+      "ModuleLine" : 9,
+      "ModuleName" : "Gowin_SP_2KBx8"
+     }
+    ]
+   },
+   {
+    "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/NES_TN9.v",
+    "InstLine" : 213,
+    "InstName" : "vga",
+    "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/vga.v",
+    "ModuleLine" : 4,
+    "ModuleName" : "VgaDriver"
+   },
+   {
+    "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/NES_TN9.v",
+    "InstLine" : 216,
+    "InstName" : "hq2x",
+    "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hq2x.v",
+    "ModuleLine" : 100,
+    "ModuleName" : "Hq2x",
+    "SubInsts" : [
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hq2x.v",
+      "InstLine" : 195,
+      "InstName" : "diffcheck0",
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hq2x.v",
+      "ModuleLine" : 4,
+      "ModuleName" : "DiffCheck"
+     },
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hq2x.v",
+      "InstLine" : 196,
+      "InstName" : "diffcheck1",
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hq2x.v",
+      "ModuleLine" : 4,
+      "ModuleName" : "DiffCheck"
+     },
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hq2x.v",
+      "InstLine" : 218,
+      "InstName" : "blender",
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hq2x.v",
+      "ModuleLine" : 34,
+      "ModuleName" : "Blend",
+      "SubInsts" : [
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hq2x.v",
+        "InstLine" : 50,
+        "InstName" : "diff_checker",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hq2x.v",
+        "ModuleLine" : 4,
+        "ModuleName" : "DiffCheck"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hq2x.v",
+        "InstLine" : 95,
+        "InstName" : "inner_blend1",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hq2x.v",
+        "ModuleLine" : 22,
+        "ModuleName" : "InnerBlend"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hq2x.v",
+        "InstLine" : 96,
+        "InstName" : "inner_blend2",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hq2x.v",
+        "ModuleLine" : 22,
+        "ModuleName" : "InnerBlend"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hq2x.v",
+        "InstLine" : 97,
+        "InstName" : "inner_blend3",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hq2x.v",
+        "ModuleLine" : 22,
+        "ModuleName" : "InnerBlend"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/NES_TN9.v",
+    "InstLine" : 243,
+    "InstName" : "audiodac",
+    "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/DeltaSigmadac.v",
+    "ModuleLine" : 4,
+    "ModuleName" : "audiodac"
+   },
+   {
+    "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/NES_TN9.v",
+    "InstLine" : 271,
+    "InstName" : "ukp2nes",
+    "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ukp2nes.v",
+    "ModuleLine" : 1,
+    "ModuleName" : "ukp2nes",
+    "SubInsts" : [
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ukp2nes.v",
+      "InstLine" : 12,
+      "InstName" : "ukp",
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ukp2nes.v",
+      "ModuleLine" : 58,
+      "ModuleName" : "ukp",
+      "SubInsts" : [
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ukp2nes.v",
+        "InstLine" : 113,
+        "InstName" : "ukprom",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ukprom.v",
+        "ModuleLine" : 1,
+        "ModuleName" : "ukprom"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/gowin_sp/gowin_sp_16KBx8.v",
+  "InstLine" : 9,
+  "InstName" : "Gowin_SP_16KBx8",
+  "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/gowin_sp/gowin_sp_16KBx8.v",
+  "ModuleLine" : 9,
+  "ModuleName" : "Gowin_SP_16KBx8"
+ },
+ {
+  "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/gowin_sp/gowin_sp_32KBx8.v",
+  "InstLine" : 9,
+  "InstName" : "Gowin_SP_32KBx8",
+  "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/gowin_sp/gowin_sp_32KBx8.v",
+  "ModuleLine" : 9,
+  "ModuleName" : "Gowin_SP_32KBx8"
+ },
+ {
+  "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/gowin_sp/gowin_sp_8KBx8.v",
+  "InstLine" : 9,
+  "InstName" : "Gowin_SP_8KBx8",
+  "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/gowin_sp/gowin_sp_8KBx8.v",
+  "ModuleLine" : 9,
+  "ModuleName" : "Gowin_SP_8KBx8"
+ },
+ {
+  "InstFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hw_uart.v",
+  "InstLine" : 4,
+  "InstName" : "Rs232Tx",
+  "ModuleFile" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hw_uart.v",
+  "ModuleLine" : 4,
+  "ModuleName" : "Rs232Tx"
+ }
+]

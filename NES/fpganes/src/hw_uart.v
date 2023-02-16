@@ -29,9 +29,10 @@ module Rs232Tx(input clk, output UART_TX, input [7:0] data, input send, output r
   end
 endmodule
 
+parameter rstime = 23; // 188:115200 94:230400 47:460800
 module Rs232Rx(input clk, input UART_RX, output [7:0] data, output send);
   reg [8:0] recvbuf;
-  reg [7:0] timeout = 95;// 10/2 - 1;
+  reg [7:0] timeout = rstime/2-1;//95;// 10/2 - 1;
   reg recving,tof;
   reg data_valid = 0;
   assign data = recvbuf[7:0];
@@ -41,7 +42,7 @@ module Rs232Rx(input clk, input UART_RX, output [7:0] data, output send);
     timeout <= timeout - 6'd1;
     if (timeout == 0) begin
       tof <= 1;
-      timeout <= 180;//10 - 1;
+      timeout <= rstime-1;//180;//10 - 1;
       recvbuf <= (recving ? {UART_RX, recvbuf[8:1]} : 9'b100000000);
       recving <= 1;
       if (recving && recvbuf[0]) begin
@@ -53,7 +54,7 @@ module Rs232Rx(input clk, input UART_RX, output [7:0] data, output send);
     // Once we see a start bit we want to wait
     // another half period for it to become stable.
     if (!recving && UART_RX)
-      timeout <= 95;//10/2 - 1;
+      timeout <= rstime/2-1;//95;//10/2 - 1;
   end
 endmodule
 

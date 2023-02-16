@@ -54,9 +54,9 @@ module NewAlu(input  [10:0] OP, // ALU Operation
   assign {o_left_input, o_right_input, o_first_op, o_second_op, o_fc} = OP;
   
   // Determine left, right inputs to Add/Sub ALU.
-  reg [7:0] L, R;
-  reg CR;
-  always begin
+  reg [7:0] L = 'b0000_0000, R ='b0000_0000;
+  reg CR = 0;
+  always @(*) begin
     casez(o_left_input)
     0: L = A;
     1: L = Y;
@@ -81,7 +81,7 @@ module NewAlu(input  [10:0] OP, // ALU Operation
   wire AddCO, AddVO;
   MyAddSub addsub(.A(L),.B(IntR),.CI(o_second_op[0] ? CR : 1'b1),.ADD(!o_second_op[2]), .S(AddR), .CO(AddCO), .OFL(AddVO));
   // Produce the output of the second stage.
-  always begin
+  always @(*) begin
     casez(o_second_op)
     0:       {CO, Result} = {CR,    L | IntR};
     1:       {CO, Result} = {CR,    L & IntR};
@@ -111,9 +111,9 @@ module AddressGenerator(input clk, input ce,
                         output [15:0] AX,
                         output Carry);
   // Actual contents of registers
-  reg [7:0] AL, AH;
+  reg [7:0] AL = 0, AH = 0;
   // Last operation generated a carry?
-  reg SavedCarry;
+  reg SavedCarry = 0;
   assign AX = {AH, AL};
 
   wire [2:0] ALCtrl = Operation[4:2];
@@ -155,7 +155,7 @@ module ProgramCounter(input clk, input ce,
   reg [15:0] NewPC;
   assign JumpNoOverflow = ((PC[8] ^ NewPC[8]) == 0) & LoadPC[0] & LoadPC[1];
 
-  always begin
+  always @(*) begin
     // Load PC Control
     case (LoadPC) 
     0,1: NewPC = PC + {15'b0, (LoadPC[0] & ~GotInterrupt)};
@@ -177,15 +177,15 @@ module CPU(input clk, input ce, input reset,
            output reg [7:0] dout, output reg [15:0] aout,
            output reg mr,
            output reg mw);
-  reg [7:0] A, X, Y;
-  reg [7:0] SP, T, P;
-  reg [7:0] IR;
-  reg [2:0] State;
-  reg GotInterrupt;
+  reg [7:0] A = 0, X = 0, Y = 0;
+  reg [7:0] SP = 0, T = 0, P = 0;
+  reg [7:0] IR = 0;
+  reg [2:0] State = 0;
+  reg GotInterrupt = 0;
   
-  reg IsResetInterrupt;
+  reg IsResetInterrupt = 0;
   wire [15:0] PC;
-  reg JumpTaken;
+  reg JumpTaken = 0;
   wire JumpNoOverflow;
 
   // De-multiplex microcode
@@ -206,8 +206,8 @@ module CPU(input clk, input ce, input reset,
   wire IsBranchCycle1 = (IR[4:0] == 5'b10000) && State[0];
 
   // Compute next state.
-  reg [2:0] NextState;
-  always begin
+  reg [2:0] NextState = 0;
+  always @(*)  begin
     case (StateCtrl)
     0: NextState = State + 3'd1;
     1: NextState = (AXCarry ? 3'd4 : 3'd5);
@@ -242,8 +242,12 @@ end
 // Program counter
 ProgramCounter pc(clk, ce, LoadPC, GotInterrupt, DIN, T, PC, JumpNoOverflow);
 
-reg IsNMIInterrupt;
-reg LastNMI;
+// always @(posedge clk) if (!reset && ce && (PC == 'hc071 || PC == 'hc072)) begin
+//     $write("pc=c071/c072");
+// end
+
+reg IsNMIInterrupt = 0;
+reg LastNMI = 0;
 // NMI is triggered at any time, except during reset, or when we're in the middle of
 // reading the vector address
 wire turn_nmi_on = (AddrBus != 3) && !IsResetInterrupt && nmi && !LastNMI;
@@ -264,7 +268,7 @@ always @(posedge clk) begin
 end
 
 // Generate outputs from module...
-always begin
+always @(*)  begin
   dout = 8'bX;
   case (MemWrite[1:0])
   'b00: dout = T;
@@ -276,7 +280,7 @@ always begin
   mr = !mw;
 end
 
-always begin
+always @(*) begin
   case (AddrBus)
   0: aout = PC;
   1: aout = AX;

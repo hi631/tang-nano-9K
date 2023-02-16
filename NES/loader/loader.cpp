@@ -135,6 +135,7 @@ int main(int argc, char * argv[]) {
 	size_t henkansaretamojisu = 0;
 	wchar_t wtextname[32] = { 0 };
 	char textname[8] = "COM4";
+	int  comspeed = 921600;// 460800;// 230400;// 115200;// 2147720;
 	int keyuse = 0;
 
 	if (argc >= 3) strcpy(textname, argv[2]);
@@ -143,7 +144,7 @@ int main(int argc, char * argv[]) {
 	FILE *f;
 	errno_t err = fopen_s(&f, argv[1], "rb");
 	if (!f) { printf("File open fail %s\n", argv[1]); return 1; }
-	printf("Send %s: %s\n", textname, argv[1]);
+	printf("Send %s:%dbps  %s\n", textname, comspeed, argv[1]);
 
     mbstowcs_s(&henkansaretamojisu, wtextname, 32, textname, _TRUNCATE);
 	std::wstring comNum;
@@ -157,7 +158,7 @@ int main(int argc, char * argv[]) {
 	dcb.DCBlength = sizeof(DCB);
 	dcb.ByteSize = 8;
 	dcb.StopBits = ONESTOPBIT;
-	dcb.BaudRate = 115200;// 2147720;
+	dcb.BaudRate = comspeed;
 	dcb.fBinary = TRUE;
 	if (!SetCommState(h, &dcb)) { printf("SetCommState failed\n"); return 0; }
 
@@ -168,15 +169,21 @@ int main(int argc, char * argv[]) {
 	size_t pos = 0;
 
 	while (pos < total_read) {
-		char buf[16384 / 8];
+		unsigned char buf[16384 / 8];
 		size_t want_read = (total_read - pos) > sizeof(buf) ? sizeof(buf) : (total_read - pos);
 		int n = fread(buf, 1, want_read, f);
+
+		if (pos == 0) {	// Read.Start
+			printf("Prg:%dKB(%02x)  Chr:%dKB(%02x)  Mapper:%d(%02x %02x)\n", 
+				buf[4]*16, buf[4], buf[5]*8, buf[5], ((buf[7] & 0xf0) | (buf[6] >> 4 )),buf[6], buf[7]);
+		}
+
 		if (n <= 0) {
 			break;
 		}
 		WritePacket(h, 0x37, buf, n);
 		pos += n;
-		printf(".");
+		if(((pos/n) & 0x03)==0) printf(".");
 	}
 	printf("\nSend %dbyte\n\n", pos);
 	if (keyuse == 0) exit(0);

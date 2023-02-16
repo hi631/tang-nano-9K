@@ -131,18 +131,19 @@ module NES(input clk, input reset, input ce,
 
            
            // Access signals for the SRAM.
-           output [21:0] memory_addr,   // address to access
+           output [21:0] chr_linaddr,   // address to access
            output memory_read_cpu,      // read into CPU latch
            input [7:0] memory_din_cpu,  // next cycle, contents of latch A (CPU's data)
            output memory_read_ppu,      // read into CPU latch
            input [7:0] memory_din_ppu,  // next cycle, contents of latch B (PPU's data)
-           output memory_write,         // is a write operation
-           output [7:0] memory_dout,
+           output chr_write,	        // is a write operation
+           output [7:0] chr_from_ppu,   //memory_dout,
            
            output [8:0] cycle,
            output [8:0] scanline,
-           
-           output [21:0] prg_linaddr,		// psr_maddr
+
+           output [15:0] addr,			// cpu/dma.addr
+           output [21:0] prg_linaddr,	// psr_maddr
            output prg_din,
            output prg_read,
            output prg_write,

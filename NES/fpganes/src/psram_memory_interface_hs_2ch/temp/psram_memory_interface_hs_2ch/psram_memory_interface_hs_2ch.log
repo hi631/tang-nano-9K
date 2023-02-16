@@ -1,0 +1,125 @@
+GowinSynthesis start
+Running parser ...
+Analyzing Verilog file 'C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\PSRAM_TOP.v'
+Analyzing included file 'psram_define.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\PSRAM_TOP.v":2)
+Back to file 'C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\PSRAM_TOP.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\PSRAM_TOP.v":2)
+Analyzing included file 'C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_local_define.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\PSRAM_TOP.v":3)
+Back to file 'C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\PSRAM_TOP.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\PSRAM_TOP.v":3)
+Analyzing included file 'psram_param.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\PSRAM_TOP.v":35)
+Back to file 'C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\PSRAM_TOP.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\PSRAM_TOP.v":35)
+Analyzing included file 'C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_local_param.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\PSRAM_TOP.v":36)
+Back to file 'C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\PSRAM_TOP.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\PSRAM_TOP.v":36)
+Undeclared symbol 'clk_x2', assumed default net type 'wire'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\PSRAM_TOP.v":87)
+Undeclared symbol 'dll_rsti', assumed default net type 'wire'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\PSRAM_TOP.v":89)
+Undeclared symbol 'uddcntln', assumed default net type 'wire'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\PSRAM_TOP.v":90)
+Undeclared symbol 'stop', assumed default net type 'wire'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\PSRAM_TOP.v":98)
+Undeclared symbol 'ddr_rsti', assumed default net type 'wire'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\PSRAM_TOP.v":104)
+Undeclared symbol 'pause', assumed default net type 'wire'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\PSRAM_TOP.v":117)
+Undeclared symbol 'ready', assumed default net type 'wire'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\PSRAM_TOP.v":122)
+Analyzing Verilog file 'C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v'
+Analyzing included file 'C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_local_define.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+Back to file 'C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+Analyzing included file 'psram_define.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+Back to file 'C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+Analyzing included file 'psram_param.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+Back to file 'C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+Analyzing included file 'C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_local_param.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+Back to file 'C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+Analyzing included file 'C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_local_define.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+Back to file 'C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+Analyzing included file 'psram_define.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+Back to file 'C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+Analyzing included file 'psram_param.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+Back to file 'C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+Analyzing included file 'C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_local_param.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+Back to file 'C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+Analyzing included file 'C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_local_define.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+Back to file 'C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+Analyzing included file 'psram_define.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+Back to file 'C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+Analyzing included file 'psram_param.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+Back to file 'C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+Analyzing included file 'C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_local_define.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+Back to file 'C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+Analyzing included file 'psram_define.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+Back to file 'C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+Analyzing included file 'psram_param.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+Back to file 'C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+Analyzing included file 'C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_local_param.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+Back to file 'C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+WARN  (EX3801) : Parameter 'C0_Reverse_Clk' becomes localparam in '~psram_memory_interface.PSRAM_Memory_Interface_HS_2CH_Top' with formal parameter declaration list("psram_param.v":1)
+WARN  (EX3801) : Parameter 'C0_Diff_Clk' becomes localparam in '~psram_memory_interface.PSRAM_Memory_Interface_HS_2CH_Top' with formal parameter declaration list("psram_param.v":2)
+WARN  (EX3801) : Parameter 'C1_Reverse_Clk' becomes localparam in '~psram_memory_interface.PSRAM_Memory_Interface_HS_2CH_Top' with formal parameter declaration list("psram_param.v":3)
+WARN  (EX3801) : Parameter 'C1_Diff_Clk' becomes localparam in '~psram_memory_interface.PSRAM_Memory_Interface_HS_2CH_Top' with formal parameter declaration list("psram_param.v":4)
+WARN  (EX3801) : Parameter 'Memory_Clock' becomes localparam in '~psram_memory_interface.PSRAM_Memory_Interface_HS_2CH_Top' with formal parameter declaration list("psram_param.v":5)
+WARN  (EX3801) : Parameter 'PSRAM_WIDTH' becomes localparam in '~psram_memory_interface.PSRAM_Memory_Interface_HS_2CH_Top' with formal parameter declaration list("psram_param.v":6)
+WARN  (EX3801) : Parameter 'DQ_WIDTH' becomes localparam in '~psram_memory_interface.PSRAM_Memory_Interface_HS_2CH_Top' with formal parameter declaration list("psram_param.v":7)
+WARN  (EX3801) : Parameter 'ADDR_WIDTH' becomes localparam in '~psram_memory_interface.PSRAM_Memory_Interface_HS_2CH_Top' with formal parameter declaration list("psram_param.v":8)
+WARN  (EX3801) : Parameter 'Burst_Length' becomes localparam in '~psram_memory_interface.PSRAM_Memory_Interface_HS_2CH_Top' with formal parameter declaration list("psram_param.v":9)
+WARN  (EX3801) : Parameter 'burst_num' becomes localparam in '~psram_memory_interface.PSRAM_Memory_Interface_HS_2CH_Top' with formal parameter declaration list("psram_param.v":11)
+WARN  (EX3801) : Parameter 'Fixed_Latency_Enable' becomes localparam in '~psram_memory_interface.PSRAM_Memory_Interface_HS_2CH_Top' with formal parameter declaration list("psram_param.v":12)
+WARN  (EX3801) : Parameter 'Initial_Latency' becomes localparam in '~psram_memory_interface.PSRAM_Memory_Interface_HS_2CH_Top' with formal parameter declaration list("psram_param.v":13)
+WARN  (EX3801) : Parameter 'Drive_Strength' becomes localparam in '~psram_memory_interface.PSRAM_Memory_Interface_HS_2CH_Top' with formal parameter declaration list("psram_param.v":14)
+WARN  (EX3801) : Parameter 'Deep_Power_Down' becomes localparam in '~psram_memory_interface.PSRAM_Memory_Interface_HS_2CH_Top' with formal parameter declaration list("psram_param.v":15)
+WARN  (EX3801) : Parameter 'Hybrid_Sleep_Mode' becomes localparam in '~psram_memory_interface.PSRAM_Memory_Interface_HS_2CH_Top' with formal parameter declaration list("psram_param.v":16)
+WARN  (EX3801) : Parameter 'Refresh_Rate' becomes localparam in '~psram_memory_interface.PSRAM_Memory_Interface_HS_2CH_Top' with formal parameter declaration list("psram_param.v":17)
+WARN  (EX3801) : Parameter 'PASR' becomes localparam in '~psram_memory_interface.PSRAM_Memory_Interface_HS_2CH_Top' with formal parameter declaration list("psram_param.v":18)
+WARN  (EX3801) : Parameter 'shift_delay' becomes localparam in '~psram_memory_interface.PSRAM_Memory_Interface_HS_2CH_Top' with formal parameter declaration list("psram_param.v":19)
+Analyzing included file 'C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_local_define.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+Back to file 'C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+Analyzing included file 'psram_define.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+Back to file 'C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+Analyzing included file 'psram_param.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+Back to file 'C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+Analyzing included file 'C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_local_param.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+Back to file 'C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":1257)
+WARN  (EX3788) : Block identifier is required on this block("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":0)
+WARN  (EX3073) : Port 'freeze' remains unconnected for this instance("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\PSRAM_TOP.v":123)
+Compiling module 'PSRAM_Memory_Interface_HS_2CH_Top'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\PSRAM_TOP.v":5)
+Compiling module '**'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":0)
+WARN  (EX2420) : Latch inferred for net '**'; We do not recommend the use of latches in FPGA designs, as they may lead to timing problems("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":0)
+WARN  (EX3791) : Expression size ** truncated to fit in target size **("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":0)
+WARN  (EX2565) : Port '**' is not connected on this instance("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":0)
+Compiling module '**'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":0)
+Compiling module '**'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":0)
+Compiling module '**'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":0)
+Extracting RAM for identifier '**'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":0)
+Extracting RAM for identifier '**'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":0)
+WARN  (EX3791) : Expression size ** truncated to fit in target size **("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":0)
+Compiling module '**'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":0)
+WARN  (EX1947) : Input port '**' remains unconnected for this instance("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":0)
+Compiling module '**'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":0)
+Compiling module '**'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":0)
+Compiling module '**'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":0)
+Extracting RAM for identifier '**'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":0)
+Extracting RAM for identifier '**'("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":0)
+WARN  (EX3791) : Expression size ** truncated to fit in target size **("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":0)
+WARN  (EX1947) : Input port '**' remains unconnected for this instance("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":0)
+NOTE  (EX0101) : Current top module is "PSRAM_Memory_Interface_HS_2CH_Top"
+WARN  (EX0211) : The output port "recalib" of module "~psram_lane.PSRAM_Memory_Interface_HS_2CH_Top" has no driver, assigning undriven bits to Z, simulation mismatch possible("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":0)
+WARN  (EX0211) : The output port "Cs_n" of module "~psram_init.PSRAM_Memory_Interface_HS_2CH_Top" has no driver, assigning undriven bits to Z, simulation mismatch possible("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":0)
+WARN  (EX0211) : The output port "STEN[0]" of module "~psram_init.PSRAM_Memory_Interface_HS_2CH_Top" has no driver, assigning undriven bits to Z, simulation mismatch possible("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":0)
+WARN  (EX0211) : The output port "recalib" of module "~psram_lane.PSRAM_Memory_Interface_HS_2CH_Top(Reverse_Clk="true")" has no driver, assigning undriven bits to Z, simulation mismatch possible("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":0)
+WARN  (NL0001) : Sweep user defined dangling instance "u_psram_top0/u_psram_wd/rwds_iodelay_gen[0].iodelay_rwds"("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":0)
+WARN  (NL0001) : Sweep user defined dangling instance "u_psram_top1/u_psram_wd/rwds_iodelay_gen[0].iodelay_rwds"("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":0)
+WARN  (NL0001) : Sweep user defined dangling instance "u_psram_top1/u_psram_wd/data_lane_gen[0].u_psram_lane/genclkneg.u_ckn_gen"("C:\app\Gowin\Gowin_V1.9.8.09_Education\IDE\ipcore\PSRAM_HS_2CH\data\psram_code.v":0)
+[5%] Running netlist conversion ...
+Running device independent optimization ...
+[10%] Optimizing Phase 0 completed
+[15%] Optimizing Phase 1 completed
+[25%] Optimizing Phase 2 completed
+Running inference ...
+[30%] Inferring Phase 0 completed
+[40%] Inferring Phase 1 completed
+[50%] Inferring Phase 2 completed
+[55%] Inferring Phase 3 completed
+Running technical mapping ...
+[60%] Tech-Mapping Phase 0 completed
+[65%] Tech-Mapping Phase 1 completed
+[75%] Tech-Mapping Phase 2 completed
+[80%] Tech-Mapping Phase 3 completed
+[90%] Tech-Mapping Phase 4 completed
+[95%] Generate netlist file "C:\kitahard\Tang_Nano_9K\fpganes\src\psram_memory_interface_hs_2ch\temp\psram_memory_interface_hs_2ch\psram_memory_interface_hs_2ch.vg" completed
+Generate template file "C:\kitahard\Tang_Nano_9K\fpganes\src\psram_memory_interface_hs_2ch\temp\psram_memory_interface_hs_2ch\psram_memory_interface_hs_2ch_tmp.v" completed
+[100%] Generate report file "C:\kitahard\Tang_Nano_9K\fpganes\src\psram_memory_interface_hs_2ch\temp\psram_memory_interface_hs_2ch\psram_memory_interface_hs_2ch_syn.rpt.html" completed
+GowinSynthesis finish

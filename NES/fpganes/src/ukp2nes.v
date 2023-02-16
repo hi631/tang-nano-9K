@@ -60,8 +60,9 @@ module ukp(
 	input usbclk,			// 12MHz
 	inout usb_dp, usb_dm,
 	output usb_oe,
-	output ukprdy, ukpstb,
-	output [7:0] ukpdat,
+	output reg ukprdy, 
+	output ukpstb,
+	output reg [7:0] ukpdat,
 	output conerr
 );
 
@@ -206,7 +207,7 @@ module ukp(
 				if(bitadr==24) ukprdy <= 1;
 				if(bitadr==88) ukprdy <= 0;
 			end
-			if((bitadr>11 & bitadr[2:0] == 3'b000) & (timing == 2)) ukpdat = data;
+			if((bitadr>11 & bitadr[2:0] == 3'b000) & (timing == 2)) ukpdat <= data;
 			// タイミング
 			interval <= interval_cy ? 0 : interval + 1;
 			record1 <= record;
@@ -227,8 +228,7 @@ module ukp(
 	assign sample = inst_ready & state == S_OPCODE & inst == 4'b1101 & timing == 4; // IN
 	assign record = connected & ~nak;
 	assign ukpstb = ~nrzon & ukprdy & (bitadr[2:0] == 3'b100) & (timing == 2);
-	reg       dpi, dmi;
-	reg       ukprdy, ukprdyd;
-	reg [7:0] ukpdat;
+	reg       dpi, dmi; 
+	reg       ukprdyd;
 endmodule
 

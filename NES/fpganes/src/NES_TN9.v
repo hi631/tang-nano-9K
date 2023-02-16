@@ -1,13 +1,10 @@
 // Copyright (c) 2012-2013 Ludvig Strigeus
 // This program is GPL Licensed. See COPYING for the full license.
-
 `timescale 1ns / 1ps
-//`define Use32K
+`define UseGamepad
 
 module NES_TN9(
         input 			clk27M,
-        //input CLK100MHZ, input CPU_RESET, 
-        //input [15:0] SW, output [7:0] SSEG_CA, output [7:0] SSEG_AN, output [5:0] gpio,
         // VGA output vga_vo, output vga_ho, output vga_ro, output vga_go, output vga_bo,
         // HDMI
         output       	tmds_clk_n,
@@ -34,32 +31,21 @@ module NES_TN9(
         );
 
   assign LED = ~{load_mode, ~conerr, 1'b0,load_resct};
-  assign cga_ho = vga_h;
-  assign vga_vo = vga_v;
-  assign vag_ro = vga_r[3];
-  assign vag_go = vga_g[3];
-  assign vag_bo = vga_b[3];
-
   wire breset = ~BTN[1];
   wire [15:0] SW = 16'b1111111111111111;
-  wire [7:0] SSEG_CA;
-  wire [7:0] SSEG_AN;
 
   wire pll_lock1,pll_lock2;
   wire pll_lock = pll_lock1 && pll_lock2;
-  wire clk_25, clk_126, clk_126b, clk_252;	// p5:125.875  p:25.175
+  wire clk_25, clk_126, clk_126b, clk_173, clk_252;	// p5:125.875  p:25.175
   wire clk;	// 21.477M(ORG) -> 21.6M
   wire clk_pixel = clk_25;
-  wire clk_ps = clk_126b;
+  wire clk_dram  = clk_173;
 
-  Gowin_rPLL  cpuclk( .clkin(clk27M), .clkout(), .clkoutd(clk), .lock(pll_lock1) );
+  Gowin_rPLL  cpuclk( .clkin(clk27M), .clkout(clk_173), .clkoutd(clk), .lock(pll_lock1) );
   Gowin_rPLL1 memclk( .clkin(clk27M), .clkout(clk_252), .clkoutd(clk_126), .lock(pll_lock2) );
   Gowin_CLKDIV2 u_div_2( .clkout(clk_126b), .hclkin(clk_252), .resetn(pll_lock) );
   Gowin_CLKDIV  u_div_5( .clkout(clk_25),   .hclkin(clk_126), .resetn(pll_lock) );
 
-	//wire [5:0] rout = {vga_r[3:0],2'b00};
-	//wire [5:0] gout = {vga_g[3:0],2'b00};
-	//wire [5:0] bout = {vga_b[3:0],2'b00};
     wire [3:0] vga_r, vga_g, vga_b;
 	wire vdma_tvalid;
 	wire vdma_tready;
@@ -70,24 +56,13 @@ module NES_TN9(
 	wire hblnk;
 
 svo_hdmi_out u_hdmi (
-	.resetn(~breset),
-	.clk_pixel(clk_25),
-	.clk_5x_pixel(clk_126),
-	.locked(pll_lock),
+	.resetn(~breset), .clk_pixel(clk_25), .clk_5x_pixel(clk_126), .locked(pll_lock),
 	// input VGA
-	.rout(vga_r),
-	.gout(vga_g),
-	.bout(vga_b),
-	.hsync_n(~vga_h),
-	.vsync_n(~vga_v),
-	.hblnk_n(hblnk || vblnk),
+	.rout(vga_r), .gout(vga_g), .bout(vga_b), .hsync_n(~vga_h),
+	.vsync_n(~vga_v), .hblnk_n(hblnk || vblnk),
 	// output signals
-	.tmds_clk_n(tmds_clk_n),
-	.tmds_clk_p(tmds_clk_p),
-	.tmds_d_n(tmds_d_n),
-	.tmds_d_p(tmds_d_p),
-	.tmds_ts()
-);
+	.tmds_clk_n(tmds_clk_n), .tmds_clk_p(tmds_clk_p),
+	.tmds_d_n(tmds_d_n), .tmds_d_p(tmds_d_p), .tmds_ts() );
 
   // UART(ROM.Load & Debug)
   wire [7:0] uart_data;
@@ -98,15 +73,16 @@ svo_hdmi_out u_hdmi (
 
   // load
   wire [7:0] load_input = uart_data;
-  wire       load_clk   = (uart_addr == 8'h37) && uart_write;
+  wire       load_stb   = (uart_addr == 8'h37) && uart_write;
   reg  [7:0] load_conf;
   reg  [7:0] load_btn, load_btn_2;
   always @(posedge clk) begin
-    if (load_res)                load_conf  <= 0;
-    else  
-    if (uart_addr == 8'h35 && uart_write) load_conf  <= uart_data;
-    if (uart_addr == 8'h40 && uart_write) load_btn   <= uart_data;
-    if (uart_addr == 8'h41 && uart_write) load_btn_2 <= uart_data;
+    if (load_res)             load_conf  <= 0;
+    else if(uart_write) begin 
+      if (uart_addr == 8'h35) load_conf  <= uart_data;
+      if (uart_addr == 8'h40) load_btn   <= uart_data;
+      if (uart_addr == 8'h41) load_btn_2 <= uart_data;
+    end
   end
 
   wire [21:0] load_addr;
@@ -116,10 +92,15 @@ svo_hdmi_out u_hdmi (
   wire load_write;
   wire [31:0] mapper_flags;
   wire load_done, load_fail;
-  Gameload load(clk, load_reset, load_input, load_clk,
+  Gameload load(clk, load_reset, load_input, load_stb,
            load_addr, load_write_data, load_write,
            mapper_flags, load_done, load_state, load_fail);
 
+  wire clk_test = (load_stb || load_stbd) && clk_mctr;
+  reg load_stbd;
+  always @(posedge clk) begin
+    load_stbd <= load_stb;
+  end
   // NES Palette -> RGB332 conversion
   //reg [14:0] pallut[0:63];
   //initial $readmemh("nes_palette.txt", pallut);
@@ -140,16 +121,20 @@ svo_hdmi_out u_hdmi (
   wire [5:0] color;
   wire joypad_strobe;
   wire [1:0] joypad_clock;
-  wire [21:0] nes_memaddr;
   wire mem_read_cpu, mem_read_ppu;
   wire mem_write;
   wire [7:0] mem_din_cpu, mem_din_ppu;
-  wire [7:0] mem_dout;
+  wire [7:0] chr_dout;
   reg [7:0] joypad_bits, joypad_bits2;
   reg [1:0] last_joypad_clock;
   wire [31:0] dbgadr;
   wire [1:0] dbgctr;
   reg [1:0] nes_ce;
+  wire [1:0] cpu_cycle_counter; ////
+  wire [21:0] prg_linaddr;
+  wire [21:0] chr_linaddr;
+  wire [7:0]  prg_din;
+  wire [15:0] cpu_addr;
 
   always @(posedge clk) begin
     if (joypad_strobe) begin
@@ -163,76 +148,55 @@ svo_hdmi_out u_hdmi (
       joypad_bits2 <= {1'b0, joypad_bits2[7:1]};
     last_joypad_clock <= joypad_clock;
   end
-  
-  wire reset_nes = (breset || !load_done || !ps_calib);
-  wire run_mem = (nes_ce == 0) && !reset_nes;
-  wire run_nes = (nes_ce == 3) && !reset_nes;
 
   // NES is clocked at every 4th cycle.
-  wire [1:0] cpu_cycle_counter; ////
-  always @(posedge clk)
+  //wire reset_nes = (breset || !load_done || !ps_calib);
+  //wire run_mem = (nes_ce == 0) && !reset_nes;
+  reg  reset_nes, run_nes;
+  always @(posedge clk) begin
     nes_ce <= nes_ce + 1;
+    reset_nes <= (breset || !load_done || !ps_calib);
+    run_nes   <= (nes_ce == 3) && !reset_nes;
+  end
 
-  wire psr_mt00 = load_done && nes_ce==2'b00 && cpu_cycle_counter==2'b00; 
-  wire [21:0] prg_linaddr;
-  wire [7:0]  prg_din;
-  
   NES nes(clk, reset_nes, run_nes,
           mapper_flags,
           sample, color,
           joypad_strobe, joypad_clock, {joypad_bits2[0], joypad_bits[0]},
           SW[4:0],
-          nes_memaddr,
+          chr_linaddr,
           mem_read_cpu, mem_din_cpu,
           mem_read_ppu, mem_din_ppu,
-          mem_write, mem_dout,
+          chr_write, chr_dout,
           cycle, scanline,
-          prg_linaddr,
-          prg_din,
-          prg_read,
-          prg_write,
+          cpu_addr,
+          prg_linaddr, prg_din, prg_read, prg_write,
           cpu_cycle_counter,
-          dbgadr,
-          dbgctr,
-          UART_TXD,
-          UART_RXD
-);
+          dbgadr, dbgctr,
+          UART_TXD, UART_RXD );
 
   // This is the memory controller to access the board's PSRAM
-  wire MemOE, MemWR, MemWait;
-  wire RamCS;
-  wire ram_busy;
   wire [23:0] psr_maddr    = ~load_done ? {2'b00, load_addr} : {2'b00, prg_linaddr};
-  wire [23:0] mem_addr_mc  = ~load_done ? {2'b00, load_addr} : {2'b00, nes_memaddr};
-  wire  [7:0] mem_din_mc   = ~load_done ? load_write_data : mem_dout;
+  wire [23:0] ppu_addr     = ~load_done ? {2'b00, load_addr} : {2'b00, chr_linaddr};
+  wire  [7:0] ppu_din      = ~load_done ? load_write_data : chr_dout;
   wire  [7:0] psr_mdin     = ~load_done ? load_write_data : prg_din;
   wire        psr_wen      = ~load_done ? load_write      : prg_write;
-  MemoryController memory(clk,
-         mem_read_cpu && run_mem, 
-         mem_read_ppu && run_mem,
-         mem_write && run_mem || load_write,
-         mem_addr_mc, //load_write ? {2'b00, load_addr} : {2'b00, nes_memaddr},
-         mem_din_mc,  //load_write ? load_write_data : mem_dout,
-         mem_din_cpu,
-         mem_din_ppu,
-         ram_busy,
+  wire        ppu_write    = ~load_done ? load_write      : chr_write;
+  wire ppuwrinh = ~(cpu_addr[15] && prg_write);
+  wire psr_mt00 = load_done ? nes_ce==2'b00 && cpu_cycle_counter==2'b00 && ppuwrinh :
+					          psr_wen && (psr_maddr[21]==1'b0); 
+ MemoryController memory(clk, cycle,
+         mem_read_cpu, mem_read_ppu,
+         ppu_write, ppu_addr, ppu_din,
+         mem_din_cpu, mem_din_ppu,
 		 // PSRAM
-         psr_maddr,
-         psr_mdin,
-         psr_wen,
-         psr_mt00,
-         load_done,
-		 breset,
-		 clk_ps, 	// clkx4(86.4)=clk(1.8M)x12
-		 pll_lock,	// ps reset
-		 ps_calib,	// ps ready
-		 O_psram_ck,
-		 O_psram_ck_n,
-		 IO_psram_rwds,
-		 IO_psram_dq,
-		 O_psram_reset_n,
-		 O_psram_cs_n
-                 );
+         psr_maddr, psr_mdin, psr_wen,
+         psr_mt00, breset, clk_dram, 	// clk(221.6)x8=172.8MHz
+		 pll_lock,	ps_calib, clk_mctr,
+		 O_psram_ck, O_psram_ck_n,
+		 IO_psram_rwds, IO_psram_dq,
+		 O_psram_reset_n, O_psram_cs_n );
+/*
   reg ramfail;
   always @(posedge clk) begin
     if (load_reset)
@@ -240,7 +204,7 @@ svo_hdmi_out u_hdmi (
     else
       ramfail <= ram_busy && load_write || ramfail;
   end
-
+*/
   wire [14:0] doubler_pixel;
   wire doubler_sync, hvlnk, vblnk;
   wire [9:0] vga_hcounter, doubler_x;
@@ -291,6 +255,9 @@ svo_hdmi_out u_hdmi (
   end
 
 	// USB_KB
+	wire [7:0] btn_nes;
+	wire       conerr;
+`ifdef UseGamepad
 	wire usbclk = uclko; // 125.875MHz/10.5=11.988MHz 
 	reg  [3:0] uclkct;
 	reg        uclkcta, uclko;
@@ -301,8 +268,6 @@ svo_hdmi_out u_hdmi (
 		else          uclko <= 0;
 	end
 
-	wire [7:0] btn_nes;
-	wire       conerr;
 	ukp2nes ukp2nes(
 		.usbclk(usbclk),		// 12MHz
 		.usbrst_n(~breset),		// reset
@@ -310,180 +275,222 @@ svo_hdmi_out u_hdmi (
 		.usb_dp(usb_dp),
 		.btn_nes(btn_nes),
 		.conerr(conerr) );
-
+`endif
 endmodule
 
 // Asynchronous PSRAM controller for byte access
 // After outputting a byte to read, the result is available 70ns later.
 module MemoryController(
         input clk,
-        input read_a,             // Set to 1 to read from RAM
-        input read_b,             // Set to 1 to read from RAM
-        input write,              // Set to 1 to write to RAM
-        input [23:0] addr,        // Address to read / write
-        input [7:0] din,          // Data to write
-        output reg [7:0] dout_a,  // Last read data a
-        output reg [7:0] dout_b,  // Last read data b
-        output reg busy,          // 1 while an operation is in progress
-	// PSRAM(Internal connection)
-    input  wire [23:0]  psr_maddr,
-    input  wire [7:0]   psr_mdin,
-    input               load_write,
-	input				psr_mt00,
-	input				load_done,
-	input  wire			reset,
-	input  wire			psram_clk,
-	input  wire			pll_lock,
-	output wire			ps_calib,
-	output wire [1:0] 	O_psram_ck,
-	output wire [1:0] 	O_psram_ck_n,
-	inout  wire [1:0] 	IO_psram_rwds,
-	inout  wire [15:0]	IO_psram_dq,
-	output wire [1:0] 	O_psram_reset_n,
-	output wire [1:0] 	O_psram_cs_n
+		input [8:0] cycle,
+        input read_cpu,             // Set to 1 to read from RAM
+        input read_ppu,             // Set to 1 to read from RAM
+        input write_ppu,            // Set to 1 to write to RAM
+        input [23:0] addr_ppu,      // Address to read / write
+        input [7:0] din_ppu,        // Data to write
+        output reg [7:0] dout_cpu,  // Last read data a
+        output reg [7:0] dout_ppu,  // Last read data b
+		// PSRAM(Internal connection)
+		input  wire [23:0]  psr_maddr,
+		input  wire [7:0]   psr_mdin,
+		input               psr_wen,
+		input				psr_mt00,
+		input  wire			reset,
+		input  wire			clk_dram,
+		input  wire			pll_lock,
+		output wire			ps_calib,
+		output wire			clk_mctr,
+		output wire [1:0] 	O_psram_ck,
+		output wire [1:0] 	O_psram_ck_n,
+		inout  wire [1:0] 	IO_psram_rwds,
+		inout  wire [15:0]	IO_psram_dq,
+		output wire [1:0] 	O_psram_reset_n,
+		output wire [1:0] 	O_psram_cs_n
     );
         
-  reg [23:0] maddr;
-  reg [7:0] mem_din;
-  reg [1:0] cycles;
-  reg r_read_b;
-  reg MemWR,MemOE;
+  reg [23:0] ppu_maddr;
+  reg [7:0]  ppu_mem_din;
+  reg ppuwr;
+  wire run_ppu = read_ppu || write_ppu;
+  reg  run_ppud, read_ppud;;
   always @(posedge clk) begin
-    // Initiate read or write
-    if (!busy) begin
-       if (read_b || write) begin
-        maddr <= addr; mem_din <= din; r_read_b <= read_b;
-		MemWR <= write;  MemOE <= ~write; busy <= 1; cycles <= 0;
-      end else begin
-        MemOE <= 0; MemWR <= 0; busy <= 0; cycles <= 0;
-      end
-    end else begin
-      if (cycles == 2) begin
-         if (MemOE) begin
-          if (r_read_b) dout_b <= ppuDB;
-        end
-        MemOE <= 0; MemWR <= 0; busy <= 0; cycles <= 0;
-      end else cycles <= cycles + 1;
+    run_ppud <= run_ppu; read_ppud <= read_ppu;
+      if (run_ppu && ~run_ppud) begin
+        ppu_maddr <= addr_ppu; ppu_mem_din <= din_ppu; ppuwr <= write_ppu; end
+      if (|run_ppu && run_ppud) begin
+        if (read_ppud) begin 
+			if(ppuramCS) dout_ppu <= ppuramdo; 
+		end
+		ppuwr <= 0;
     end
-`ifndef Use32K
-	if(cpuramCS)    dout_a <= cpuramdo;
-	else
-`endif
-		if(sddtac) dout_a <= psr_mdo;
+	if(ppumemCS) dout_ppu <= ps_mdo1;
 	//
+	if(cpuramCS)      dout_cpu <= cpuramdo;
+	else
+		if(ps_dtac0 && cpumemCS) dout_cpu <= ps_mdo0;
   end
 
     // ========================================================================
     // SRAM
     // ========================================================================
-  wire cpumemCS = psadr[21]   ==1'b0;
-  wire cpuramCS = psadr[21:18]==4'b1110; 
-  wire ppumemCS = maddr[21:20]==2'b10; 
-  wire ppuramCS = maddr[21:18]==4'b1100; 
-  wire cartCS   = maddr[21:18]==4'b1111;
-  wire [15:0] cpumemdo, ppumemdo, cpuramdo, ppuramdo; 
+  wire cpumemCS = psr_maddr[21]   ==1'b0;
+  wire ppumemCS = ppu_maddr[21:20]==2'b10; 
+  wire ppuramCS = ppu_maddr[21:18]==4'b1100; 
+  wire cpuramCS = psr_maddr[21:18]==4'b1110; 
+  wire cpucrtCS = ppu_maddr[21:18]==4'b1111;
+  wire [7:0] cpumemdo, ppumemdo, cpuramdo, cpucrtdo, ppuramdo; 
   wire [7:0]  ppuDB = ppumemCS ? ppumemdo[7:0] : ppuramdo[7:0];  
 
-`ifndef Use32K
     Gowin_SP_2KBx8 cpuram(
-        .clk(clk), .reset(1'b0), .oce(1'b1), .ce(cpuramCS), .wre(pswr),
-        .ad(psadr[10:0]), .din(din), .dout(cpuramdo[ 7:0]) );
-    Gowin_SP_16KBx8 ppumem(
-        .clk(clk), .reset(1'b0), .oce(1'b1), .ce(ppumemCS), .wre(MemWR),
-        .ad(maddr[13:0]), .din(mem_din), .dout(ppumemdo[ 7:0]) );
-`else
-    Gowin_SP_32KBx8 ppumem(
-        .clk(clk), .reset(1'b0), .oce(1'b1), .ce(ppumemCS), .wre(MemWR),
-        .ad(maddr[14:0]), .din(mem_din), .dout(ppumemdo[ 7:0]) );
-`endif
+        .clk(clk), .reset(1'b0), .oce(1'b1), .ce(cpuramCS), .wre(psr_wen),
+        .ad(psr_maddr[10:0]), .din(psr_mdin), .dout(cpuramdo[ 7:0]) );
     Gowin_SP_2KBx8 ppuram(
-        .clk(clk), .reset(1'b0), .oce(1'b1), .ce(ppuramCS), .wre(MemWR),
-        .ad(maddr[10:0]), .din(mem_din), .dout(ppuramdo[ 7:0]) );
+        .clk(clk), .reset(1'b0), .oce(1'b1), .ce(ppuramCS), .wre(ppuwr),
+        .ad(ppu_maddr[10:0]), .din(ppu_mem_din), .dout(ppuramdo[ 7:0]) );
+    //Gowin_SP_32KBx8 ppumem(
+    //    .clk(clk), .reset(1'b0), .oce(1'b1), .ce(ppumemCS), .wre(ppuwr),
+    //    .ad(ppu_maddr[14:0]), .din(ppu_mem_din), .dout(ppumemdo[ 7:0]) );
 
     // ========================================================================
-    // 8 MB DRAM
+    // 4 MB(8bit) DRAM0
     // ========================================================================
-	reg  [23:0] psadr,psr_radr;
-	wire [3:0]  wmask = wren ? (4'b0001 << maddr[1:0]) : 4'b0000;
-	wire [7:0]  psdi  = psr_mdin;
-	reg  [7:0]  psr_mdo;
-	reg  psram_cs; 
-	//wire psram_sig    = maddr[21]==1'b0 && maddr[15:8]==8'h30;
-	wire wren         = load_write || write;
+	reg  [23:0] psadr0;
+	reg  [7:0]  ps_mdo0;
+	wire [7:0]  psdi0  = psr_mdin;
 
-	reg  cmd, cmd_en, cmd_run, cmd_bsy;
-	reg  [63:0] mlb[0:3];	// psram Buf(64Byte=8Byte x 4)
-
-	wire psram_csu = psram_cs  && (~psram_csd);
-	reg  pswr;
-	reg  adrchgh, adrchgd, psram_csd, sddtac;
-	reg  [5:0]  tmcnt;
-	reg  [4:0]  mbp;
-	reg  [3:0]  psbp;
-	reg         psone, rd_validd, dcsdlyf;
-	reg  [24:0] rcadr;
-	wire cachematch =0;// No.Cache rcadr[24:5]=={1'b1, psadr[23:5]} ? 1'b1 : 1'b0;
+	reg  psram0_cs; 
+	wire psram0_csu = psram0_cs  && (~psram0_csd);
+	reg  pswr0;
+	reg  psram0_csd, ps_dtac0;
+	reg  cmd0, cmd_en0, cmd_bsy0;
+	reg  [31:0] mlb0[0:3];	// psram Buf(16Byte=4Byte x 4)
+	reg  [5:0]  tmcnt0;
+	reg  [3:0]  mbp0, psbp0;
 
 	always @(posedge clk_mctr) begin
 		if(reset) begin
-			cmd_en <= 0; cmd_bsy <= 0; tmcnt <= 0; rcadr[24] <= 0; 
+			cmd_en0 <= 0; cmd_bsy0 <= 0; tmcnt0 <= 0; //rcadr[24] <= 0;
 		end else begin
-			psram_cs <= load_write || psr_mt00;	psram_csd <= psram_cs;
-			if(psram_csu) begin
-				if((~wren && ~cachematch) || wren ) begin
-					cmd_en <= 1; cmd <= wren; psbp <= 0; 
-					if(~wren) tmcnt <= 22;	// Read.Delay	// burst is 16, the command interval is 15 clock
-					else      tmcnt <= 18;	// Write.Delay
-					psadr <= psr_maddr; pswr <= wren; cmd_bsy <= 1;
-				end else  tmcnt <=  2;	// Cache.Hit
+
+			psram0_cs <= psr_mt00; 
+			psram0_csd <= psram0_cs;
+			if(psram0_csu) begin
+				cmd_en0 <= 1; cmd0 <= psr_wen; psbp0 <= 0; 
+				if(~psr_wen) tmcnt0 <= 22;	// Read.Delay	// burst is 16, the command interval is 15 clock
+				else         tmcnt0 <= 18;	// Write.Delay
+				psadr0 <= psr_maddr; pswr0 <= psr_wen; cmd_bsy0 <= 1;
 			end
-			mbp[4:0] <= psadr[4:0];
-			if(cmd_en) cmd_en <= 0;
+			mbp0[3:0] <= psadr0[3:0];
+			if(cmd_en0) cmd_en0 <= 0;
 			//
-			if(cmd_bsy) begin
-				if(rd_valid) mlb[psbp] <= ps_rddt;
-				if((pswr && psbp<4) || rd_valid) psbp <= psbp + 4'd1;
+			if(cmd_bsy0) begin
+				if(rd_valid0) mlb0[psbp0] <= ps_rddt0;
+				if((pswr0 && psbp0<4) || rd_valid0) psbp0 <= psbp0 + 4'd1;
 			end
 			//
-			if(tmcnt==2) begin
-				sddtac <= 1;
-				if(~pswr) rcadr[24:5] <= {1'b1, psadr[23:5]};	// Cache.Addr set
-				else if(cachematch) rcadr[24] <= 0;				// Cache.Addr discard 
-			end 
-			else if(tmcnt==1) begin 
-				cmd_bsy <= 0;
-				psr_mdo <=  
-					mbp[2:0]==3'h7 ? mlb[mbp[4:3]][63:56] : 
-					mbp[2:0]==3'h3 ? mlb[mbp[4:3]][55:48] :
-					mbp[2:0]==3'h6 ? mlb[mbp[4:3]][47:40] : 
-					mbp[2:0]==3'h2 ? mlb[mbp[4:3]][39:32] :
-					mbp[2:0]==3'h5 ? mlb[mbp[4:3]][31:24] : 
-					mbp[2:0]==3'h1 ? mlb[mbp[4:3]][23:16] :
-					mbp[2:0]==3'h4 ? mlb[mbp[4:3]][15: 8] :
-									 mlb[mbp[4:3]][ 7: 0] ; 
+			if(tmcnt0==2) ps_dtac0 <= 1;
+			else if(tmcnt0==1) begin 
+				if(~pswr0) ps_mdo0 <=  
+					mbp0[1:0]==3'h3 ? mlb0[mbp0[3:2]][31:24] :
+					mbp0[1:0]==3'h2 ? mlb0[mbp0[3:2]][23:16] :
+					mbp0[1:0]==3'h1 ? mlb0[mbp0[3:2]][15: 8] :
+									  mlb0[mbp0[3:2]][ 7: 0] ; 
+				cmd_bsy0 <= 0;
 			end
-			if(tmcnt!=0) tmcnt <= tmcnt - 6'd1;
-			if(psr_mt00) sddtac <= 0;
+			if(tmcnt0!=0) tmcnt0 <= tmcnt0 - 6'd1;
+			else          ps_dtac0 <= 0;
 		end
 	end
 
-	wire [23:0] ps_addr = {psadr[23:5], 4'h0};
-	wire [7:0]  ps_mask = psadr[4:3]==psbp[1:0] ? ps_mptn : 8'hff;
-	wire [7:0]  ps_mptn = ~(8'b00000001 << {5'h0,psadr[2:0]});
-	wire [63:0] ps_wrdt = {psdi,psdi,psdi,psdi,psdi,psdi,psdi,psdi};			// Write.DataSet(64bit)
-	//wire [15:0] psbd    = psdin[15:0]; 
+	wire [23:0] ps_addr0 = {psadr0[23:4], 3'h0};
+	wire [7:0]  ps_mask0 = psadr0[3:2]==psbp0[1:0] ? ps_mptn0 : 8'hff;
+	wire [7:0]  ps_mptn0 = ~(8'b00000001 << {6'h0,psadr0[1:0]});
+	wire [31:0] ps_wrdt0 = {psdi0,psdi0,psdi0,psdi0};			// Write.DataSet(32bit)
+	wire [31:0] ps_rddt0;
+	wire        rd_valid0, clk_mctr, ps_calib, error;
+	reg         ps_calibd;
 
-	wire [63:0] ps_rddt;
-	wire        rd_valid, clk_mctr, ps_calib, error;
-	PSRAM_Memory_Interface_HS_Top_B16 u_psram_top(
-		.rst_n(~reset), .clk(clk), .memory_clk(psram_clk), .pll_lock(pll_lock),
+    // ========================================================================
+    // 4 MB(8bit) DRAM1
+    // ========================================================================
+	reg  [23:0] psadr1;
+	reg  [7:0]  ps_mdo1;
+	wire [7:0]  psdi1  = din_ppu;
+
+	reg  psram1_cs; 
+	wire psram1_csu = psram1_cs  && (~psram1_csd);
+	reg  pswr1,wppud,wppudd;
+	reg  psram1_csd, ps_dtac1;
+	reg  cmd1, cmd_en1, cmd_bsy1;
+	reg  [31:0] mlb1[0:3];	// psram Buf(16Byte=4Byte x 4)
+	reg  [5:0]  tmcnt1;
+	reg  [3:0]  mbp1, mbp2, psbp1;
+	reg  [1:0]  bgnsel;
+
+	always @(posedge clk_mctr) begin
+		if(reset) begin
+			cmd_en1 <= 0; cmd_bsy1 <= 0; tmcnt1 <= 0;
+		end else begin
+
+			psram1_cs <= read_ppu || (write_ppu && addr_ppu[21:20]==2'b10); 
+			psram1_csd <= psram1_cs;
+			wppud <= write_ppu;
+			if(~ppumemCS) bgnsel <= 0;
+			if(write_ppu && ~wppud) wppudd <= 1; 
+			if(psram1_csu) begin
+				cmd_en1 <= 1; cmd1 <= write_ppu; psbp1 <= 0; 
+				if(~write_ppu) tmcnt1 <= 22;	// Read.Delay	// burst is 16, the command interval is 15 clock
+				else           tmcnt1 <= 18;	// Write.Delay
+				psadr1 <= addr_ppu; pswr1 <= write_ppu; cmd_bsy1 <= 1;
+				wppudd <= 0;
+			end
+			mbp1[3:0] <= psadr1[3:0]; mbp2[3:0] <= psadr1[3:0]+4'd8;
+			if(cmd_en1) cmd_en1 <= 0;
+			//
+			if(cmd_bsy1) begin
+				if(rd_valid1) mlb1[psbp1] <= ps_rddt1;
+				if((pswr1 && psbp1<4) || rd_valid1) psbp1 <= psbp1 + 4'd1;
+			end
+			//
+			if(tmcnt1==2) ps_dtac1 <= 1;
+			else if(tmcnt1==1) begin 
+				if(~pswr1) 
+						ps_mdo1 <=  
+						mbp1[1:0]==3'h3 ? mlb1[mbp1[3:2]][31:24] :
+						mbp1[1:0]==3'h2 ? mlb1[mbp1[3:2]][23:16] :
+						mbp1[1:0]==3'h1 ? mlb1[mbp1[3:2]][15: 8] :
+										  mlb1[mbp1[3:2]][ 7: 0] ; 
+				if(bgnsel!=2'b11) bgnsel <= bgnsel + 1;
+				cmd_bsy1 <= 0;
+			end
+			if(tmcnt1!=0) tmcnt1 <= tmcnt1 - 6'd1;
+			if(psr_mt00) ps_dtac1 <= 0;
+		end
+	end
+
+	wire [23:0] ps_addr1 = {psadr1[23:4], 3'h0};
+	wire [7:0]  ps_mask1 = psadr1[3:2]==psbp1[1:0] ? ps_mptn1 : 8'hff;
+	wire [7:0]  ps_mptn1 = ~(8'b00000001 << {6'h0,psadr1[1:0]});
+	wire [31:0] ps_wrdt1 = {psdi1,psdi1,psdi1,psdi1};			// Write.DataSet(32bit)
+	wire [31:0] ps_rddt1;
+	wire        rd_valid1;
+
+    // ========================================================================
+    // 4 MB(8bit)x2 DRAM
+    // ========================================================================
+	wire ps_calib0,ps_calib1;
+	assign ps_calib = ps_calib0 && ps_calib1;
+	PSRAM_Memory_Interface_HS_WB16 your_instance_name(
+		.clk(clk), .rst_n(~reset), .memory_clk(clk_dram), .pll_lock(pll_lock),
+		.clk_out(clk_mctr), .init_calib0(ps_calib0), .init_calib1(ps_calib1),
 		.O_psram_ck(O_psram_ck), .O_psram_ck_n(O_psram_ck_n),
-		.IO_psram_rwds(IO_psram_rwds), .IO_psram_dq(IO_psram_dq),
 		.O_psram_reset_n(O_psram_reset_n), .O_psram_cs_n(O_psram_cs_n),
-		.addr({ps_addr[21:1]}), .wr_data(ps_wrdt), .rd_data(ps_rddt),
-		.cmd(cmd), .cmd_en(cmd_en), .data_mask(ps_mask),
-		.rd_data_valid(rd_valid), .clk_out(clk_mctr), .init_calib(ps_calib)
-		);
+		.IO_psram_rwds(IO_psram_rwds), .IO_psram_dq(IO_psram_dq),
+		.cmd0(cmd0),  .cmd_en0(cmd_en0),  .data_mask0(ps_mask0),  .rd_data_valid0(rd_valid0),
+		.addr0(ps_addr0[20:0]), .wr_data0(ps_wrdt0), .rd_data0(ps_rddt0),
+		.cmd1(cmd1), .cmd_en1(cmd_en1), .data_mask1(ps_mask1), .rd_data_valid1(rd_valid1),
+		.addr1({1,b0,ps_addr1[19:0]}), .wr_data1(ps_wrdt1), .rd_data1(ps_rddt1)
+	);
 
 endmodule  // MemoryController
 
@@ -491,8 +498,8 @@ endmodule  // MemoryController
 // Done is asserted when the whole game is loaded.
 // This parses iNES headers too.
 module Gameload(input clk, input reset,
-         input [7:0] indata, input indata_clk,
-         output reg [21:0] mem_addr, output [7:0] mem_data, output mem_write,
+         input [7:0] indata, input indata_stb,
+         output reg [21:0] load_addr, output [7:0] load_data, output load_write,
          output [31:0] mapper_flags,
          output reg done, output state, output error);
   reg [1:0] state = 0;
@@ -504,8 +511,8 @@ module Gameload(input clk, input reset,
   assign error = (state == 3);
   wire [7:0] prgrom = ines[4];
   wire [7:0] chrrom = ines[5];
-  assign mem_data = indata;
-  assign mem_write = (bytes_left != 0) && (state == 1 || state == 2) && indata_clk;
+  assign load_data  = indata;
+  assign load_write = (bytes_left != 0) && (state == 1 || state == 2) && indata_stb;
   
   wire [2:0] prg_size = prgrom <= 1  ? 0 : prgrom <= 2  ? 1 : 
                prgrom <= 4  ? 2 : prgrom <= 8  ? 3 : 
@@ -518,32 +525,30 @@ module Gameload(input clk, input reset,
   
   wire [7:0] mapper = {ines[7][7:4], ines[6][7:4]};
   wire has_chr_ram = (chrrom == 0);
-  assign mapper_flags = {16'b0, has_chr_ram, ines[6][0], chr_size, prg_size, mapper};
+  assign mapper_flags = {8'b0, ines[7][3:0], ines[6][3:0],has_chr_ram, ines[6][0], chr_size, prg_size, mapper};
   always @(posedge clk) begin
     if (reset) begin
-      state <= 0;
-      done <= 0;
-      ctr <= 0;
-      mem_addr <= 0;  // Address for PRG
+      state <= 0; done <= 0; ctr <= 0;
+      load_addr <= 0;  // Address for PRG
     end else begin
       case(state)
       // Read 16 bytes of ines header
-      0: if (indata_clk) begin
+      0: if (indata_stb) begin
            ctr <= ctr + 1;
            ines[ctr] <= indata;
            bytes_left <= {prgrom, 14'b0};
            if (ctr == 4'b1111)
              state <= (ines[0] == 8'h4E) && (ines[1] == 8'h45) && (ines[2] == 8'h53) && (ines[3] == 8'h1A) && !ines[6][2] && !ines[6][3] ? 1 : 3;
          end
-      1, 2: begin // Read the next |bytes_left| bytes into |mem_addr|
+      1, 2: begin // Read the next |bytes_left| bytes into |load_addr|
           if (bytes_left != 0) begin
-            if (indata_clk) begin
+            if (indata_stb) begin
               bytes_left <= bytes_left - 1;
-              mem_addr <= mem_addr + 1;
+              load_addr <= load_addr + 1;
             end
           end else if (state == 1) begin
             state <= 2;
-            mem_addr <= 22'b10_0000_0000_0000_0000_0000;	// Address for CHR // 22'h200000
+            load_addr <= 22'b10_0000_0000_0000_0000_0000;	// Address for CHR // 22'h200000
             bytes_left <= {1'b0, chrrom, 13'b0};
           end else if (state == 2) begin
             done <= 1;

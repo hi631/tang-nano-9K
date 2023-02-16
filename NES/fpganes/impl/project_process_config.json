@@ -73,7 +73,7 @@
  "Use_Clock_Period_for_Unconstrainted IO" : false,
  "Use_SCF" : false,
  "VHDL_Standard" : "VHDL_Std_1993",
- "Verilog_Standard" : "Vlg_Std_2001",
+ "Verilog_Standard" : "Vlg_Std_Sysv2017",
  "WAKE_UP" : "0",
  "Write_Vendor_Constraint_File" : true,
  "dsp_balance" : false,

@@ -1,119 +1,119 @@
 {
  "Files" : [
   {
-   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/NES/fpganes/src/DeltaSigmadac.v",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/DeltaSigmadac.v",
    "Type" : "verilog"
   },
   {
-   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/NES/fpganes/src/MicroCode.v",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/MicroCode.v",
    "Type" : "verilog"
   },
   {
-   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/NES/fpganes/src/NES_TN9.v",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/NES_TN9.v",
    "Type" : "verilog"
   },
   {
-   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/NES/fpganes/src/apu.v",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/apu.v",
    "Type" : "verilog"
   },
   {
-   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/NES/fpganes/src/compat.v",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/compat.v",
    "Type" : "verilog"
   },
   {
-   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/NES/fpganes/src/cpu.v",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/cpu.v",
    "Type" : "verilog"
   },
   {
-   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/NES/fpganes/src/gowin_clkdiv/gowin_clkdiv.v",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/gowin_clkdiv/gowin_clkdiv.v",
    "Type" : "verilog"
   },
   {
-   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/NES/fpganes/src/gowin_clkdiv/gowin_clkdiv2.v",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/gowin_clkdiv/gowin_clkdiv2.v",
    "Type" : "verilog"
   },
   {
-   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/NES/fpganes/src/gowin_rpll/gowin_rpll.v",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/gowin_rpll/gowin_rpll.v",
    "Type" : "verilog"
   },
   {
-   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/NES/fpganes/src/gowin_rpll/gowin_rpll1.v",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/gowin_rpll/gowin_rpll1.v",
    "Type" : "verilog"
   },
   {
-   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/NES/fpganes/src/gowin_sp/gowin_sp_16KBx8.v",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/gowin_sp/gowin_sp_16KBx8.v",
    "Type" : "verilog"
   },
   {
-   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/NES/fpganes/src/gowin_sp/gowin_sp_2KBx8.v",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/gowin_sp/gowin_sp_2KBx8.v",
    "Type" : "verilog"
   },
   {
-   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/NES/fpganes/src/gowin_sp/gowin_sp_32KBx8.v",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/gowin_sp/gowin_sp_32KBx8.v",
    "Type" : "verilog"
   },
   {
-   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/NES/fpganes/src/gowin_sp/gowin_sp_8KBx8.v",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/gowin_sp/gowin_sp_8KBx8.v",
    "Type" : "verilog"
   },
   {
-   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/NES/fpganes/src/hdmi/svo_enc.v",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hdmi/svo_enc.v",
    "Type" : "verilog"
   },
   {
-   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/NES/fpganes/src/hdmi/svo_hdmi_out.v",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hdmi/svo_hdmi_out.v",
    "Type" : "verilog"
   },
   {
-   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/NES/fpganes/src/hdmi/svo_tcard.v",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hdmi/svo_tcard.v",
    "Type" : "verilog"
   },
   {
-   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/NES/fpganes/src/hdmi/svo_tmds.v",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hdmi/svo_tmds.v",
    "Type" : "verilog"
   },
   {
-   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/NES/fpganes/src/hq2x.v",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hq2x.v",
    "Type" : "verilog"
   },
   {
-   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/NES/fpganes/src/hw_led.v",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hw_led.v",
    "Type" : "verilog"
   },
   {
-   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/NES/fpganes/src/hw_uart.v",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hw_uart.v",
    "Type" : "verilog"
   },
   {
-   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/NES/fpganes/src/mmu.v",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/mmu.v",
    "Type" : "verilog"
   },
   {
-   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/NES/fpganes/src/nes.v",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/nes.v",
    "Type" : "verilog"
   },
   {
-   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/NES/fpganes/src/ppu.v",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ppu.v",
    "Type" : "verilog"
   },
   {
-   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/NES/fpganes/src/psram_memory_interface_hs/psram_memory_interface_hs_B16.v",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/psram_memory_interface_hs_2ch/psram_memory_interface_hs_WB16.v",
    "Type" : "verilog"
   },
   {
-   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/NES/fpganes/src/rs232c_tx_rx.v",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/rs232c_tx_rx.v",
    "Type" : "verilog"
   },
   {
-   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/NES/fpganes/src/ukp2nes.v",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ukp2nes.v",
    "Type" : "verilog"
   },
   {
-   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/NES/fpganes/src/ukprom.v",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/ukprom.v",
    "Type" : "verilog"
   },
   {
-   "Path" : "D:/DATA/Qiita/Github/tang-nano-9K/NES/fpganes/src/vga.v",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/vga.v",
    "Type" : "verilog"
   }
  ],
@@ -121,8 +121,8 @@
 
  ],
  "LoopLimit" : 2000,
- "ResultFile" : "D:/DATA/Qiita/Github/tang-nano-9K/NES/fpganes/impl/temp/rtl_parser.result",
- "Top" : "",
- "VerilogStd" : "verilog_2001",
+ "ResultFile" : "C:/kitahard/Tang_Nano_9K/fpganes/impl/temp/rtl_parser.result",
+ "Top" : "NES_TN9",
+ "VerilogStd" : "sysv",
  "VhdlStd" : "vhdl_93"
 }

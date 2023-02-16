@@ -29,12 +29,15 @@
         <File path="src/mmu.v" type="file.verilog" enable="1"/>
         <File path="src/nes.v" type="file.verilog" enable="1"/>
         <File path="src/ppu.v" type="file.verilog" enable="1"/>
-        <File path="src/psram_memory_interface_hs/psram_memory_interface_hs_B16.v" type="file.verilog" enable="1"/>
+        <File path="src/psram_memory_interface_hs_2ch/psram_memory_interface_hs_WB16.v" type="file.verilog" enable="1"/>
         <File path="src/rs232c_tx_rx.v" type="file.verilog" enable="1"/>
         <File path="src/ukp2nes.v" type="file.verilog" enable="1"/>
         <File path="src/ukprom.v" type="file.verilog" enable="1"/>
         <File path="src/vga.v" type="file.verilog" enable="1"/>
         <File path="src/NES_TN9.cst" type="file.cst" enable="1"/>
-        <File path="src/gao/fpganes_cpu.rao" type="file.gao" enable="0"/>
+        <File path="src/gao/fpganes_cpu.rao" type="file.gao" enable="1"/>
+        <File path="src/gao/fpganes_mem0.rao" type="file.gao" enable="0"/>
+        <File path="src/gao/fpganes_mem1.rao" type="file.gao" enable="0"/>
+        <File path="src/gao/fpganes_ppu.rao" type="file.gao" enable="0"/>
     </FileList>
 </Project>

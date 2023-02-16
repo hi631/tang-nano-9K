@@ -447,8 +447,8 @@ module MMC5(input clk, input ce, input reset,
   always @(posedge clk) begin
     if (ce) begin
       if (prg_write && prg_ain[15:10] == 6'b010100) begin // $5000-$53FF
-        if (prg_ain <= 16'h5113)
-          $write("%X <= %X (%d)\n", prg_ain, prg_din, ppu_scanline);
+        // if (prg_ain <= 16'h5113)
+        //   $write("%X <= %X (%d)\n", prg_ain, prg_din, ppu_scanline);
         casez(prg_ain[9:0])
         10'h100: prg_mode <= prg_din[1:0];
         10'h101: chr_mode <= prg_din[1:0];
@@ -599,7 +599,7 @@ module MMC5(input clk, input ce, input reset,
       // Name table fetch
       if (insplit || mirrbits[0] == 0) chr_dout = (extended_ram_mode[1] ? 8'b0 : last_read_ram);
       else begin
-        $write("Inserting filltile!\n");
+//        $write("Inserting filltile!\n");
         chr_dout = fill_tile;
       end
     end else begin
@@ -624,7 +624,8 @@ module MMC5(input clk, input ce, input reset,
   reg [7:0] prgsel;
   always @* begin
     casez({prg_mode, prg_ain[15:13]})
-    5'b??_0??: prgsel = {5'b1xxxx, prg_ram_bank};                // $6000-$7FFF all modes
+//    5'b??_0??: prgsel = {5'b1xxxx, prg_ram_bank};                // $6000-$7FFF all modes
+    5'b??_0??: prgsel = {5'b10000, prg_ram_bank};                // $6000-$7FFF all modes
     5'b00_1??: prgsel = {1'b1, prg_bank_3[6:2], prg_ain[14:13]}; // $8000-$FFFF mode 0, 32kB (prg_bank_3, skip 2 bits)
 
     5'b01_10?: prgsel = {      prg_bank_1[7:1], prg_ain[13]};    // $8000-$BFFF mode 1, 16kB (prg_bank_1, skip 1 bit)
@@ -919,7 +920,7 @@ module Mapper15(input clk, input ce, input reset,
       {prg_rom_bank_mode, prg_rom_bank_lowbit, mirroring, prg_rom_bank} <= {prg_ain[1:0], prg_din[7:0]};
   end
   reg [6:0] prg_bank;
-  always begin
+  always @(*) begin
     casez({prg_rom_bank_mode, prg_ain[14]})
     // Bank mode 0 ( 32K ) / CPU $8000-$BFFF: Bank B / CPU $C000-$FFFF: Bank (B OR 1)
     3'b00_0: prg_bank = {prg_rom_bank, prg_ain[13]};
@@ -1000,7 +1001,7 @@ module Mapper28(input clk, input ce, input reset,
       end
     end
     
-    always begin
+    always @(*) begin
       // mirroring mode
       casez(mode[1:0])
       2'b0?   :   vram_a10 = {mode[0]};        // 1 screen lower
@@ -1198,7 +1199,7 @@ module Mapper68(input clk, input ce, input reset,
   assign prg_allow = prg_ain[15] && !prg_write;
 
   reg [6:0] chrout;  
-  always begin
+  always @(*) begin
     casez(chr_ain[12:11])
     0: chrout = chr_bank_0;
     1: chrout = chr_bank_1;
@@ -1280,7 +1281,7 @@ module Mapper69(input clk, input ce, input reset,
       endcase
     end
   end
-  always begin
+  always @(*) begin
     casez(mirroring[1:0])
     2'b00   :   vram_a10 = {chr_ain[10]};    // vertical
     2'b01   :   vram_a10 = {chr_ain[11]};    // horizontal
@@ -1289,14 +1290,15 @@ module Mapper69(input clk, input ce, input reset,
   end
   reg [4:0] prgout;
   reg [7:0] chrout;
-  always begin
+  always @(*) begin
     casez(prg_ain[15:13])
     3'b011:  prgout = prg_bank[0];
     3'b100:  prgout = prg_bank[1];
     3'b101:  prgout = prg_bank[2];
     3'b110:  prgout = prg_bank[3];
     3'b111:  prgout = 5'b11111;
-    default: prgout = 5'bxxxxx;
+//    default: prgout = 5'bxxxxx;
+    default: prgout = 5'b00000;
     endcase
     chrout = chr_bank[chr_ain[12:10]];
   end
@@ -1327,7 +1329,7 @@ module Mapper71(input clk, input ce, input reset,
     ciram_select <= 0;
   end else if (ce) begin
     if (prg_ain[15] && prg_write) begin
-      $write("%X <= %X (bank = %x)\n", prg_ain, prg_din, prg_bank);
+      // $write("%X <= %X (bank = %x)\n", prg_ain, prg_din, prg_bank);
       if (!prg_ain[14] && mapper232) // $8000-$BFFF Outer bank select (only on iNES 232)
         prg_bank[3:2] <= prg_din[4:3];
       if (prg_ain[14:13] == 0)       // $8000-$9FFF Fire Hawk Mirroring
@@ -1337,7 +1339,7 @@ module Mapper71(input clk, input ce, input reset,
     end
   end
   reg [3:0] prgout;
-  always begin
+  always @(*) begin
     casez({prg_ain[14], mapper232})
     2'b0?: prgout = prg_bank;
     2'b10: prgout = 4'b1111;
@@ -1424,7 +1426,7 @@ module NesEvent(input clk, input ce, input reset,
   end
   // In the official tournament, 'C' was closed, and the others were open, so the counter had to reach $2800000.
   assign irq = (counter[29:25] == 5'b10100);
-  always begin
+  always @(*) begin
     if (!prg_ain[15]) begin
       // WRAM is always routed as usual.
       prg_aout = mmc1_aout; 
@@ -1745,8 +1747,16 @@ module MultiMapper(input clk, input ce, input ppu_ce, input reset,
       chr_aout[19:0] = {chr_aout[19:13] & chr_mask, chr_aout[12:0]};
     // Remap the CHR address into VRAM, if needed.
     chr_aout = vram_ce ? {11'b11_0000_0000_0, vram_a10, chr_ain[9:0]} : chr_aout;
-    prg_aout = (prg_ain < 'h2000) ? {11'b11_1000_0000_0, prg_ain[10:0]} : prg_aout;
-    prg_allow = prg_allow || (prg_ain < 'h2000);
+
+    if(~flags[17]) begin
+      prg_aout = (prg_ain < 'h2000) ? {11'b11_1000_0000_0, prg_ain[10:0]} : prg_aout;
+      prg_allow = prg_allow || (prg_ain < 'h2000);
+    end else begin
+      prg_aout = (prg_ain < 'h2000)       ? {11'b11_1000_0000_0, prg_ain[10:0]} : 
+                 (prg_ain[15:13]==3'b011) ? { 9'b01_1110_000, prg_ain[12:0]}    :
+                  prg_aout;
+      prg_allow = prg_allow || (prg_ain < 'h2000) || (prg_ain[15:13]==3'b011);
+    end
   end
 endmodule
 
