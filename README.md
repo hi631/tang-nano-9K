@@ -22,7 +22,7 @@ The explanation is described in Qiita. (Japanese)
 <br>
 Tang-Nano-9Kで出来る事を色々やって見た
 <br>
-説明はQiitaに記載。
+説明はQiitaに記載。 
 <br>
 <br>
 1.[Tang-Nano-9KでBasicを動かす](https://qiita.com/hi631/items/9c0428a3f046c7b1db47)
