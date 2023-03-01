@@ -1,0 +1,43 @@
+I tried various things that can be done with Tang-Nano-9K
+
+The explanation is described in Qiita. (Japanese)
+
+
+1.[Run Basic with Tang-Nano-9K](https://qiita.com/hi631/items/9c0428a3f046c7b1db47)
+
+2. [Running CPM80 (now) with Tang-Nano-9K](https://qiita.com/hi631/items/cffb0329c0eb778cff21)
+
+3. [Run CP/M-68K (now) with Tang-Nano-9K](https://qiita.com/hi631/items/dd2eb4f89e73a66f532f)
+
+4. [Using Tang-Nano-9K to run DOS with one chip](https://qiita.com/hi631/items/8b847f3415743b602766)
+
+5. [Using the Tang-Nano-9K to run NES with a single chip] (https://qiita.com/hi631/items/27330b1d433ea947a13d)
+
+6. [Connect gamepad to NES running Tang-Nano-9K via USB](https://qiita.com/hi631/items/4f263ca676e4be14b9f8)
+
+7. [Make NES CHR.ROM that runs on Tang-Nano-9K into DRAM so that large-capacity cartridges can run](https://qiita.com/hi631/items/e171fe63a5e93fd410f8)
+
+8. [NES audio HDMI output and SD card activation that works with Tang-Nano-9K] (https://qiita.com/hi631/items/7079518a6d49ee9f7b21)
+
+
+
+Tang-Nano-9Kで出来る事を色々やって見た
+
+説明はQiitaに記載。
+
+
+1.[Tang-Nano-9KでBasicを動かす](https://qiita.com/hi631/items/9c0428a3f046c7b1db47)
+
+2.[Tang-Nano-9Kで(今更)CPM80を動かす](https://qiita.com/hi631/items/cffb0329c0eb778cff21)
+
+3.[Tang-Nano-9Kで(今更)CP/M-68Kを動かす](https://qiita.com/hi631/items/dd2eb4f89e73a66f532f)
+
+4.[Tang-Nano-9Kを使い倒して、ワンチップで(今更)DOSを動かす](https://qiita.com/hi631/items/8b847f3415743b602766)
+
+5.[Tang-Nano-9Kを使い倒して、ワンチップで(今更)ＮＥＳを動かす](https://qiita.com/hi631/items/27330b1d433ea947a13d)
+
+6.[Tang-Nano-9Kで動くＮＥＳに、ゲームパッドをUSBで繋ぐ](https://qiita.com/hi631/items/4f263ca676e4be14b9f8)
+
+7.[Tang-Nano-9Kで動くＮＥＳのCHR.ROMのDRAM化し、大容量カートリッジが動くようにする](https://qiita.com/hi631/items/e171fe63a5e93fd410f8)
+
+8.[Tang-Nano-9Kで動作するＮＥＳの音声HDMI出力化とSDカード起動](https://qiita.com/hi631/items/7079518a6d49ee9f7b21)
