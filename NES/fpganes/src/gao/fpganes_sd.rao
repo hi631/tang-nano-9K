@@ -2,71 +2,47 @@
 <GAO_CONFIG>
     <Version>3.0</Version>
     <Mode>Standard</Mode>
-    <AoCore index="0" sample_clock="memory/clk_mctr" trig_type="0" storage_depth="512" window_num="1" capture_amount="512" trigger_pos="100" module_name="NES_TN9" force_trigger_by_falling_edge="true">
+    <AoCore index="0" sample_clock="clk" trig_type="0" storage_depth="1024" window_num="1" capture_amount="1024" trigger_pos="100" module_name="NES_TN9" force_trigger_by_falling_edge="false">
         <SignalList>
-            <Signal>memory/psram1_cs</Signal>
-            <Signal>memory/psram1_csu</Signal>
-            <Signal>memory/cmd1</Signal>
-            <Signal>memory/cmd_en1</Signal>
-            <Signal>memory/rd_valid1</Signal>
-            <Signal>memory/ps_dtac1</Signal>
-            <Bus name="memory/tmcnt1[5:0]">
-                <Signal>memory/tmcnt1[5]</Signal>
-                <Signal>memory/tmcnt1[4]</Signal>
-                <Signal>memory/tmcnt1[3]</Signal>
-                <Signal>memory/tmcnt1[2]</Signal>
-                <Signal>memory/tmcnt1[1]</Signal>
-                <Signal>memory/tmcnt1[0]</Signal>
+            <Signal>clk_spi</Signal>
+            <Signal>sdinit</Signal>
+            <Signal>sdrd</Signal>
+            <Signal>load_stb</Signal>
+            <Bus name="load_input[7:0]">
+                <Signal>load_input[7]</Signal>
+                <Signal>load_input[6]</Signal>
+                <Signal>load_input[5]</Signal>
+                <Signal>load_input[4]</Signal>
+                <Signal>load_input[3]</Signal>
+                <Signal>load_input[2]</Signal>
+                <Signal>load_input[1]</Signal>
+                <Signal>load_input[0]</Signal>
             </Bus>
-            <Bus name="memory/addr_ppu[21:0]">
-                <Signal>memory/addr_ppu[21]</Signal>
-                <Signal>memory/addr_ppu[20]</Signal>
-                <Signal>memory/addr_ppu[19]</Signal>
-                <Signal>memory/addr_ppu[18]</Signal>
-                <Signal>memory/addr_ppu[17]</Signal>
-                <Signal>memory/addr_ppu[16]</Signal>
-                <Signal>memory/addr_ppu[15]</Signal>
-                <Signal>memory/addr_ppu[14]</Signal>
-                <Signal>memory/addr_ppu[13]</Signal>
-                <Signal>memory/addr_ppu[12]</Signal>
-                <Signal>memory/addr_ppu[11]</Signal>
-                <Signal>memory/addr_ppu[10]</Signal>
-                <Signal>memory/addr_ppu[9]</Signal>
-                <Signal>memory/addr_ppu[8]</Signal>
-                <Signal>memory/addr_ppu[7]</Signal>
-                <Signal>memory/addr_ppu[6]</Signal>
-                <Signal>memory/addr_ppu[5]</Signal>
-                <Signal>memory/addr_ppu[4]</Signal>
-                <Signal>memory/addr_ppu[3]</Signal>
-                <Signal>memory/addr_ppu[2]</Signal>
-                <Signal>memory/addr_ppu[1]</Signal>
-                <Signal>memory/addr_ppu[0]</Signal>
-            </Bus>
-            <Bus name="memory/ps_mdo1[7:0]">
-                <Signal>memory/ps_mdo1[7]</Signal>
-                <Signal>memory/ps_mdo1[6]</Signal>
-                <Signal>memory/ps_mdo1[5]</Signal>
-                <Signal>memory/ps_mdo1[4]</Signal>
-                <Signal>memory/ps_mdo1[3]</Signal>
-                <Signal>memory/ps_mdo1[2]</Signal>
-                <Signal>memory/ps_mdo1[1]</Signal>
-                <Signal>memory/ps_mdo1[0]</Signal>
+            <Bus name="ineshd[0][7:0]">
+                <Signal>ineshd[0][7]</Signal>
+                <Signal>ineshd[0][6]</Signal>
+                <Signal>ineshd[0][5]</Signal>
+                <Signal>ineshd[0][4]</Signal>
+                <Signal>ineshd[0][3]</Signal>
+                <Signal>ineshd[0][2]</Signal>
+                <Signal>ineshd[0][1]</Signal>
+                <Signal>ineshd[0][0]</Signal>
             </Bus>
         </SignalList>
         <Triggers>
             <Trigger index="0">
                 <SignalList>
-                    <Signal>ps_calib</Signal>
+                    <Signal>sdrd</Signal>
                 </SignalList>
             </Trigger>
             <Trigger index="1">
                 <SignalList>
-                    <Signal>memory/pswr1</Signal>
+                    <Signal>reset</Signal>
                 </SignalList>
             </Trigger>
             <Trigger index="2">
                 <SignalList>
-                    <Signal>memory/psram1_csu</Signal>
+                    <Signal>load_stb</Signal>
                 </SignalList>
             </Trigger>
             <Trigger index="3"/>
@@ -85,9 +61,9 @@
         </Triggers>
         <MatchUnits>
             <MatchUnit index="0" enabled="0" match_type="1" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="R" value1="0" trigger="0"/>
-            <MatchUnit index="1" enabled="0" match_type="1" counter_enable="0" counter_width="4" counter="11" countinuous="0" func="0" value0="R" value1="0" trigger="1"/>
+            <MatchUnit index="1" enabled="0" match_type="1" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="F" value1="0" trigger="1"/>
             <MatchUnit index="2" enabled="1" match_type="1" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="R" value1="0" trigger="2"/>
-            <MatchUnit index="3" enabled="0" match_type="1" counter_enable="1" counter_width="4" counter="11" countinuous="0" func="0" value0="R" value1="0" trigger="3"/>
+            <MatchUnit index="3" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
             <MatchUnit index="4" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
             <MatchUnit index="5" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
             <MatchUnit index="6" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
@@ -105,5 +81,5 @@
             <Expression>M2</Expression>
         </Expressions>
     </AoCore>
-    <GAO_ID>1111001000011100</GAO_ID>
+    <GAO_ID>0010100111110011</GAO_ID>
 </GAO_CONFIG>

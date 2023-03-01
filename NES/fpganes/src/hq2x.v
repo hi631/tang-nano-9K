@@ -97,7 +97,7 @@ module Blend(input [5:0] rule, input disable_hq2x,
   InnerBlend inner_blend3(op, Input1[14:10], Input2[14:10], Input3[14:10], Result[14:10]);
 endmodule
 
-module Hq2x(input clk,
+module Hq2x(input clk, input clk_pixel,
             input [14:0] inputpixel,
             input disable_hq2x,
             input reset_frame,
@@ -236,8 +236,11 @@ end
 reg last_reset_line;
 initial last_reset_line = 0;
 
-always @(posedge clk) begin
+always @(posedge clk_pixel) begin
   outpixel <= outbuf[{!curbuf, read_x}];
+end
+always @(posedge clk) begin
+  //outpixel <= outbuf[{!curbuf, read_x}];
   if (writestep) begin
     offs <= offs + 9'b1;
     first_pixel <= 0;

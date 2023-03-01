@@ -2,65 +2,30 @@
 <GAO_CONFIG>
     <Version>3.0</Version>
     <Mode>Standard</Mode>
-    <AoCore index="0" sample_clock="memory/clk_mctr" trig_type="0" storage_depth="2048" window_num="1" capture_amount="2048" trigger_pos="100" module_name="NES_TN9" force_trigger_by_falling_edge="true">
+    <AoCore index="0" sample_clock="clk" trig_type="0" storage_depth="1024" window_num="1" capture_amount="1024" trigger_pos="10" module_name="NES_TN9" force_trigger_by_falling_edge="false">
         <SignalList>
-            <Signal>memory/psr_mt00</Signal>
-            <Signal>memory/psram0_cs</Signal>
-            <Signal>memory/psram0_csu</Signal>
-            <Signal>memory/rd_valid0</Signal>
-            <Bus name="memory/psbp0[3:0]">
-                <Signal>memory/psbp0[3]</Signal>
-                <Signal>memory/psbp0[2]</Signal>
-                <Signal>memory/psbp0[1]</Signal>
-                <Signal>memory/psbp0[0]</Signal>
+            <Signal>BTN[1]</Signal>
+            <Bus name="bresct[7:0]">
+                <Signal>bresct[7]</Signal>
+                <Signal>bresct[6]</Signal>
+                <Signal>bresct[5]</Signal>
+                <Signal>bresct[4]</Signal>
+                <Signal>bresct[3]</Signal>
+                <Signal>bresct[2]</Signal>
+                <Signal>bresct[1]</Signal>
+                <Signal>bresct[0]</Signal>
             </Bus>
-            <Signal>memory/cmd_en0</Signal>
-            <Bus name="memory/tmcnt0[5:0]">
-                <Signal>memory/tmcnt0[5]</Signal>
-                <Signal>memory/tmcnt0[4]</Signal>
-                <Signal>memory/tmcnt0[3]</Signal>
-                <Signal>memory/tmcnt0[2]</Signal>
-                <Signal>memory/tmcnt0[1]</Signal>
-                <Signal>memory/tmcnt0[0]</Signal>
-            </Bus>
-            <Bus name="memory/psdi0[7:0]">
-                <Signal>memory/psdi0[7]</Signal>
-                <Signal>memory/psdi0[6]</Signal>
-                <Signal>memory/psdi0[5]</Signal>
-                <Signal>memory/psdi0[4]</Signal>
-                <Signal>memory/psdi0[3]</Signal>
-                <Signal>memory/psdi0[2]</Signal>
-                <Signal>memory/psdi0[1]</Signal>
-                <Signal>memory/psdi0[0]</Signal>
-            </Bus>
-            <Signal>load_stb</Signal>
-            <Bus name="load/ctr[3:0]">
-                <Signal>load/ctr[3]</Signal>
-                <Signal>load/ctr[2]</Signal>
-                <Signal>load/ctr[1]</Signal>
-                <Signal>load/ctr[0]</Signal>
-            </Bus>
-            <Signal>memory/cpucrtCS</Signal>
+            <Signal>breset</Signal>
+            <Signal>bresdly</Signal>
         </SignalList>
         <Triggers>
             <Trigger index="0">
                 <SignalList>
-                    <Signal>memory/cpucrtCS</Signal>
+                    <Signal>BTN[1]</Signal>
                 </SignalList>
             </Trigger>
-            <Trigger index="1">
-                <SignalList>
-                    <Signal>memory/cmd_en0</Signal>
-                </SignalList>
-            </Trigger>
-            <Trigger index="2">
-                <SignalList>
-                    <Bus restorename="load/state[1:0]">
-                        <Signal>load/state[1]</Signal>
-                        <Signal>load/state[0]</Signal>
-                    </Bus>
-                </SignalList>
-            </Trigger>
+            <Trigger index="1"/>
+            <Trigger index="2"/>
             <Trigger index="3"/>
             <Trigger index="4"/>
             <Trigger index="5"/>
@@ -77,9 +42,9 @@
         </Triggers>
         <MatchUnits>
             <MatchUnit index="0" enabled="1" match_type="1" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="R" value1="0" trigger="0"/>
-            <MatchUnit index="1" enabled="0" match_type="1" counter_enable="0" counter_width="4" counter="4" countinuous="0" func="0" value0="R" value1="0" trigger="1"/>
-            <MatchUnit index="2" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="01" value1="00" trigger="2"/>
-            <MatchUnit index="3" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="1111111111111110" value1="0000000000000000" trigger="3"/>
+            <MatchUnit index="1" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="2" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="3" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
             <MatchUnit index="4" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
             <MatchUnit index="5" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
             <MatchUnit index="6" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
@@ -97,5 +62,5 @@
             <Expression>M0</Expression>
         </Expressions>
     </AoCore>
-    <GAO_ID>0111101010101100</GAO_ID>
+    <GAO_ID>0111011011100101</GAO_ID>
 </GAO_CONFIG>

@@ -29,19 +29,11 @@
    "Type" : "verilog"
   },
   {
-   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/gowin_clkdiv/gowin_clkdiv2.v",
-   "Type" : "verilog"
-  },
-  {
    "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/gowin_rpll/gowin_rpll.v",
    "Type" : "verilog"
   },
   {
-   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/gowin_rpll/gowin_rpll1.v",
-   "Type" : "verilog"
-  },
-  {
-   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/gowin_sp/gowin_sp_16KBx8.v",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/gowin_rpll/gowin_rpll2.v",
    "Type" : "verilog"
   },
   {
@@ -49,27 +41,43 @@
    "Type" : "verilog"
   },
   {
-   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/gowin_sp/gowin_sp_32KBx8.v",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hdmi+a/audio_clock_regeneration_packet.sv",
    "Type" : "verilog"
   },
   {
-   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/gowin_sp/gowin_sp_8KBx8.v",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hdmi+a/audio_info_frame.sv",
    "Type" : "verilog"
   },
   {
-   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hdmi/svo_enc.v",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hdmi+a/audio_sample_packet.sv",
    "Type" : "verilog"
   },
   {
-   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hdmi/svo_hdmi_out.v",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hdmi+a/auxiliary_video_information_info_frame.sv",
    "Type" : "verilog"
   },
   {
-   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hdmi/svo_tcard.v",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hdmi+a/hdmi.sv",
    "Type" : "verilog"
   },
   {
-   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hdmi/svo_tmds.v",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hdmi+a/packet_assembler.sv",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hdmi+a/packet_picker.sv",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hdmi+a/serializer.sv",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hdmi+a/source_product_description_info_frame.sv",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/hdmi+a/tmds_channel.sv",
    "Type" : "verilog"
   },
   {
@@ -115,6 +123,11 @@
   {
    "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/vga.v",
    "Type" : "verilog"
+  },
+  {
+   "Library" : "work",
+   "Path" : "C:/kitahard/Tang_Nano_9K/fpganes/src/sd_controller.vhd",
+   "Type" : "vhdl"
   }
  ],
  "IncludePath" : [

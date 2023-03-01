@@ -2,30 +2,12 @@
 <GAO_CONFIG>
     <Version>3.0</Version>
     <Mode>Standard</Mode>
-    <AoCore index="0" sample_clock="clk" trig_type="0" storage_depth="1024" window_num="1" capture_amount="1024" trigger_pos="10" module_name="NES_TN9" force_trigger_by_falling_edge="false">
+    <AoCore index="0" sample_clock="clk_pixel" trig_type="0" storage_depth="2048" window_num="1" capture_amount="2048" trigger_pos="1000" module_name="NES_TN9" force_trigger_by_falling_edge="false">
         <SignalList>
-            <Bus name="vga_r[3:0]">
-                <Signal>vga_r[3]</Signal>
-                <Signal>vga_r[2]</Signal>
-                <Signal>vga_r[1]</Signal>
-                <Signal>vga_r[0]</Signal>
-            </Bus>
-            <Bus name="vga_g[3:0]">
-                <Signal>vga_g[3]</Signal>
-                <Signal>vga_g[2]</Signal>
-                <Signal>vga_g[1]</Signal>
-                <Signal>vga_g[0]</Signal>
-            </Bus>
-            <Bus name="vga_b[3:0]">
-                <Signal>vga_b[3]</Signal>
-                <Signal>vga_b[2]</Signal>
-                <Signal>vga_b[1]</Signal>
-                <Signal>vga_b[0]</Signal>
-            </Bus>
-            <Signal>vga_v</Signal>
-            <Signal>vga_h</Signal>
-            <Signal>vga/hpicture</Signal>
-            <Signal>vga/inpicture</Signal>
+            <Signal>vga/vga_h</Signal>
+            <Signal>vga/vga_hh</Signal>
+            <Signal>hdmia/hsync</Signal>
+            <Signal>hdmia/hsync0</Signal>
             <Bus name="vga/h[9:0]">
                 <Signal>vga/h[9]</Signal>
                 <Signal>vga/h[8]</Signal>
@@ -38,14 +20,25 @@
                 <Signal>vga/h[1]</Signal>
                 <Signal>vga/h[0]</Signal>
             </Bus>
-            <Signal>u_hdmi/hsync_n</Signal>
-            <Signal>u_hdmi/vsync_n</Signal>
-            <Signal>u_hdmi/hblnk_n</Signal>
+            <Bus name="hdmia/cx[9:0]">
+                <Signal>hdmia/cx[9]</Signal>
+                <Signal>hdmia/cx[8]</Signal>
+                <Signal>hdmia/cx[7]</Signal>
+                <Signal>hdmia/cx[6]</Signal>
+                <Signal>hdmia/cx[5]</Signal>
+                <Signal>hdmia/cx[4]</Signal>
+                <Signal>hdmia/cx[3]</Signal>
+                <Signal>hdmia/cx[2]</Signal>
+                <Signal>hdmia/cx[1]</Signal>
+                <Signal>hdmia/cx[0]</Signal>
+            </Bus>
+            <Signal>hdmia/true_hdmi_output.video_guard</Signal>
+            <Signal>hdmia/true_hdmi_output.video_preamble</Signal>
         </SignalList>
         <Triggers>
             <Trigger index="0">
                 <SignalList>
-                    <Signal>vga_h</Signal>
+                    <Signal>vga/vga_h</Signal>
                 </SignalList>
             </Trigger>
             <Trigger index="1"/>
@@ -86,5 +79,79 @@
             <Expression>M0</Expression>
         </Expressions>
     </AoCore>
-    <GAO_ID>0111110111110000</GAO_ID>
+    <AoCore index="1" sample_clock="vga/vga_h" trig_type="0" storage_depth="2048" window_num="1" capture_amount="2048" trigger_pos="1000" module_name="NES_TN9" force_trigger_by_falling_edge="true">
+        <SignalList>
+            <Signal>vga/vga_v</Signal>
+            <Signal>hdmia/vsync</Signal>
+            <Signal>hdmia/vsync0</Signal>
+            <Bus name="vga/v[9:0]">
+                <Signal>vga/v[9]</Signal>
+                <Signal>vga/v[8]</Signal>
+                <Signal>vga/v[7]</Signal>
+                <Signal>vga/v[6]</Signal>
+                <Signal>vga/v[5]</Signal>
+                <Signal>vga/v[4]</Signal>
+                <Signal>vga/v[3]</Signal>
+                <Signal>vga/v[2]</Signal>
+                <Signal>vga/v[1]</Signal>
+                <Signal>vga/v[0]</Signal>
+            </Bus>
+            <Bus name="hdmia/cy[9:0]">
+                <Signal>hdmia/cy[9]</Signal>
+                <Signal>hdmia/cy[8]</Signal>
+                <Signal>hdmia/cy[7]</Signal>
+                <Signal>hdmia/cy[6]</Signal>
+                <Signal>hdmia/cy[5]</Signal>
+                <Signal>hdmia/cy[4]</Signal>
+                <Signal>hdmia/cy[3]</Signal>
+                <Signal>hdmia/cy[2]</Signal>
+                <Signal>hdmia/cy[1]</Signal>
+                <Signal>hdmia/cy[0]</Signal>
+            </Bus>
+        </SignalList>
+        <Triggers>
+            <Trigger index="0">
+                <SignalList>
+                    <Signal>vga/vga_v</Signal>
+                </SignalList>
+            </Trigger>
+            <Trigger index="1"/>
+            <Trigger index="2"/>
+            <Trigger index="3"/>
+            <Trigger index="4"/>
+            <Trigger index="5"/>
+            <Trigger index="6"/>
+            <Trigger index="7"/>
+            <Trigger index="8"/>
+            <Trigger index="9"/>
+            <Trigger index="10"/>
+            <Trigger index="11"/>
+            <Trigger index="12"/>
+            <Trigger index="13"/>
+            <Trigger index="14"/>
+            <Trigger index="15"/>
+        </Triggers>
+        <MatchUnits>
+            <MatchUnit index="0" enabled="1" match_type="1" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="R" value1="0" trigger="0"/>
+            <MatchUnit index="1" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="2" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="3" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="4" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="5" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="6" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="7" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="8" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="9" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="10" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="11" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="12" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="13" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="14" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+            <MatchUnit index="15" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
+        </MatchUnits>
+        <Expressions type="Static">
+            <Expression>M0</Expression>
+        </Expressions>
+    </AoCore>
+    <GAO_ID>0101101001001001</GAO_ID>
 </GAO_CONFIG>

@@ -1,0 +1,64 @@
+{
+ "Files" : [
+  {
+   "Path" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/gowin_clkdiv/gowin_clkdiv.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/gowin_rpll/gowin_rpll2.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/hdmi+a/audio_clock_regeneration_packet.sv",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/hdmi+a/audio_info_frame.sv",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/hdmi+a/audio_sample_packet.sv",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/hdmi+a/auxiliary_video_information_info_frame.sv",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/hdmi+a/hdmi.sv",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/hdmi+a/packet_assembler.sv",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/hdmi+a/packet_picker.sv",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/hdmi+a/serializer.sv",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/hdmi+a/source_product_description_info_frame.sv",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/hdmi+a/tmds_channel.sv",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/top.sv",
+   "Type" : "verilog"
+  }
+ ],
+ "IncludePath" : [
+
+ ],
+ "LoopLimit" : 2000,
+ "ResultFile" : "C:/kitahard/Tang_Nano_9K/hdmi+a/impl/temp/rtl_parser.result",
+ "Top" : "top",
+ "VerilogStd" : "sysv",
+ "VhdlStd" : "vhdl_93"
+}

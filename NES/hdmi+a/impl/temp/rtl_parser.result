@@ -1,0 +1,128 @@
+[
+ {
+  "InstFile" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/top.sv",
+  "InstLine" : 1,
+  "InstName" : "top",
+  "ModuleFile" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/top.sv",
+  "ModuleLine" : 1,
+  "ModuleName" : "top",
+  "SubInsts" : [
+   {
+    "InstFile" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/top.sv",
+    "InstLine" : 23,
+    "InstName" : "u_pll",
+    "ModuleFile" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/gowin_rpll/gowin_rpll2.v",
+    "ModuleLine" : 9,
+    "ModuleName" : "Gowin_rPLL2"
+   },
+   {
+    "InstFile" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/top.sv",
+    "InstLine" : 24,
+    "InstName" : "u_div_5",
+    "ModuleFile" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/gowin_clkdiv/gowin_clkdiv.v",
+    "ModuleLine" : 9,
+    "ModuleName" : "Gowin_CLKDIV"
+   },
+   {
+    "InstFile" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/top.sv",
+    "InstLine" : 51,
+    "InstName" : "hdmi",
+    "ModuleFile" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/hdmi+a/hdmi.sv",
+    "ModuleLine" : 4,
+    "ModuleName" : "hdmi",
+    "SubInsts" : [
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/hdmi+a/hdmi.sv",
+      "InstLine" : 277,
+      "InstName" : "true_hdmi_output.packet_picker",
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/hdmi+a/packet_picker.sv",
+      "ModuleLine" : 4,
+      "ModuleName" : "packet_picker",
+      "SubInsts" : [
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/hdmi+a/packet_picker.sv",
+        "InstLine" : 51,
+        "InstName" : "audio_clock_regeneration_packet",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/hdmi+a/audio_clock_regeneration_packet.sv",
+        "ModuleLine" : 5,
+        "ModuleName" : "audio_clock_regeneration_packet"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/hdmi+a/packet_picker.sv",
+        "InstLine" : 131,
+        "InstName" : "audio_sample_packet",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/hdmi+a/audio_sample_packet.sv",
+        "ModuleLine" : 8,
+        "ModuleName" : "audio_sample_packet"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/hdmi+a/packet_picker.sv",
+        "InstLine" : 137,
+        "InstName" : "auxiliary_video_information_info_frame",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/hdmi+a/auxiliary_video_information_info_frame.sv",
+        "ModuleLine" : 5,
+        "ModuleName" : "auxiliary_video_information_info_frame"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/hdmi+a/packet_picker.sv",
+        "InstLine" : 140,
+        "InstName" : "source_product_description_info_frame",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/hdmi+a/source_product_description_info_frame.sv",
+        "ModuleLine" : 5,
+        "ModuleName" : "source_product_description_info_frame"
+       },
+       {
+        "InstFile" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/hdmi+a/packet_picker.sv",
+        "InstLine" : 143,
+        "InstName" : "audio_info_frame",
+        "ModuleFile" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/hdmi+a/audio_info_frame.sv",
+        "ModuleLine" : 5,
+        "ModuleName" : "audio_info_frame"
+       }
+      ]
+     },
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/hdmi+a/hdmi.sv",
+      "InstLine" : 279,
+      "InstName" : "true_hdmi_output.packet_assembler",
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/hdmi+a/packet_assembler.sv",
+      "ModuleLine" : 4,
+      "ModuleName" : "packet_assembler"
+     },
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/hdmi+a/hdmi.sv",
+      "InstLine" : 330,
+      "InstName" : "tmds_gen[0].tmds_channel",
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/hdmi+a/tmds_channel.sv",
+      "ModuleLine" : 4,
+      "ModuleName" : "tmds_channel"
+     },
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/hdmi+a/hdmi.sv",
+      "InstLine" : 330,
+      "InstName" : "tmds_gen[1].tmds_channel",
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/hdmi+a/tmds_channel.sv",
+      "ModuleLine" : 4,
+      "ModuleName" : "tmds_channel"
+     },
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/hdmi+a/hdmi.sv",
+      "InstLine" : 330,
+      "InstName" : "tmds_gen[2].tmds_channel",
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/hdmi+a/tmds_channel.sv",
+      "ModuleLine" : 4,
+      "ModuleName" : "tmds_channel"
+     },
+     {
+      "InstFile" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/hdmi+a/hdmi.sv",
+      "InstLine" : 334,
+      "InstName" : "serializer",
+      "ModuleFile" : "C:/kitahard/Tang_Nano_9K/hdmi+a/src/hdmi+a/serializer.sv",
+      "ModuleLine" : 2,
+      "ModuleName" : "serializer"
+     }
+    ]
+   }
+  ]
+ }
+]

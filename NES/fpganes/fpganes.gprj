@@ -12,17 +12,19 @@
         <File path="src/compat.v" type="file.verilog" enable="1"/>
         <File path="src/cpu.v" type="file.verilog" enable="1"/>
         <File path="src/gowin_clkdiv/gowin_clkdiv.v" type="file.verilog" enable="1"/>
-        <File path="src/gowin_clkdiv/gowin_clkdiv2.v" type="file.verilog" enable="1"/>
         <File path="src/gowin_rpll/gowin_rpll.v" type="file.verilog" enable="1"/>
-        <File path="src/gowin_rpll/gowin_rpll1.v" type="file.verilog" enable="1"/>
-        <File path="src/gowin_sp/gowin_sp_16KBx8.v" type="file.verilog" enable="1"/>
+        <File path="src/gowin_rpll/gowin_rpll2.v" type="file.verilog" enable="1"/>
         <File path="src/gowin_sp/gowin_sp_2KBx8.v" type="file.verilog" enable="1"/>
-        <File path="src/gowin_sp/gowin_sp_32KBx8.v" type="file.verilog" enable="1"/>
-        <File path="src/gowin_sp/gowin_sp_8KBx8.v" type="file.verilog" enable="1"/>
-        <File path="src/hdmi/svo_enc.v" type="file.verilog" enable="1"/>
-        <File path="src/hdmi/svo_hdmi_out.v" type="file.verilog" enable="1"/>
-        <File path="src/hdmi/svo_tcard.v" type="file.verilog" enable="1"/>
-        <File path="src/hdmi/svo_tmds.v" type="file.verilog" enable="1"/>
+        <File path="src/hdmi+a/audio_clock_regeneration_packet.sv" type="file.verilog" enable="1"/>
+        <File path="src/hdmi+a/audio_info_frame.sv" type="file.verilog" enable="1"/>
+        <File path="src/hdmi+a/audio_sample_packet.sv" type="file.verilog" enable="1"/>
+        <File path="src/hdmi+a/auxiliary_video_information_info_frame.sv" type="file.verilog" enable="1"/>
+        <File path="src/hdmi+a/hdmi.sv" type="file.verilog" enable="1"/>
+        <File path="src/hdmi+a/packet_assembler.sv" type="file.verilog" enable="1"/>
+        <File path="src/hdmi+a/packet_picker.sv" type="file.verilog" enable="1"/>
+        <File path="src/hdmi+a/serializer.sv" type="file.verilog" enable="1"/>
+        <File path="src/hdmi+a/source_product_description_info_frame.sv" type="file.verilog" enable="1"/>
+        <File path="src/hdmi+a/tmds_channel.sv" type="file.verilog" enable="1"/>
         <File path="src/hq2x.v" type="file.verilog" enable="1"/>
         <File path="src/hw_led.v" type="file.verilog" enable="1"/>
         <File path="src/hw_uart.v" type="file.verilog" enable="1"/>
@@ -34,10 +36,8 @@
         <File path="src/ukp2nes.v" type="file.verilog" enable="1"/>
         <File path="src/ukprom.v" type="file.verilog" enable="1"/>
         <File path="src/vga.v" type="file.verilog" enable="1"/>
+        <File path="src/sd_controller.vhd" type="file.vhdl" enable="1"/>
         <File path="src/NES_TN9.cst" type="file.cst" enable="1"/>
-        <File path="src/gao/fpganes_cpu.rao" type="file.gao" enable="1"/>
-        <File path="src/gao/fpganes_mem0.rao" type="file.gao" enable="0"/>
-        <File path="src/gao/fpganes_mem1.rao" type="file.gao" enable="0"/>
-        <File path="src/gao/fpganes_ppu.rao" type="file.gao" enable="0"/>
+        <File path="src/gao/fpganes_vga.rao" type="file.gao" enable="0"/>
     </FileList>
 </Project>

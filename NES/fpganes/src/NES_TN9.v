@@ -1,6 +1,7 @@
 // Copyright (c) 2012-2013 Ludvig Strigeus
 // This program is GPL Licensed. See COPYING for the full license.
 `timescale 1ns / 1ps
+`define UseSDCard
 `define UseGamepad
 
 module NES_TN9(
@@ -23,6 +24,11 @@ module NES_TN9(
 		inout  wire [15:0]	IO_psram_dq,
 		output wire [1:0] 	O_psram_reset_n,
 		output wire [1:0] 	O_psram_cs_n,
+		// SDCARD
+		output wire		SD_CS,		// CS
+		output wire 	SD_SCK,		// SCLK
+		output wire 	SD_CMD,		// MOSI
+		input  wire  	SD_DAT0,	// MISO
         // Debug.I/O
         input 			UART_RXD,
         output 			UART_TXD,
@@ -30,20 +36,20 @@ module NES_TN9(
         output [5:0]	LED
         );
 
-  assign LED = ~{load_mode, ~conerr, 1'b0,load_resct};
-  wire breset = ~BTN[1];
+  assign LED = ~{load_mode, ~conerr, sdrun,load_resct};
+  wire breset = ~BTN[1] || ~pll_lock;
+  wire reset  =  breset || ~ps_calib;
   wire [15:0] SW = 16'b1111111111111111;
 
+  wire clk       = clk_21;	// 21.6MHz <- 21.477M(Rea)
+  wire clk_pixel = clk_25;	// 25.2MHz <- 25.175MHz(Rea)
+  wire clk_dram  = clk_173;	// 172.8MHz
+  wire clk_21, clk_25, clk_126, clk_173;	// clk_126:125.875
   wire pll_lock1,pll_lock2;
   wire pll_lock = pll_lock1 && pll_lock2;
-  wire clk_25, clk_126, clk_126b, clk_173, clk_252;	// p5:125.875  p:25.175
-  wire clk;	// 21.477M(ORG) -> 21.6M
-  wire clk_pixel = clk_25;
-  wire clk_dram  = clk_173;
 
-  Gowin_rPLL  cpuclk( .clkin(clk27M), .clkout(clk_173), .clkoutd(clk), .lock(pll_lock1) );
-  Gowin_rPLL1 memclk( .clkin(clk27M), .clkout(clk_252), .clkoutd(clk_126), .lock(pll_lock2) );
-  Gowin_CLKDIV2 u_div_2( .clkout(clk_126b), .hclkin(clk_252), .resetn(pll_lock) );
+  Gowin_rPLL  cpuclk( .clkin(clk27M), .clkout(clk_173), .clkoutd(clk_21), .lock(pll_lock1) );
+  Gowin_rPLL2 memclk( .clkin(clk27M), .clkout(clk_126), .lock(pll_lock2) );
   Gowin_CLKDIV  u_div_5( .clkout(clk_25),   .hclkin(clk_126), .resetn(pll_lock) );
 
     wire [3:0] vga_r, vga_g, vga_b;
@@ -55,16 +61,71 @@ module NES_TN9(
 	wire hsync_ns,vsync_ns;
 	wire hblnk;
 
-svo_hdmi_out u_hdmi (
-	.resetn(~breset), .clk_pixel(clk_25), .clk_5x_pixel(clk_126), .locked(pll_lock),
-	// input VGA
-	.rout(vga_r), .gout(vga_g), .bout(vga_b), .hsync_n(~vga_h),
-	.vsync_n(~vga_v), .hblnk_n(hblnk || vblnk),
-	// output signals
-	.tmds_clk_n(tmds_clk_n), .tmds_clk_p(tmds_clk_p),
-	.tmds_d_n(tmds_d_n), .tmds_d_p(tmds_d_p), .tmds_ts() );
+    // ========================================================================
+    // Audio
+    // ========================================================================
+  logic clk_audio;		// 49KHz = 25.175/512
+  logic [8:0] audio_clk_div;
+  always_comb clk_audio = audio_clk_div[8];
+always_ff @(posedge clk_pixel) begin
+    if (reset) audio_clk_div <= 0;
+    else       audio_clk_div <= audio_clk_div + 1;
+end
 
-  // UART(ROM.Load & Debug)
+logic [15:0] audio_sample_word [1:0] = '{16'd0, 16'd0};
+logic [12:0] tinterval;
+wire sound_on = (BTN[0] && tinterval[11]) || (~BTN[0] && tinterval[10]);
+always @(posedge clk_audio) begin
+  tinterval <= tinterval + 1;
+  //if(sound_on) begin
+  //  audio_sample_word[0][12:8] <= audio_sample_word[0][12:8] + 5'h1; 
+  //  audio_sample_word[1][12:8] <= audio_sample_word[1][12:8] - 5'h1;
+  //end
+	audio_sample_word[0] <= sound_signal;
+	audio_sample_word[1] <= sound_signal;
+end
+
+logic [23:0] rgb = 24'd0;
+logic [9:0] cx, cy, screen_start_x, screen_start_y, frame_width, frame_height, screen_width, screen_height;
+always @(posedge clk_pixel)
+  rgb <= {cx == 0 ? ~8'd0 : 8'd0, cy == 0 ? ~8'd0 : 8'd0, cx == screen_width - 1'd1 || cy == screen_width - 1'd1 ? ~8'd0 : 8'd0};
+
+// 640x480 @ 59.94Hz
+wire [23:0] rgb_dd = {vga_r,4'h0,vga_g,4'h0,vga_b,4'h0};
+hdmia #(.VIDEO_ID_CODE(1), .VIDEO_REFRESH_RATE(59.94), .AUDIO_RATE(48000), .AUDIO_BIT_WIDTH(16)) hdmia(
+  .reset(reset),
+  .clk_pixel_x5(clk_126),
+  .clk_pixel(clk_pixel),
+  .clk_audio(clk_audio),
+  .rgb(rgb_dd),
+  .audio_sample_word(audio_sample_word),
+  .tmds_clk_n(tmds_clk_n),
+  .tmds_clk_p(tmds_clk_p),
+  .tmds_d_n(tmds_d_n),
+  .tmds_d_p(tmds_d_p),
+  .cx(cx),
+  .cy(cy),
+  .hsynci(vga_h),
+  .vsynci(vga_v),
+  .hsync0(hsync0),
+  .vsync0(vsync0),
+  .frame_width(frame_width),
+  .frame_height(frame_height),
+  .screen_width(screen_width),
+  .screen_height(screen_height)
+);
+
+  wire [14:0] doubler_pixel;
+  wire doubler_sync, hvlnk, vblnk;
+  wire [9:0] vga_hcounter, doubler_x;
+  wire [9:0] vga_vcounter, vga_ch, vga_cv;
+  
+  VgaDriver vga(
+    clk, clk_pixel, cx, vga_ch, vga_cv, vga_h, vga_v, vga_r, vga_g, vga_b, 
+    vga_hcounter, vga_vcounter, doubler_x, hblnk, vblnk, doubler_pixel,
+    doubler_sync, hsync0, vsync0, SW[0]);
+  
+ // UART(ROM.Load & Debug)
   wire [7:0] uart_data;
   wire [7:0] uart_addr;
   wire       uart_write;
@@ -72,8 +133,10 @@ svo_hdmi_out u_hdmi (
   UartDemux uart_demux(clk, 1'b0, UART_RXD, uart_data, uart_addr, uart_write, uart_error);
 
   // load
-  wire [7:0] load_input = uart_data;
-  wire       load_stb   = (uart_addr == 8'h37) && uart_write;
+  //wire [7:0] load_input = uart_data;
+  //wire       load_stb   = (uart_addr == 8'h37) && uart_write;
+  wire [7:0] load_input = sdrun ? sdohld : uart_data;
+  wire       load_stb   = sdrun ? sdrd   : (uart_addr == 8'h37) && uart_write;
   reg  [7:0] load_conf;
   reg  [7:0] load_btn, load_btn_2;
   always @(posedge clk) begin
@@ -94,13 +157,15 @@ svo_hdmi_out u_hdmi (
   wire load_done, load_fail;
   Gameload load(clk, load_reset, load_input, load_stb,
            load_addr, load_write_data, load_write,
-           mapper_flags, load_done, load_state, load_fail);
+           mapper_flags, load_done, load_state, load_fail,
+           SD_CS, SD_SCK, SD_CMD, SD_DAT0 );
 
   wire clk_test = (load_stb || load_stbd) && clk_mctr;
   reg load_stbd;
   always @(posedge clk) begin
     load_stbd <= load_stb;
   end
+
   // NES Palette -> RGB332 conversion
   //reg [14:0] pallut[0:63];
   //initial $readmemh("nes_palette.txt", pallut);
@@ -150,12 +215,12 @@ svo_hdmi_out u_hdmi (
   end
 
   // NES is clocked at every 4th cycle.
-  //wire reset_nes = (breset || !load_done || !ps_calib);
+  //wire reset_nes = (reset || !load_done || !ps_calib);
   //wire run_mem = (nes_ce == 0) && !reset_nes;
   reg  reset_nes, run_nes;
   always @(posedge clk) begin
     nes_ce <= nes_ce + 1;
-    reset_nes <= (breset || !load_done || !ps_calib);
+    reset_nes <= (reset || !load_done || !ps_calib);
     run_nes   <= (nes_ce == 3) && !reset_nes;
   end
 
@@ -191,7 +256,7 @@ svo_hdmi_out u_hdmi (
          mem_din_cpu, mem_din_ppu,
 		 // PSRAM
          psr_maddr, psr_mdin, psr_wen,
-         psr_mt00, breset, clk_dram, 	// clk(221.6)x8=172.8MHz
+         psr_mt00, reset, clk_dram, 	// clk(221.6)x8=172.8MHz
 		 pll_lock,	ps_calib, clk_mctr,
 		 O_psram_ck, O_psram_ck_n,
 		 IO_psram_rwds, IO_psram_dq,
@@ -205,15 +270,8 @@ svo_hdmi_out u_hdmi (
       ramfail <= ram_busy && load_write || ramfail;
   end
 */
-  wire [14:0] doubler_pixel;
-  wire doubler_sync, hvlnk, vblnk;
-  wire [9:0] vga_hcounter, doubler_x;
-  wire [9:0] vga_vcounter;
-  
-  VgaDriver vga(clk, vga_h, vga_v, vga_r, vga_g, vga_b, vga_hcounter, vga_vcounter, doubler_x, hblnk, vblnk, doubler_pixel, doubler_sync, SW[0]);
-  
   wire [14:0] pixel_in = pallut[color];
-  Hq2x hq2x(clk, pixel_in, SW[5], 
+  Hq2x hq2x(clk, clk_pixel, pixel_in, SW[5], 
             scanline[8],        // reset_frame
             (cycle[8:3] == 42), // reset_line
             doubler_x,          // 0-511 for line 1, or 512-1023 for line 2.
@@ -250,11 +308,105 @@ svo_hdmi_out u_hdmi (
   reg  [23:0] clk_div;
   always @(posedge clk) begin
     clk_div <= clk_div + 1; clk_div21d <= clk_div[21];
-    if(~breset) load_resct <= 0;
+    if(~reset) load_resct <= 0;
     else if(clk_div[21] && ~clk_div21d && ~load_res) load_resct <= load_resct + 1;
   end
 
+	//-----------------------------
+	// SD-CARD Reader
+	//-----------------------------
+	reg  sdrun = 0;
+	reg  sdrd;
+	reg  [7:0]  sdohld;
+`ifdef UseSDCard
+	reg  [2:0]  rseq,aseq,aseqc;
+	reg  		sdwr,sdcbsy,sdinitd;
+	reg  [23:0] sdadr;
+	reg  [2:0]  sdra;
+	reg  [7:0]  sdin,sdout;
+	wire [7:0]  sdout;
+	reg  [9:0]  sdbbcnt;
+
+	reg  [7:0]  ineshd [0:7];
+	wire [15:0] sdsecdl = {3'b000,{ineshd[4],1'b0} + {1'b0,ineshd[5]},4'h1};	// x512byte 
+	reg  [15:0] sdsecct;
+
+	wire clk_spi = clk;	// 21.6MHz
+always @(posedge reset or posedge clk_spi) begin
+	if(reset) begin
+		rseq <= 3'h0; aseq <= 3'h0;	sdcbsy <= 0;
+		sdadr <= 0; sdra <= 3'b000; sdrd <= 0; sdwr <= 0;
+		sdinitd <= 0; sdrun <= 0; ineshd[4] <= 8'hff; sdsecct <= 0;
+	end else begin
+		if(sdinit) sdinitd <= 1; 
+		if(sdsecdl>=sdsecct) begin
+			if(~sdinit && ~sdcbsy && sdinitd) begin 
+				sdsecct <= sdsecct + 1; sdcbsy <= 1; sdrun <= 1; aseq <= 1;
+			end
+		end else sdrun <= 0;
+		//
+		case(rseq)
+			3'h1: begin sdbbcnt <= -1; sdcbsy <= 1; rseq <= 3'h2; end
+			3'h2: if(sdbkbsy && !sdinit) rseq <= 3'h3; // INIT & BLOCK Not.Busy 
+			3'h3: begin sdra <= 3'b000; sdrd <= 1'b0; sdbbcnt <= sdbbcnt + 1; rseq <= 3'h4; end
+			3'h4: if(sdbbcnt[9:0]==10'h200) begin
+					if(!sdbkbsy) begin sdcbsy <= 0; rseq <= 0; sdadr <= sdadr + 23'd1; end // Read(512B).End
+				  end else
+					if(sdrdrdy) begin 
+						sdohld <= sdout; sdrd <= 1; rseq <= 3'h3;
+						if(sdsecct==1 && sdbbcnt<6) ineshd[sdbbcnt[2:0]] <= sdout;
+						//if(sdsecct==sdsecdl && sdbbcnt>=16) sdrun <= 0;
+					end 
+		endcase;
+		//
+		case(aseq)
+			3'h1: begin sdra <= 3'b010; aseqc <= 3'h0; aseq <= 3'h2; end
+			3'h2: begin  aseq <= 3'h3; end
+			3'h3: begin  
+					case(aseqc)
+						3'h0: begin sdcbsy <= 1; sdra <= 3'b010; sdin <= sdadr[ 7: 0]; end
+						3'h1: begin sdra <= 3'b011; sdin <= sdadr[15: 8]; end
+						3'h2: begin sdra <= 3'b100; sdin <= sdadr[23:16]; end
+						3'h3: begin sdra <= 3'b001; sdin <= 8'h00; end
+						default: ;
+					endcase
+					aseq <= 3'h4;
+				end
+			3'h4: begin sdwr <= 1'b1; aseq <= 3'h5; end 
+			3'h5: begin 
+					sdwr <= 1'b0; aseqc <= aseqc + 3'h1;
+					if(aseqc<3'h3) aseq <= 3'h2;
+					else           aseq <= 3'h7; // Address Set.End
+				end
+			3'h7: begin rseq <= 1; aseq <= 3'h0; end
+			default: ;
+		endcase
+
+	end
+end
+
+// regAddr dataOut   n_rd(Rise)   n_wr(Rise)
+//  000    <= sdout  Data.Read    Data.Write              
+//  001    <= status              Start.Read(0)/Write(1)  0/1=DataIn/Out
+//  010 - 100 Block.Adr SDHC(7:0-15:8-23:16) SDSC(16:9-24:17-31:25)  
+//	status(7) <= '1' tx empty  status(6) <= '0' rx ready
+//	status(5) <= block_busy;   status(4) <= init_busy;
+	wire [7:0]  stout;
+	wire sdinit  = stout[4];
+	wire sdbkbsy = stout[5];
+	wire sdrdrdy = stout[6];
+sd_controller	sd1 (
+	.clk(clk_spi), .n_reset(!reset), .regAddr(sdra),
+	.n_wr(!sdwr), .n_rd(!sdrd),
+	.dataIn(sdin), .dataOut(sdout), .status(stout),
+	.sdCS(SD_CS), .sdMOSI(SD_CMD), .sdMISO(SD_DAT0), .sdSCLK(SD_SCK),
+	.driveLED()
+);
+`endif
+
+	//-----------------------------
 	// USB_KB
+	//-----------------------------
 	wire [7:0] btn_nes;
 	wire       conerr;
 `ifdef UseGamepad
@@ -270,7 +422,7 @@ svo_hdmi_out u_hdmi (
 
 	ukp2nes ukp2nes(
 		.usbclk(usbclk),		// 12MHz
-		.usbrst_n(~breset),		// reset
+		.usbrst_n(~reset),		// reset
 		.usb_dm(usb_dm), 
 		.usb_dp(usb_dp),
 		.btn_nes(btn_nes),
@@ -308,6 +460,13 @@ module MemoryController(
 		output wire [1:0] 	O_psram_cs_n
     );
         
+  wire cpumemCS = psr_maddr[21]   ==1'b0 || cpucrtCS;
+  wire cpuramCS = psr_maddr[21:18]==4'b1110; 
+  wire cpucrtCS = psr_maddr[21:18]==4'b1111;
+  wire ppumemCS = ppu_maddr[21:20]==2'b10; 
+  wire ppuramCS = ppu_maddr[21:18]==4'b1100; 
+  wire [7:0] cpumemdo, ppumemdo, cpuramdo, cpucrtdo, ppuramdo; 
+
   reg [23:0] ppu_maddr;
   reg [7:0]  ppu_mem_din;
   reg ppuwr;
@@ -333,24 +492,12 @@ module MemoryController(
     // ========================================================================
     // SRAM
     // ========================================================================
-  wire cpumemCS = psr_maddr[21]   ==1'b0;
-  wire ppumemCS = ppu_maddr[21:20]==2'b10; 
-  wire ppuramCS = ppu_maddr[21:18]==4'b1100; 
-  wire cpuramCS = psr_maddr[21:18]==4'b1110; 
-  wire cpucrtCS = ppu_maddr[21:18]==4'b1111;
-  wire [7:0] cpumemdo, ppumemdo, cpuramdo, cpucrtdo, ppuramdo; 
-  wire [7:0]  ppuDB = ppumemCS ? ppumemdo[7:0] : ppuramdo[7:0];  
-
     Gowin_SP_2KBx8 cpuram(
         .clk(clk), .reset(1'b0), .oce(1'b1), .ce(cpuramCS), .wre(psr_wen),
         .ad(psr_maddr[10:0]), .din(psr_mdin), .dout(cpuramdo[ 7:0]) );
     Gowin_SP_2KBx8 ppuram(
         .clk(clk), .reset(1'b0), .oce(1'b1), .ce(ppuramCS), .wre(ppuwr),
         .ad(ppu_maddr[10:0]), .din(ppu_mem_din), .dout(ppuramdo[ 7:0]) );
-    //Gowin_SP_32KBx8 ppumem(
-    //    .clk(clk), .reset(1'b0), .oce(1'b1), .ce(ppumemCS), .wre(ppuwr),
-    //    .ad(ppu_maddr[14:0]), .din(ppu_mem_din), .dout(ppumemdo[ 7:0]) );
-
     // ========================================================================
     // 4 MB(8bit) DRAM0
     // ========================================================================
@@ -481,7 +628,7 @@ module MemoryController(
 	wire ps_calib0,ps_calib1;
 	assign ps_calib = ps_calib0 && ps_calib1;
 	PSRAM_Memory_Interface_HS_WB16 your_instance_name(
-		.clk(clk), .rst_n(~reset), .memory_clk(clk_dram), .pll_lock(pll_lock),
+		.clk(clk), .rst_n(~breset), .memory_clk(clk_dram), .pll_lock(pll_lock),
 		.clk_out(clk_mctr), .init_calib0(ps_calib0), .init_calib1(ps_calib1),
 		.O_psram_ck(O_psram_ck), .O_psram_ck_n(O_psram_ck_n),
 		.O_psram_reset_n(O_psram_reset_n), .O_psram_cs_n(O_psram_cs_n),
@@ -494,14 +641,22 @@ module MemoryController(
 
 endmodule  // MemoryController
 
-// Module reads bytes and writes to proper address in ram.
-// Done is asserted when the whole game is loaded.
-// This parses iNES headers too.
+    // ========================================================================
+    // Gameload
+    // ========================================================================
+	// Module reads bytes and writes to proper address in ram.
+	// Done is asserted when the whole game is loaded.
+	// This parses iNES headers too.
 module Gameload(input clk, input reset,
          input [7:0] indata, input indata_stb,
          output reg [21:0] load_addr, output [7:0] load_data, output load_write,
          output [31:0] mapper_flags,
-         output reg done, output state, output error);
+         output reg done, output state, output error,
+		 output wire		SD_CS,		// CS
+		 output wire 	SD_SCK,		// SCLK
+		 output wire 	SD_CMD,		// MOSI
+		 input  wire  	SD_DAT0		// MISO
+);
   reg [1:0] state = 0;
   reg [7:0] prgsize;
   reg [3:0] ctr;
@@ -557,5 +712,6 @@ module Gameload(input clk, input reset,
       endcase
     end
   end
+
 endmodule
 
