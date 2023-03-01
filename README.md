@@ -51,4 +51,5 @@ DOS
 ![turboc.jpg](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/159764/c19e357a-5f68-42fd-7972-9b0480a0034c.jpeg)
 <br>
 NES
+![ukp_‘S‘Ì.jpg](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/159764/435c4344-4c81-e7c0-7587-43263bf0ed56.jpeg)
 ![nes-dq+m.jpg](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/159764/ac3194fa-8cd1-27ce-225a-1ec7147433b2.jpeg)
