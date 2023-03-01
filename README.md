@@ -41,4 +41,9 @@ Tang-Nano-9Kで出来る事を色々やって見た
 <br>
 8.[Tang-Nano-9Kで動作するＮＥＳの音声HDMI出力化とSDカード起動](https://qiita.com/hi631/items/7079518a6d49ee9f7b21)
 <br>
+![cpm68k_tn9k_68k.jpg](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/159764/04bb533a-64a9-0db2-2c0f-77b1332238f6.jpeg)
+![Image2.jpg](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/159764/ff26e75b-a2c7-96b1-a79f-c0a3e1f35949.jpeg)
+<br>
+![turboc.jpg](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/159764/c19e357a-5f68-42fd-7972-9b0480a0034c.jpeg)
+<br>
 ![nes-dq+m.jpg](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/159764/ac3194fa-8cd1-27ce-225a-1ec7147433b2.jpeg)
